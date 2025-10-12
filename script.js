@@ -1,18 +1,20 @@
 // Function to handle the delayed redirection
-function handleCardClick() {
+function handleCardClick(event) {
+    event.preventDefault(); // Prevent accidental rapid clicks or default behavior
+    
     const targetURL = "/anonigview";
     const delayMilliseconds = 3000; // 3 seconds delay
     
     const actionCard = document.getElementById('actionCard');
     const statusMessage = document.getElementById('statusMessage');
 
-    // 1. Disable the card and change cursor
+    // 1. Disable the card and change cursor (UX feedback)
     actionCard.style.pointerEvents = 'none';
     actionCard.style.cursor = 'default';
     
-    // 2. Display the status message
+    // 2. Display the status message immediately
     statusMessage.textContent = "Hang on! We are redirecting you...";
-    statusMessage.classList.add('visible');
+    statusMessage.classList.add('visible'); // This makes the message appear
     
     // 3. Set the timed redirect
     setTimeout(() => {
