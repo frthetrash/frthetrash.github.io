@@ -1,27 +1,27 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pro Minimalist</title>
-
-  <!-- Link to CSS -->
-  <link rel="stylesheet" href="style.css" />
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Premium UI</title>
+    <link rel="stylesheet" href="style.css">
+    </head>
 <body>
-  <!-- The logo is the first visible element -->
-  <main id="root" class="root" role="main">
-    <img class="brand-logo" src="https://raw.githubusercontent.com/frthetrash/website/main/png.png" alt="Brand logo" />
+    <main class="container">
+        <img 
+            src="https://raw.githubusercontent.com/frthetrash/website/main/png.png" 
+            alt="Website Logo" 
+            class="logo"
+        >
 
-    <h1 class="greeting primary">Hello, User</h1>
-    <p class="greeting secondary">Choose what you need</p>
+        <h1 class="gradient-text primary-text">Hello, User</h1>
+        <p class="gradient-text secondary-text">Choose what you need</p>
 
-    <div class="action-block" id="actionBlock" role="button" tabindex="0" aria-pressed="false" aria-label="Open Instagram viewer anonymously">
-      <span class="action-text">Instagram Viewer Anonymous without account</span>
-    </div>
-  </main>
+        <div class="action-card" id="actionCard">
+            <span class="gradient-text card-text">Instagram Viewer Anonymous without account</span>
+        </div>
+    </main>
 
-  <!-- Link to JS -->
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
