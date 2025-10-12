@@ -3,21 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello, User</title>
+    <title>Welcome</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <main class="content-wrapper">
         <img src="https://raw.githubusercontent.com/frthetrash/website/main/png.png" alt="Brand Logo" class="logo">
 
-        <h1 class="welcome-text gradient-text">Hello, User</h1>
-
-        <div id="actionCard" class="action-card">
-            <p class="gradient-text">Instagram Viewer Anonymous without account</p>
+        <div class="welcome-container">
+            <h1 class="welcome-text">Hello, User</h1>
+            <h2 class="subtitle-text">Choose what you need</h2>
         </div>
 
-        <p id="statusMessage" class="status-message">Hang on! We are redirecting you...</p>
+        <div id="actionCard" class="action-card">
+            <p class="instagram-gradient-text">Anonymous Instagram Viewer</p>
+        </div>
     </main>
+
+    <div id="redirectPopup" class="popup-overlay">
+        <div class="popup-content">
+            <span id="closePopupBtn" class="close-button">&times;</span>
+            <p class="warning-gradient-text">Hang on! We are redirecting you...</p>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
