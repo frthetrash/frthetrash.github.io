@@ -1,36 +1,22 @@
-// Function to handle the delayed redirection
-function handleCardClick(event) {
-    event.preventDefault(); // Prevent accidental rapid clicks or default behavior
-    
-    const targetURL = "/anonigview";
-    const delayMilliseconds = 3000; // 3 seconds delay
-    
+document.addEventListener('DOMContentLoaded', () => {
+    // Select the interactive elements from the DOM
     const actionCard = document.getElementById('actionCard');
     const statusMessage = document.getElementById('statusMessage');
 
-    // 1. Disable the card and change cursor (UX feedback)
-    actionCard.style.pointerEvents = 'none';
-    actionCard.style.cursor = 'default';
-    
-    // 2. Display the status message immediately
-    statusMessage.textContent = "Hang on! We are redirecting you...";
-    statusMessage.classList.add('visible'); // This makes the message appear
-    
-    // 3. Set the timed redirect
-    setTimeout(() => {
-        window.location.href = targetURL;
-    }, delayMilliseconds);
-    
-    console.log(`Action card clicked. Starting ${delayMilliseconds / 1000}s redirect to: ${targetURL}`);
-}
+    // Check if the required elements exist before adding an event listener
+    if (actionCard && statusMessage) {
+        actionCard.addEventListener('click', () => {
+            // 1. Immediately disable the card visually and functionally
+            actionCard.classList.add('disabled');
 
-// Attach the event listener when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    const actionCard = document.getElementById('actionCard');
-    
-    if (actionCard) {
-        actionCard.addEventListener('click', handleCardClick);
-    } else {
-        console.error("Action card element not found. Check ID 'actionCard'.");
+            // 2. Make the status message visible
+            statusMessage.classList.add('visible');
+
+            // 3. Set a 3-second delay before redirection
+            setTimeout(() => {
+                // 4. Redirect the user to the target URL
+                window.location.href = '/anonigview';
+            }, 3000); // 3000 milliseconds = 3 seconds
+        });
     }
 });
