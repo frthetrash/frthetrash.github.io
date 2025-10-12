@@ -1,6 +1,7 @@
-/* --- Global Styles & Resets --- */
+/* --- Global Styles & Custom Properties --- */
 :root {
-    --gradient: linear-gradient(90deg, #0073E6, #00C4CC);
+    --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    --warning-gradient: linear-gradient(90deg, #FFD60A, #FF9100);
 }
 
 * {
@@ -14,16 +15,13 @@ body {
     color: #FFFFFF;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     min-height: 100vh;
-
-    /* Perfect Centering */
     display: grid;
     place-items: center;
-
-    /* Subtle Background Pattern */
     background-image:
         linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
     background-size: 50px 50px;
+    overflow: hidden; /* Prevents scrollbars from popup */
 }
 
 /* --- Content Styling --- */
@@ -33,6 +31,7 @@ body {
     align-items: center;
     gap: 2.5rem;
     padding: 1rem;
+    text-align: center;
 }
 
 .logo {
@@ -40,27 +39,24 @@ body {
     height: auto;
 }
 
-.gradient-text {
-    background: var(--gradient);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-weight: 600;
-}
-
 .welcome-text {
-    /* Responsive Typography */
     font-size: clamp(2rem, 8vw, 4.5rem);
-
-    /* Typing Animation Setup */
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
     border-right: 0.1em solid white;
-    width: 11ch; /* Number of characters in "Hello, User" */
-    animation:
-        typing 2s steps(11, end),
-        blink-caret 0.75s step-end infinite;
+    width: 11ch;
+    animation: typing 2s steps(11, end), blink-caret 0.75s step-end infinite;
+}
+
+.subtitle-text {
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 400;
+    margin-top: 0.5rem;
+    opacity: 0; /* Initially hidden */
+    animation: fadeIn 1s ease-in-out forwards;
+    animation-delay: 2s; /* Waits for typing animation to finish */
 }
 
 /* --- Action Card --- */
@@ -71,7 +67,6 @@ body {
     border-radius: 20px;
     padding: 1.5rem 2.5rem;
     cursor: pointer;
-    text-align: center;
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
     max-width: 90vw;
 }
@@ -81,28 +76,84 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
-.action-card p {
-    font-size: clamp(1rem, 2.5vw, 1.25rem);
-}
-
-/* --- Status Message & JS States --- */
-.status-message {
-    display: none; /* Initially hidden */
-    color: rgba(255, 255, 255, 0.7);
-    font-size: clamp(0.9rem, 2vw, 1rem);
-    margin-top: -1rem; /* Adjust positioning */
-}
-
-.status-message.visible {
-    display: block;
-}
-
 .action-card.disabled {
     pointer-events: none;
     opacity: 0.4;
     transform: translateY(0);
-    box-shadow: none;
 }
+
+/* --- Gradient Text Classes --- */
+.instagram-gradient-text {
+    background: var(--instagram-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 600;
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
+}
+
+.warning-gradient-text {
+    background: var(--warning-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    font-weight: 600;
+}
+
+/* --- Popup Styling --- */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.popup-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.popup-content {
+    background: rgba(30, 30, 30, 0.5);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 2rem 3rem;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.popup-overlay.visible .popup-content {
+    transform: scale(1);
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.close-button:hover {
+    color: #FFFFFF;
+}
+
 
 /* --- Keyframe Animations --- */
 @keyframes typing {
@@ -113,4 +164,9 @@ body {
 @keyframes blink-caret {
     from, to { border-color: transparent; }
     50% { border-color: white; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
