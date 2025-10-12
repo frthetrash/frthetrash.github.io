@@ -1,172 +1,175 @@
-/* --- Global Styles & Custom Properties --- */
+/* --- Global & Root Variables --- */
 :root {
-    --instagram-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    --warning-gradient: linear-gradient(90deg, #FFD60A, #FF9100);
+    --primary-blue: #0073E6;
+    --secondary-cyan: #00C4CC;
+    --insta-gold: #FEDA75;
+    --insta-orange: #FA7E1E;
+    --insta-magenta: #D62A7D;
+    --warn-yellow: #FFC700;
+    --warn-red: #FF4500;
+    --background-color: #000000;
+    --text-color: #FFFFFF;
+    --pattern-color: rgba(255, 255, 255, 0.04);
 }
 
-* {
+/* --- Base & Body Setup --- */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
 }
 
 body {
-    background-color: #000000;
-    color: #FFFFFF;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    min-height: 100vh;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     display: grid;
     place-items: center;
+    text-align: center;
+    overflow: hidden;
+
+    /* Subtle Background Grid Pattern */
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 50px 50px;
-    overflow: hidden; /* Prevents scrollbars from popup */
+        linear-gradient(to right, var(--pattern-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--pattern-color) 1px, transparent 1px);
+    background-size: 30px 30px;
 }
 
-/* --- Content Styling --- */
 .content-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2.5rem;
-    padding: 1rem;
-    text-align: center;
+    gap: 1.5rem;
 }
 
-.logo {
-    width: clamp(80px, 15vw, 120px);
-    height: auto;
+/* --- Gradient Text Utility --- */
+.text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
 }
 
+.blue-gradient {
+    background-image: linear-gradient(90deg, var(--primary-blue), var(--secondary-cyan));
+}
+
+.instagram-gradient {
+    background-image: linear-gradient(90deg, var(--insta-gold), var(--insta-orange), var(--insta-magenta));
+}
+
+.warning-gradient {
+     background-image: linear-gradient(90deg, var(--warn-yellow), var(--warn-red));
+}
+
+/* --- Typography & Animations --- */
 .welcome-text {
-    font-size: clamp(2rem, 8vw, 4.5rem);
-    display: inline-block;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 600;
+    line-height: 1.1;
+    position: relative;
+    color: var(--text-color); /* Fallback color */
+    
+    /* Typing Animation */
+    width: 8.5ch; /* Characters in "Hello, User" */
     overflow: hidden;
     white-space: nowrap;
-    border-right: 0.1em solid white;
-    width: 11ch;
-    animation: typing 2s steps(11, end), blink-caret 0.75s step-end infinite;
+    border-right: 4px solid var(--text-color);
+    animation: typing 2.5s steps(12, end), blink-caret .75s step-end infinite;
 }
 
-.subtitle-text {
-    font-size: clamp(1.1rem, 3vw, 1.5rem);
-    color: rgba(255, 255, 255, 0.7);
-    font-weight: 400;
-    margin-top: 0.5rem;
-    opacity: 0; /* Initially hidden */
-    animation: fadeIn 1s ease-in-out forwards;
-    animation-delay: 2s; /* Waits for typing animation to finish */
+.secondary-text {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    font-weight: 500;
 }
 
-/* --- Action Card --- */
-.action-card {
-    background: rgba(255, 255, 255, 0.05);
+/* Keyframe Animations */
+@keyframes typing {
+    from { width: 0 }
+    to { width: 8.5ch }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--text-color); }
+}
+
+/* --- Premium Action Card --- */
+.card {
+    padding: clamp(1.5rem, 4vw, 2.5rem) clamp(2rem, 5vw, 4rem);
+    margin-top: 2rem;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-radius: 20px;
-    padding: 1.5rem 2.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
-    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
-    max-width: 90vw;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.action-card:hover {
+.card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-.action-card.disabled {
-    pointer-events: none;
-    opacity: 0.4;
-    transform: translateY(0);
+.card-text {
+    font-size: clamp(1.1rem, 3.5vw, 1.75rem);
+    font-weight: 500;
 }
 
-/* --- Gradient Text Classes --- */
-.instagram-gradient-text {
-    background: var(--instagram-gradient);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-weight: 600;
-    font-size: clamp(1rem, 2.5vw, 1.25rem);
-}
-
-.warning-gradient-text {
-    background: var(--warning-gradient);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    font-size: clamp(1rem, 4vw, 1.2rem);
-    font-weight: 600;
-}
-
-/* --- Popup Styling --- */
-.popup-overlay {
+/* --- Redirection Status Modal --- */
+.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: grid;
     place-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.modal-overlay.hidden {
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease;
 }
 
-.popup-overlay.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.popup-content {
-    background: rgba(30, 30, 30, 0.5);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    padding: 2rem 3rem;
-    border-radius: 20px;
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
     position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
 }
 
-.popup-overlay.visible .popup-content {
-    transform: scale(1);
+.modal-text {
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    font-weight: 600;
 }
 
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 1.75rem;
-    color: rgba(255, 255, 255, 0.5);
+.cancel-button {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.6);
+    background: none;
+    border: none;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.close-button:hover {
-    color: #FFFFFF;
-}
-
-
-/* --- Keyframe Animations --- */
-@keyframes typing {
-    from { width: 0; }
-    to { width: 11ch; }
-}
-
-@keyframes blink-caret {
-    from, to { border-color: transparent; }
-    50% { border-color: white; }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.cancel-button:hover {
+    color: var(--text-color);
+    transform: scale(1.1);
 }
