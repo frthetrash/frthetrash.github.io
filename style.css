@@ -1,113 +1,118 @@
 /* --- Global Styles & Resets --- */
 :root {
-  --gradient: linear-gradient(90deg, #0073E6, #00C4CC);
+    --gradient: linear-gradient(90deg, #0073E6, #00C4CC);
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-  background-color: #000000;
-  color: #FFFFFF;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  min-height: 100vh;
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
 
-  /* Perfect Centering */
-  display: grid;
-  place-items: center;
+    /* Perfect Centering */
+    display: grid;
+    place-items: center;
 
-  /* Subtle Background Pattern */
-  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 50px 50px;
+    /* Subtle Background Pattern */
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px;
 }
 
 /* --- Content Styling --- */
 .content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2.5rem;
-  padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 1rem;
 }
 
 .logo {
-  width: clamp(80px, 15vw, 120px);
-  height: auto;
+    width: clamp(80px, 15vw, 120px);
+    height: auto;
 }
 
 .gradient-text {
-  background: var(--gradient);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  font-weight: 600;
+    background: var(--gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: 600;
 }
 
 .welcome-text {
-  /* Responsive Typography */
-  font-size: clamp(2rem, 8vw, 4.5rem);
+    /* Responsive Typography */
+    font-size: clamp(2rem, 8vw, 4.5rem);
 
-  /* Typing Animation Setup */
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 0.1em solid white;
-  width: 11ch; /* Number of characters in "Hello, User" */
-  animation: typing 2s steps(11, end), blink-caret 0.75s step-end infinite;
+    /* Typing Animation Setup */
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 0.1em solid white;
+    width: 11ch; /* Number of characters in "Hello, User" */
+    animation:
+        typing 2s steps(11, end),
+        blink-caret 0.75s step-end infinite;
 }
 
 /* --- Action Card --- */
 .action-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 1.5rem 2.5rem;
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
-  max-width: 90vw;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 20px;
+    padding: 1.5rem 2.5rem;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    max-width: 90vw;
 }
 
 .action-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
 .action-card p {
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
+    font-size: clamp(1rem, 2.5vw, 1.25rem);
 }
 
 /* --- Status Message & JS States --- */
 .status-message {
-  display: none; /* Initially hidden */
-  color: rgba(255, 255, 255, 0.7);
-  font-size: clamp(0.9rem, 2vw, 1rem);
-  margin-top: -1rem; /* Adjust positioning */
+    display: none; /* Initially hidden */
+    color: rgba(255, 255, 255, 0.7);
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    margin-top: -1rem; /* Adjust positioning */
 }
 
 .status-message.visible {
-  display: block;
+    display: block;
 }
 
 .action-card.disabled {
-  pointer-events: none;
-  opacity: 0.4;
-  transform: translateY(0);
-  box-shadow: none;
+    pointer-events: none;
+    opacity: 0.4;
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* --- Keyframe Animations --- */
 @keyframes typing {
-  from { width: 0; }
-  to { width: 11ch; }
+    from { width: 0; }
+    to { width: 11ch; }
 }
 
 @keyframes blink-caret {
-  from, to { border-color: transparent; }
-  50% { border-color: white; }
+    from, to { border-color: transparent; }
+    50% { border-color: white; }
 }
+
+/*Hello User */
