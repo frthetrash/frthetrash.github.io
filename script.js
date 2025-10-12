@@ -1,18 +1,22 @@
 // Function to handle the redirection
 function handleCardClick() {
-    const targetURL = "/whenpopupisclicked";
-    // Redirect in the same tab
+    // Updated redirection path as requested
+    const targetURL = "/anonigview"; 
+    
+    // Redirect in the same tab, mimicking a smooth single-page application flow
     window.location.href = targetURL;
     
-    // Log the action (optional, for debugging)
-    console.log("Redirecting to: " + targetURL);
+    // Console confirmation
+    console.log("Action card clicked. Redirecting to: " + targetURL);
 }
 
-// Attach the event listener to the action card element
+// Attach the event listener when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     const actionCard = document.getElementById('actionCard');
     
     if (actionCard) {
         actionCard.addEventListener('click', handleCardClick);
+    } else {
+        console.error("Action card element not found. Check ID 'actionCard'.");
     }
 });
