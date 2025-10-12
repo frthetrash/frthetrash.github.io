@@ -1,175 +1,154 @@
-/* --- Global & Root Variables --- */
+/* --- Global Styles & Resets --- */
 :root {
-    --primary-blue: #0073E6;
-    --secondary-cyan: #00C4CC;
-    --insta-gold: #FEDA75;
-    --insta-orange: #FA7E1E;
-    --insta-magenta: #D62A7D;
-    --warn-yellow: #FFC700;
-    --warn-red: #FF4500;
-    --background-color: #000000;
-    --text-color: #FFFFFF;
-    --pattern-color: rgba(255, 255, 255, 0.04);
+  --gradient: linear-gradient(90deg, #0073E6, #00C4CC);
+  --insta-gradient: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4);
+  --warning-gradient: linear-gradient(90deg, #FFD200, #FF8800);
 }
 
-/* --- Base & Body Setup --- */
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-html, body {
-    height: 100%;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    overflow: hidden;
-
-    /* Subtle Background Grid Pattern */
-    background-image:
-        linear-gradient(to right, var(--pattern-color) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--pattern-color) 1px, transparent 1px);
-    background-size: 30px 30px;
+  background-color: #000;
+  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
+/* --- Content Layout --- */
 .content-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  padding: 1rem;
 }
 
-/* --- Gradient Text Utility --- */
-.text-gradient {
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    background-size: 200% auto;
+.logo {
+  width: clamp(80px, 15vw, 120px);
+  height: auto;
 }
 
-.blue-gradient {
-    background-image: linear-gradient(90deg, var(--primary-blue), var(--secondary-cyan));
+.gradient-text {
+  background: var(--gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 600;
+}
+
+.welcome-text {
+  font-size: clamp(2rem, 8vw, 4.5rem);
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 0.1em solid white;
+  width: 11ch;
+  animation:
+    typing 2s steps(11, end),
+    blink-caret 0.75s step-end infinite;
+}
+
+.sub-text {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* --- Action Card --- */
+.action-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 1.5rem 2.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  max-width: 90vw;
 }
 
 .instagram-gradient {
-    background-image: linear-gradient(90deg, var(--insta-gold), var(--insta-orange), var(--insta-magenta));
+  background: var(--insta-gradient);
+  color: white;
 }
 
-.warning-gradient {
-     background-image: linear-gradient(90deg, var(--warn-yellow), var(--warn-red));
+.action-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
 
-/* --- Typography & Animations --- */
-.welcome-text {
-    font-size: clamp(2.5rem, 8vw, 5rem);
-    font-weight: 600;
-    line-height: 1.1;
-    position: relative;
-    color: var(--text-color); /* Fallback color */
-    
-    /* Typing Animation */
-    width: 8.5ch; /* Characters in "Hello, User" */
-    overflow: hidden;
-    white-space: nowrap;
-    border-right: 4px solid var(--text-color);
-    animation: typing 2.5s steps(12, end), blink-caret .75s step-end infinite;
+.action-card p {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 500;
 }
 
-.secondary-text {
-    font-size: clamp(1rem, 3vw, 1.5rem);
-    font-weight: 500;
+/* Disabled State */
+.action-card.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+  transform: translateY(0);
+  box-shadow: none;
 }
 
-/* Keyframe Animations */
+/* --- Popup Message --- */
+.status-popup {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--warning-gradient);
+  color: #000;
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 280px;
+  max-width: 90vw;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.hidden {
+  display: none;
+}
+
+.popup-text {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #000;
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  font-weight: bold;
+}
+
+/* --- Animations --- */
 @keyframes typing {
-    from { width: 0 }
-    to { width: 8.5ch }
+  from { width: 0; }
+  to { width: 11ch; }
 }
 
 @keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: var(--text-color); }
+  from, to { border-color: transparent; }
+  50% { border-color: white; }
 }
 
-/* --- Premium Action Card --- */
-.card {
-    padding: clamp(1.5rem, 4vw, 2.5rem) clamp(2rem, 5vw, 4rem);
-    margin-top: 2rem;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.card-text {
-    font-size: clamp(1.1rem, 3.5vw, 1.75rem);
-    font-weight: 500;
-}
-
-/* --- Redirection Status Modal --- */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    display: grid;
-    place-items: center;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-    z-index: 1000;
-}
-
-.modal-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    padding: 2rem;
-    position: relative;
-}
-
-.modal-text {
-    font-size: clamp(1.5rem, 5vw, 2.5rem);
-    font-weight: 600;
-}
-
-.cancel-button {
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 2rem;
-    line-height: 1;
-    color: rgba(255, 255, 255, 0.6);
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.cancel-button:hover {
-    color: var(--text-color);
-    transform: scale(1.1);
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
