@@ -1,39 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Select the interactive elements
-    const actionCard = document.getElementById('actionCard');
-    const redirectPopup = document.getElementById('redirectPopup');
-    const closePopupBtn = document.getElementById('closePopupBtn');
 
-    // Variable to hold the timer ID
-    let redirectTimeout;
+    // --- Element Selection ---
+    const actionCard = document.getElementById('action-card');
+    const redirectModal = document.getElementById('redirect-modal');
+    const cancelButton = document.getElementById('cancel-btn');
 
-    // --- Show Popup and Start Redirect Timer ---
-    if (actionCard) {
-        actionCard.addEventListener('click', () => {
-            // Disable the card
-            actionCard.classList.add('disabled');
+    // --- State Variable ---
+    let redirectTimer = null;
+    const REDIRECT_DELAY = 3000; // 3 seconds
+    const REDIRECT_URL = '/anonigview';
 
-            // Show the popup with a transition
-            redirectPopup.classList.add('visible');
+    /**
+     * Shows the redirection modal and starts the countdown.
+     */
+    function showModalAndRedirect() {
+        // 1. Disable the card to prevent multiple clicks
+        actionCard.style.pointerEvents = 'none';
 
-            // Set a 3-second timer to redirect
-            redirectTimeout = setTimeout(() => {
-                window.location.href = '/anonigview';
-            }, 3000);
-        });
+        // 2. Show the modal with a fade-in effect
+        redirectModal.classList.remove('hidden');
+        
+        // 3. Start the 3-second timer for redirection
+        redirectTimer = setTimeout(() => {
+            // This is where the actual page navigation happens
+            window.location.href = REDIRECT_URL;
+        }, REDIRECT_DELAY);
     }
 
-    // --- Hide Popup and Cancel Redirect ---
-    if (closePopupBtn) {
-        closePopupBtn.addEventListener('click', () => {
-            // Cancel the scheduled redirect
-            clearTimeout(redirectTimeout);
+    /**
+     * Hides the modal and cancels the pending redirection.
+     */
+    function cancelRedirection() {
+        // 1. Clear the active timer
+        if (redirectTimer) {
+            clearTimeout(redirectTimer);
+        }
 
-            // Hide the popup
-            redirectPopup.classList.remove('visible');
+        // 2. Hide the modal
+        redirectModal.classList.add('hidden');
 
-            // Re-enable the action card
-            actionCard.classList.remove('disabled');
-        });
+        // 3. Re-enable the action card
+        actionCard.style.pointerEvents = 'auto';
     }
+
+    // --- Event Listeners ---
+    actionCard.addEventListener('click', showModalAndRedirect);
+    cancelButton.addEventListener('click', cancelRedirection);
+
 });
