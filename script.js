@@ -1,22 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Select the interactive elements from the DOM
+    // Select the interactive elements
     const actionCard = document.getElementById('actionCard');
-    const statusMessage = document.getElementById('statusMessage');
+    const redirectPopup = document.getElementById('redirectPopup');
+    const closePopupBtn = document.getElementById('closePopupBtn');
 
-    // Check if the required elements exist before adding an event listener
-    if (actionCard && statusMessage) {
+    // Variable to hold the timer ID
+    let redirectTimeout;
+
+    // --- Show Popup and Start Redirect Timer ---
+    if (actionCard) {
         actionCard.addEventListener('click', () => {
-            // 1. Immediately disable the card visually and functionally
+            // Disable the card
             actionCard.classList.add('disabled');
 
-            // 2. Make the status message visible
-            statusMessage.classList.add('visible');
+            // Show the popup with a transition
+            redirectPopup.classList.add('visible');
 
-            // 3. Set a 3-second delay before redirection
-            setTimeout(() => {
-                // 4. Redirect the user to the target URL
+            // Set a 3-second timer to redirect
+            redirectTimeout = setTimeout(() => {
                 window.location.href = '/anonigview';
-            }, 3000); // 3000 milliseconds = 3 seconds
+            }, 3000);
+        });
+    }
+
+    // --- Hide Popup and Cancel Redirect ---
+    if (closePopupBtn) {
+        closePopupBtn.addEventListener('click', () => {
+            // Cancel the scheduled redirect
+            clearTimeout(redirectTimeout);
+
+            // Hide the popup
+            redirectPopup.classList.remove('visible');
+
+            // Re-enable the action card
+            actionCard.classList.remove('disabled');
         });
     }
 });
