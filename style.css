@@ -33,18 +33,16 @@ body {
     padding: var(--space-md);
     overflow-y: auto; 
     
-    /* Subtle Background Pattern (80% Transparent / 20% Opacity) */
-    /* A dark, very low-opacity grid pattern for texture */
+    /* Subtle Background Pattern (20% Opacity) */
     background-image: 
         linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), 
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 50px 50px; /* Slightly larger grid for less noise */
+    background-size: 50px 50px; 
 }
 
 .container {
     max-width: 900px; 
     width: 100%;
-    /* Ensure content is centered and aligned */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -62,7 +60,6 @@ body {
 
 /* --- Gradient Text Utility (Core requirement) --- */
 .gradient-text {
-    /* Enhanced gradient angle for a more dynamic look */
     background: linear-gradient(135deg, var(--gradient-blue-primary) 0%, var(--gradient-blue-secondary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -84,13 +81,49 @@ body {
     margin-bottom: var(--space-xl);
 }
 
+/* ---------------------------------------------------- */
+/* --- TYPING ANIMATION STYLES (New Feature) --- */
+/* ---------------------------------------------------- */
+
+.primary-text::before {
+    content: attr(data-text); /* Pull content from the data-text attribute */
+    overflow: hidden; /* Hide the full text initially */
+    white-space: nowrap; /* Keep content on a single line */
+    
+    /* Animation definition */
+    animation: 
+        typing 2s steps(12, end), /* 12 steps for 12 characters ("Hello, User") over 2s */
+        blink-caret 0.75s step-end infinite; /* Blinking cursor effect */
+    
+    /* Initial state: zero width */
+    width: 0; 
+    display: block; /* Important for the width animation to work */
+}
+
+/* Keyframes for Typing Animation (Expanding the text's width) */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+/* Keyframes for Cursor Blinking (Using a pseudo-element border) */
+@keyframes blink-caret {
+  from, to { border-right-color: transparent }
+  50% { border-right-color: var(--gradient-blue-primary) } /* Use primary color for cursor */
+}
+
+/* Apply the blinking caret/border effect to the animating text container */
+.primary-text {
+    /* Create the 'cursor' using a border */
+    border-right: 3px solid transparent; 
+}
+
+
 /* --- Action Card (Premium Option/Choice) --- */
 .action-card {
-    /* Use a very faint, 1px gradient border (not a harsh box border) 
-       to define the option clearly, without breaking the "no visible borders" rule strictly */
     border: 1px solid rgba(255, 255, 255, 0.1); 
     background-color: rgba(255, 255, 255, 0.05); 
-    backdrop-filter: blur(8px); /* Clearer "glass" effect for premium feel */
+    backdrop-filter: blur(8px); 
     padding: var(--space-md) var(--space-xl);
     border-radius: 16px; 
     cursor: pointer;
@@ -109,9 +142,9 @@ body {
 /* --- Hover/Active Interactivity --- */
 .action-card:hover {
     transform: translateY(-8px) scale(1.02); 
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 115, 230, 0.2); /* Subtle blue glow on hover */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 115, 230, 0.2); 
     background-color: rgba(255, 255, 255, 0.08); 
-    border-color: rgba(0, 115, 230, 0.5); /* Faint blue border highlight */
+    border-color: rgba(0, 115, 230, 0.5); 
 }
 
 .action-card:active {
@@ -128,7 +161,7 @@ body {
     margin-top: var(--space-lg);
     opacity: 0;
     transition: opacity 0.5s ease;
-    min-height: 1.5rem; /* Reserve space so layout doesn't jump */
+    min-height: 1.5rem; 
 }
 
 /* Class added by JS to show the message */
