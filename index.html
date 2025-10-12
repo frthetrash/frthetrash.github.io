@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WelcomeUser</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <main class="content-wrapper">
-        <h1 class="welcome-text">Hello, User</h1>
-        <p class="secondary-text text-gradient blue-gradient">Choose what you need</p>
+  <main class="content-wrapper">
+    <img src="https://raw.githubusercontent.com/frthetrash/website/main/png.png" alt="Brand Logo" class="logo">
 
-        <div id="action-card" class="card">
-            <h2 class="card-text text-gradient instagram-gradient">Anonymous Instagram Viewer</h2>
-        </div>
-    </main>
+    <h1 class="welcome-text gradient-text">Hello, User</h1>
+    <h2 class="sub-text">Choose what you need</h2>
 
-    <div id="redirect-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3 class="modal-text text-gradient warning-gradient">Hang on! We are redirecting you.</h3>
-            <button id="cancel-btn" class="cancel-button" aria-label="Cancel redirection">×</button>
-        </div>
+    <div id="actionCard" class="action-card instagram-gradient">
+      <p>Anonymous Instagram Viewer</p>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Popup Status Message -->
+    <div id="statusPopup" class="status-popup hidden">
+      <p class="popup-text">⚠ Hang on! We are redirecting you...</p>
+      <button id="closePopup" class="close-btn">✕</button>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
