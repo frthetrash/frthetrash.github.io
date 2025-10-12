@@ -1,0 +1,55 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hello, User — Choose what you need</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Home">
+        <img src="https://raw.githubusercontent.com/frthetrash/website/main/png.png" alt="Logo" class="brand-logo">
+        <span class="brand-name">Trash</span>
+      </a>
+
+      <nav class="header-nav" aria-label="Primary">
+        <!-- Intentionally minimal: reserved for future items -->
+      </nav>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+    <section class="hero" aria-labelledby="helloTitle">
+      <div class="hero-card">
+        <h1 id="helloTitle" class="hero-title">Hello, User</h1>
+        <p class="hero-sub">Choose what you need</p>
+
+        <div class="actions" role="list" aria-label="Action options">
+          <button class="action-card" id="instagram-viewer" role="listitem" aria-label="Instagram Viewer Anonymous without account">
+            <div class="action-content">
+              <div class="action-title">Instagram Viewer</div>
+              <div class="action-sub">Anonymous without account</div>
+            </div>
+            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <p class="note">Tip: on mobile the options stack for easy tapping.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <small>© <span id="year"></span> Clean UI — Minimal & responsive</small>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
