@@ -1,8 +1,6 @@
 /* --- Global Styles & Resets --- */
 :root {
   --gradient: linear-gradient(90deg, #0073E6, #00C4CC);
-  --insta-gradient: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4);
-  --warning-gradient: linear-gradient(90deg, #FFD200, #FF8800);
 }
 
 * {
@@ -12,19 +10,22 @@
 }
 
 body {
-  background-color: #000;
-  color: #fff;
+  background-color: #000000;
+  color: #FFFFFF;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
+
+  /* Perfect Centering */
   display: grid;
   place-items: center;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+
+  /* Subtle Background Pattern */
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
-/* --- Content Layout --- */
+/* --- Content Styling --- */
 .content-wrapper {
   display: flex;
   flex-direction: column;
@@ -47,37 +48,29 @@ body {
 }
 
 .welcome-text {
+  /* Responsive Typography */
   font-size: clamp(2rem, 8vw, 4.5rem);
+
+  /* Typing Animation Setup */
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
   border-right: 0.1em solid white;
-  width: 11ch;
-  animation:
-    typing 2s steps(11, end),
-    blink-caret 0.75s step-end infinite;
-}
-
-.sub-text {
-  font-size: clamp(1.25rem, 4vw, 2rem);
-  color: rgba(255, 255, 255, 0.8);
+  width: 11ch; /* Number of characters in "Hello, User" */
+  animation: typing 2s steps(11, end), blink-caret 0.75s step-end infinite;
 }
 
 /* --- Action Card --- */
 .action-card {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 20px;
   padding: 1.5rem 2.5rem;
   cursor: pointer;
   text-align: center;
   transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
   max-width: 90vw;
-}
-
-.instagram-gradient {
-  background: var(--insta-gradient);
-  color: white;
 }
 
 .action-card:hover {
@@ -87,10 +80,20 @@ body {
 
 .action-card p {
   font-size: clamp(1rem, 2.5vw, 1.25rem);
-  font-weight: 500;
 }
 
-/* Disabled State */
+/* --- Status Message & JS States --- */
+.status-message {
+  display: none; /* Initially hidden */
+  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  margin-top: -1rem; /* Adjust positioning */
+}
+
+.status-message.visible {
+  display: block;
+}
+
 .action-card.disabled {
   pointer-events: none;
   opacity: 0.4;
@@ -98,46 +101,7 @@ body {
   box-shadow: none;
 }
 
-/* --- Popup Message --- */
-.status-popup {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--warning-gradient);
-  color: #000;
-  padding: 1rem 2rem;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 280px;
-  max-width: 90vw;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  animation: fadeInUp 0.5s ease-out;
-}
-
-.hidden {
-  display: none;
-}
-
-.popup-text {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  color: #000;
-  font-size: 1.2rem;
-  cursor: pointer;
-  margin-left: 1rem;
-  font-weight: bold;
-}
-
-/* --- Animations --- */
+/* --- Keyframe Animations --- */
 @keyframes typing {
   from { width: 0; }
   to { width: 11ch; }
@@ -146,9 +110,4 @@ body {
 @keyframes blink-caret {
   from, to { border-color: transparent; }
   50% { border-color: white; }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translate(-50%, 20px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
 }
