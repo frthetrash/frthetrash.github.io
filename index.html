@@ -4,51 +4,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hello, User — Choose what you need</title>
+  <title>Hello, User — Choose what you need (Vibrant)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="site-header" role="banner">
     <div class="header-inner">
-      <a class="brand" href="/" aria-label="Home">
-        <img src="https://raw.githubusercontent.com/frthetrash/website/main/png.png" alt="Logo" class="brand-logo">
-        <span class="brand-name">Trash</span>
-      </a>
+      <!-- Centered larger logo -->
+      <div class="logo-wrap" aria-label="Site logo">
+        <img
+          src="https://raw.githubusercontent.com/frthetrash/website/main/png.png"
+          alt="Logo"
+          class="brand-logo"
+          id="brandLogo"
+        />
+      </div>
 
-      <nav class="header-nav" aria-label="Primary">
-        <!-- Intentionally minimal: reserved for future items -->
-      </nav>
+      <!-- subtle audio control -->
+      <button id="audioToggle" class="audio-toggle" aria-pressed="false" aria-label="Mute ambient sound" title="Mute / unmute ambient sound">
+        <!-- speaker / mute icon (SVG) -->
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g id="speakerIcon"><path d="M5 9v6h4l5 4V5L9 9H5z" fill="currentColor"/></g><g id="waveIcon"><path d="M16.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></g></svg>
+      </button>
     </div>
   </header>
 
-  <main class="main" id="main">
+  <main class="main" id="main" role="main">
     <section class="hero" aria-labelledby="helloTitle">
       <div class="hero-card">
-        <h1 id="helloTitle" class="hero-title">Hello, User</h1>
-        <p class="hero-sub">Choose what you need</p>
+        <h1 id="helloTitle" class="gradient-title">Hello, User</h1>
+        <p class="gradient-sub">Choose what you need</p>
 
         <div class="actions" role="list" aria-label="Action options">
-          <button class="action-card" id="instagram-viewer" role="listitem" aria-label="Instagram Viewer Anonymous without account">
-            <div class="action-content">
-              <div class="action-title">Instagram Viewer</div>
-              <div class="action-sub">Anonymous without account</div>
-            </div>
-            <svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <button class="action-card gradient-text" id="instagram-viewer" role="listitem" aria-label="Instagram Viewer Anonymous without account">
+            Instagram Viewer Anonymous without account
+            <svg class="action-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           </button>
         </div>
 
-        <p class="note">Tip: on mobile the options stack for easy tapping.</p>
+        <p class="note">Tap the option to continue. Use the sound icon to mute/unmute ambient rain.</p>
       </div>
     </section>
   </main>
 
   <footer class="site-footer" role="contentinfo">
     <div class="footer-inner">
-      <small>© <span id="year"></span> Clean UI — Minimal & responsive</small>
+      <small>© <span id="year"></span> — Vibrant, minimal UI</small>
     </div>
   </footer>
+
+  <!-- Audio element: source intentionally left blank (placeholder).
+       Replace the <source> src attribute with a real ambient rain audio file (mp3/ogg) that you host. -->
+  <audio id="ambientAudio" loop preload="auto">
+    <!-- Example placeholder:
+         <source src="path/to/calm-rain.mp3" type="audio/mpeg">
+         <source src="path/to/calm-rain.ogg" type="audio/ogg">
+       -->
+  </audio>
 
   <script src="script.js"></script>
 </body>
