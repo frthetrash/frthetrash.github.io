@@ -1,1 +1,1 @@
-# frthetrash.github.io
+# garbage.qzz.io
