@@ -208,7 +208,8 @@
 
                 try {
                     // 1. Update Profile in Firestore
-                    await db.collection('users').doc(currentUserUid).update({ displayName: displayName });
+                    // This creates the document if it doesn't exist, OR updates it if it does. // This is the robust way to handle profile setup.
+                    await db.collection('users').doc(currentUserUid).set({ displayName: displayName }, { merge: true });
                     
                     // 2. Update the profile object (crucial for local UI update)
                     userProfile.displayName = displayName; 
