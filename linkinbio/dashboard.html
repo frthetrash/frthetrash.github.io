@@ -3,110 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | LinkSpark - Manage Your Links</title>
-    <meta name="description" content="Dashboard to manage profile settings, links, and templates for LinkSpark.">
+    <title>Dashboard | LinkShare - Link Editor</title>
+    <meta name="description" content="Dashboard to manage profile settings and links for LinkShare.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom scrollbar for an elegant look */
-        body::-webkit-scrollbar {
-            width: 8px;
+        /* Define the Vibrant Gradient */
+        .vibrant-gradient {
+            background-image: linear-gradient(to right, #4F46E5, #EC4899); /* Indigo to Pink */
         }
-        body::-webkit-scrollbar-thumb {
-            background-color: #333; /* Dark Gray */
-            border-radius: 4px;
+        /* Define the Gradient Text */
+        .text-gradient {
+            background-image: linear-gradient(to right, #6366F1, #F472B6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
         }
+
+        /* Subtle, Cool Background Texture */
         body {
-            /* Deep, solid black background */
-            background-color: #000000;
+            background-color: #0F172A; /* Deep Blue-Gray */
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
         }
+
+        /* Loading Screen Progress Bar Animation */
+        @keyframes progress-bar {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .animate-progress { animation: progress-bar 1.5s linear infinite; }
     </style>
 </head>
-<body class="bg-black text-white min-h-screen font-sans">
-    
-    <div id="loading-screen" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 transition-opacity duration-500">
-        <div class="p-12 bg-gray-900 rounded-2xl shadow-2xl text-center border border-gray-700">
-            <svg class="w-16 h-16 mx-auto mb-6 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
+<body class="bg-slate-900 text-white min-h-screen font-sans">
+
+    <div id="loading-screen" class="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+        <div class="p-10 text-center">
+            <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
+                 alt="LinkShare Logo" 
+                 class="w-20 h-20 mx-auto mb-6 rounded-full shadow-2xl animate-pulse">
             
             <p class="text-2xl font-light text-gray-200">
-                Loading <span class="text-white font-semibold">LinkSpark</span> Dashboard...
+                LinkShare Dashboard is <span class="text-pink-400 font-semibold">loading...</span>
             </p>
-            <div class="w-40 h-1.5 mt-6 mx-auto bg-gray-700 rounded-full overflow-hidden">
-                <div class="h-full bg-white animate-progress"></div>
+            <div class="w-32 h-1.5 mt-6 mx-auto bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full vibrant-gradient animate-progress"></div>
             </div>
         </div>
     </div>
-    <script>
-        // Define the custom animation for the loader
-        tailwind.config = {
-            theme: {
-                extend: {
-                    animation: {
-                        progress: 'progress-bar 1.5s linear infinite',
-                    },
-                    keyframes: {
-                        'progress-bar': {
-                            '0%': { transform: 'translateX(-100%)' },
-                            '100%': { transform: 'translateX(100%)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
 
 
-    <div id="dashboard-content" class="max-w-5xl mx-auto p-8 transition-all duration-500 opacity-0 hidden">
-        <header class="flex justify-between items-center py-8 border-b border-gray-700 mb-12">
-            <h1 class="text-4xl font-extrabold text-white tracking-widest">
-                LINKSPARK DASHBOARD
+    <div id="dashboard-content" class="max-w-6xl mx-auto p-8 transition-all duration-500 opacity-0 hidden">
+        <header class="flex justify-between items-center py-6 border-b border-slate-700 mb-10">
+            <h1 class="text-4xl font-extrabold text-gradient tracking-wider">
+                LinkShare
             </h1>
-            <button onclick="handleLogout()" class="py-2.5 px-6 rounded-lg text-sm font-medium text-gray-200 border border-gray-600 hover:bg-gray-800 transition duration-300">
+            <button onclick="handleLogout()" class="py-2.5 px-5 rounded-full text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 transition duration-300 shadow-lg">
                 Logout
             </button>
         </header>
 
-        <div class="bg-gray-900 p-8 rounded-xl shadow-xl mb-12 border border-gray-700">
-            <h2 class="text-2xl font-semibold mb-6 text-white border-b border-gray-700 pb-3">PROFILE & APPEARANCE</h2>
+        <div id="dynamic-editor-container">
             
-            <div class="bg-gray-800 p-4 rounded-lg mb-6 text-lg text-gray-400 flex items-center justify-between">
-                <span class="font-light">Your Public Profile Link:</span>
-                <a id="public-link-display" href="#" target="_blank" class="text-white font-mono hover:underline transition truncate ml-6 text-base">
-                    Loading...
-                </a>
-            </div>
-
-            <input type="text" id="display-name-input" placeholder="Display Name" class="w-full p-4 my-3 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white focus:border-white">
-            <input type="url" id="profile-url-input" placeholder="Profile Image URL (External link only)" class="w-full p-4 my-3 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white focus:border-white">
-            <textarea id="bio-input" placeholder="Bio (Max 150 characters)" rows="3" class="w-full p-4 my-3 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white focus:border-white"></textarea>
-            
-            <button onclick="updateProfile()" class="py-3 px-8 mt-6 font-bold rounded-lg text-black bg-white hover:bg-gray-200 shadow-md transition duration-300 border border-white">
-                SAVE PROFILE CHANGES
-            </button>
-        </div>
-
-        <div class="bg-gray-900 p-8 rounded-xl shadow-xl border border-gray-700">
-            <h2 class="text-2xl font-semibold mb-6 text-white border-b border-gray-700 pb-3">MANAGE LINKS</h2>
-            
-            <div id="link-list" class="mb-8 space-y-4">
+            <div id="link-editor-view" class="w-full">
+                <div class="bg-slate-800/70 p-8 rounded-2xl shadow-xl mb-10 border border-slate-700/50 hover:shadow-2xl transition duration-300">
+                    <h2 class="text-2xl font-semibold mb-6 text-indigo-400">Profile & Public Link</h2>
+                    
+                    <div class="flex items-center space-x-4 mb-4">
+                        <input type="text" id="display-name-input" placeholder="Display Name" class="w-1/3 p-3 rounded-lg bg-slate-700 text-white border-none focus:ring-pink-500 transition duration-300">
+                        <input type="url" id="profile-url-input" placeholder="Image URL" class="w-2/3 p-3 rounded-lg bg-slate-700 text-white border-none focus:ring-pink-500 transition duration-300">
+                    </div>
+                    
+                    <textarea id="bio-input" placeholder="Bio (Max 150 chars)" rows="2" class="w-full p-3 my-3 rounded-lg bg-slate-700 text-white border-none focus:ring-pink-500 transition duration-300"></textarea>
+                    
+                    <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
+                         <div class="text-sm text-gray-400">
+                            Your Link: 
+                            <a id="public-link-display" href="#" target="_blank" class="text-indigo-400 font-mono hover:text-indigo-300 hover:underline transition truncate ml-2">Loading...</a>
+                        </div>
+                        <button onclick="updateProfile()" class="py-2.5 px-8 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                            Save Profile
+                        </button>
+                    </div>
                 </div>
 
-            <h3 class="text-xl font-medium mb-4 border-t border-gray-700 pt-6 text-gray-200">Add New Link</h3>
-            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <input type="text" id="new-link-title" placeholder="Link Title" class="flex-grow p-4 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white">
-                <input type="url" id="new-link-url" placeholder="Destination URL (https://...)" class="flex-grow p-4 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white">
-                
-                <button onclick="addNewLink()" class="py-3 px-8 font-bold rounded-lg text-black bg-white hover:bg-gray-200 shadow-md transition duration-300">
-                    ADD LINK
-                </button>
-            </div>
-        </div>
-    </div>
+                <div class="bg-slate-800/70 p-8 rounded-2xl shadow-xl border border-slate-700/50 hover:shadow-2xl transition duration-300">
+                    <h2 class="text-2xl font-semibold mb-6 text-pink-400">Manage Your Links</h2>
+                    
+                    <div id="link-list" class="mb-10 space-y-4">
+                        </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+                    <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600/50">
+                        <h3 class="text-xl font-medium mb-4 text-gray-200">Add New Link</h3>
+                        <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                            <input type="text" id="new-link-title" placeholder="Title (e.g., My Portfolio)" class="flex-grow p-3 rounded-lg bg-slate-800 text-white border-none focus:ring-green-500">
+                            <input type="url" id="new-link-url" placeholder="Destination URL (https://...)" class="flex-grow p-3 rounded-lg bg-slate-800 text-white border-none focus:ring-green-500">
+                            <button onclick="addNewLink()" class="py-3 px-6 font-bold rounded-full text-slate-900 bg-green-500 hover:bg-green-400 shadow-md transition duration-300">
+                                Add Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="initial-setup-view" class="w-full hidden text-center py-20 bg-slate-800/70 p-12 rounded-2xl shadow-2xl border border-slate-700/50">
+                <h2 class="text-3xl text-gradient font-extrabold mb-4">Let's Get Started!</h2>
+                <p class="text-xl text-gray-300 mb-8">It looks like this is your first time here. Create your display name to begin.</p>
+                
+                <input type="text" id="setup-display-name" placeholder="Enter Display Name (Min 3 characters)" 
+                       class="w-full max-w-sm p-4 my-4 rounded-lg bg-slate-700 text-white border-none text-lg focus:ring-pink-500 transition duration-300 text-center mx-auto">
+                
+                <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
+                        class="py-3 px-10 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg disabled:opacity-50">
+                    Continue to Dashboard
+                </button>
+                <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
+            </div>
+
+        </div> </div> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="./js/firebase-config.js"></script>
@@ -114,34 +130,94 @@
     <script src="./js/dashboard-editor.js"></script>
 
     <script>
-        // This script handles the loading screen transition after data fetch.
+        // --- Dashboard Initialization and Loading Logic ---
+        
+        // This is a crucial block to manage the seamless loading experience.
         document.addEventListener('DOMContentLoaded', () => {
             const dashboardContent = document.getElementById('dashboard-content');
             const loadingScreen = document.getElementById('loading-screen');
+            const initialSetupView = document.getElementById('initial-setup-view');
+            const linkEditorView = document.getElementById('link-editor-view');
+            
+            // Function to reveal the main content gracefully
+            const revealContent = () => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                    dashboardContent.classList.remove('opacity-0', 'hidden');
+                    dashboardContent.classList.add('opacity-100');
+                }, 500); // Wait for opacity transition
+            };
 
-            // Override the standard dashboard-editor initialization to handle the loader
+            // INTERCEPT: Modify fetchUserData to check for setup completion
             const originalFetchUserData = fetchUserData; 
             fetchUserData = (uid) => {
-                // Execute original fetch logic
+                // Execute original fetch logic (setting up listeners)
                 originalFetchUserData(uid);
 
-                // Wait for rendering, then seamlessly hide the loader and show the dashboard.
+                // Wait for the links data to be returned (or timed delay)
                 setTimeout(() => {
-                    loadingScreen.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                        dashboardContent.classList.remove('opacity-0', 'hidden');
-                        dashboardContent.classList.add('opacity-100');
-                    }, 500); // Transition duration
-                }, 1200); // Minimum display time for a professional feel
+                    // Check if the user has a profile and links
+                    if (userProfile.displayName && userLinks.length > 0) {
+                        linkEditorView.classList.remove('hidden');
+                        initialSetupView.classList.add('hidden');
+                        revealContent();
+                    } else if (!userProfile.displayName || userLinks.length === 0) {
+                        // Display initial setup if profile is missing display name OR links are empty
+                        linkEditorView.classList.add('hidden');
+                        initialSetupView.classList.remove('hidden');
+                        revealContent();
+                    } else {
+                        // Fallback reveal
+                        revealContent();
+                    }
+                }, 1200); // Simulate network and rendering time for a smooth reveal
             };
             
-            // Re-run auth observer to ensure fetchUserData is triggered
+            // Re-run auth observer (from auth.js) to trigger the modified fetchUserData
             auth.onAuthStateChanged(user => {
                 if (user) {
+                    // This call runs the intercepted function above
                     fetchUserData(user.uid); 
                 }
             });
+
+            // Interactive logic for the setup screen
+            const setupNameInput = document.getElementById('setup-display-name');
+            const setupButton = document.getElementById('setup-next-button');
+            setupButton.disabled = true;
+
+            setupNameInput.addEventListener('input', () => {
+                const name = setupNameInput.value.trim();
+                setupButton.disabled = name.length < 3;
+                document.getElementById('setup-error-message').textContent = '';
+            });
+
+            // Make new function available globally
+            window.updateDisplayNameFromSetup = async () => {
+                const displayName = setupNameInput.value.trim();
+                if (displayName.length < 3) {
+                    document.getElementById('setup-error-message').textContent = 'Display name must be at least 3 characters.';
+                    return;
+                }
+                
+                try {
+                    // 1. Update Profile
+                    await db.collection('users').doc(currentUserUid).update({ displayName });
+                    
+                    // 2. Hide Setup and Show Editor
+                    initialSetupView.classList.add('hidden');
+                    linkEditorView.classList.remove('hidden');
+                    
+                    // 3. Update the main editor field with the new name
+                    document.getElementById('display-name-input').value = displayName;
+                    
+                    alert('🎉 Profile initialized! Now add your first link.');
+                } catch (e) {
+                    console.error("Setup update failed:", e);
+                    document.getElementById('setup-error-message').textContent = 'Failed to save name. Try again.';
+                }
+            };
         });
     </script>
 </body>
