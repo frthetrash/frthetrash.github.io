@@ -30,7 +30,6 @@ body {
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
     background-size: 50px 50px;
 }
-/* ... rest of the CSS remains unchanged ... */
 /* --- Content Styling --- */
 .content-wrapper {
     display: flex;
