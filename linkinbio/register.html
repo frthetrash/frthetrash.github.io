@@ -9,104 +9,136 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 1. Base Styling - Dark Theme */
+        /* 1. Base Styling - Dark & Vibrant Background */
         body { 
-            background-color: #0F172A; /* Deep Blue-Gray Base */
+            background-color: #0A0A10; /* Near-black background */
             font-family: ui-sans-serif, system-ui;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #E2E8F0;
+            overflow-x: hidden;
         }
 
-        /* 2. Form Card Styling (Dark, Frosted) */
+        /* 2. Background Glow Animation */
+        .vibrant-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 10% 20%, #4F46E5 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, #EC4899 0%, transparent 40%);
+            mix-blend-mode: screen; /* Fun blend mode */
+            opacity: 0.3;
+            animation: pulse-glow 20s infinite alternate;
+            pointer-events: none; /* Allows clicks to pass through */
+        }
+
+        @keyframes pulse-glow {
+            from {
+                transform: scale(1) translate(0, 0);
+            }
+            to {
+                transform: scale(1.1) translate(5vw, 5vh);
+            }
+        }
+
+        /* 3. Form Card Styling (Frosted Effect, Centralized) */
         .auth-card {
-            background-color: rgba(255, 255, 255, 0.05); /* Frosted effect */
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px); 
+            position: relative;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px); 
             border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); 
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); 
         }
-
-        /* 3. Primary Accent Button (Strong Blue/Indigo) */
+        
+        /* 4. Primary Accent Button (Full Gradient) */
         .primary-btn {
-            background-color: #4F46E5; /* Indigo */
+            background-image: linear-gradient(to right, #6366F1, #EC4899);
             transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
         }
         .primary-btn:hover {
-            background-color: #4338CA; /* Darker Indigo */
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
+            opacity: 0.9;
+            transform: scale(1.02);
         }
 
-        /* 4. Inputs (Light text on dark input) */
+        /* 5. Inputs */
         input {
-            background-color: #1E293B; /* Dark input background */
-            color: #E2E8F0; /* Light text */
-            border: 1px solid #334155; /* Darker border */
+            background-color: #1A1A22; /* Darker input background */
+            color: #E2E8F0;
+            border: 1px solid #334155;
+            transition: all 0.2s ease;
         }
         input:focus {
-            border-color: #4F46E5; /* Indigo border on focus */
-            box-shadow: 0 0 0 1px #4F46E5; 
+            border-color: #EC4899; /* Focus ring uses the vibrant pink */
+            box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5); 
+        }
+        
+        /* 6. Google Button Hover Interaction */
+        .google-btn:hover {
+            background-color: #2D3748;
+            border-color: #4F46E5;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-    
-    <div class="auth-card w-full max-w-6xl grid grid-cols-1 lg:grid-cols-5 bg-white rounded-xl overflow-hidden shadow-2xl">
+<body>
+
+    <div class="vibrant-bg"></div>
+
+    <div class="auth-card w-full max-w-md mx-auto p-6 sm:p-10 rounded-2xl">
         
-        <div class="hidden lg:block lg:col-span-2 bg-gray-900 p-12 relative overflow-hidden">
-            
-            <div class="text-white relative z-10 text-center flex flex-col justify-center items-center h-full">
-                <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
-                     alt="LinkShare Logo" 
-                     class="w-20 h-20 mb-6 rounded-full shadow-lg">
-
-                <h1 class="text-4xl font-extrabold tracking-tight mb-4">LinkShare</h1>
-                <p class="text-gray-400 text-lg font-light">
-                    Join thousands of creators building high-impact link profiles.
-                </p>
-            </div>
-        </div>
-
-        <div class="lg:col-span-3 p-6 sm:p-12 text-gray-100">
-            
-            <h2 class="text-3xl font-bold mb-3">Sign Up</h2>
-            <p class="text-gray-400 mb-8 text-lg">Create your account to get started.</p>
-            
-            <div id="error-message" class="text-red-400 bg-red-900/50 p-3 text-sm mb-4 rounded hidden"></div>
-            
-            <div class="space-y-4">
-                <input type="email" id="email" placeholder="Email Address" 
-                       class="w-full p-3 rounded-lg text-base" 
-                       required>
-                       
-                <input type="password" id="password" placeholder="Password (min 6 characters)" 
-                       class="w-full p-3 rounded-lg text-base" 
-                       required>
-            </div>
-
-            <button onclick="handleRegister()" 
-                    class="primary-btn w-full py-3 mt-6 font-semibold rounded-lg text-white text-lg">
-                Sign Up
-            </button>
-            
-            <div class="flex items-center my-6">
-                <div class="flex-grow border-t border-gray-700"></div>
-                <span class="flex-shrink mx-4 text-gray-500 text-sm">OR</span>
-                <div class="flex-grow border-t border-gray-700"></div>
-            </div>
-
-            <button onclick="signInWithGoogle()" 
-                    class="w-full py-3 font-semibold rounded-lg border border-gray-700 bg-gray-800 text-white shadow-sm hover:bg-gray-700 transition duration-300 flex items-center justify-center">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="w-5 h-5 mr-3">
-                Sign up with Google
-            </button>
-            
-            <p class="text-center text-gray-500 mt-8 text-sm">
-                Already have an account? 
-                <a href="./login.html" class="text-indigo-400 hover:text-indigo-300 font-medium transition">
-                    Log In
-                </a>
+        <div class="flex flex-col items-center mb-8">
+            <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
+                 alt="LinkShare Logo" 
+                 class="w-16 h-16 mb-4 rounded-full shadow-lg border border-indigo-500">
+            <h2 class="text-3xl font-extrabold text-white tracking-tight">
+                LinkShare
+            </h2>
+            <p class="text-gray-400 mt-2 text-lg">
+                Ready to create? It only takes a second.
             </p>
         </div>
+        
+        <div id="error-message" class="text-red-400 bg-red-900/50 p-3 text-sm mb-4 rounded hidden"></div>
+        
+        <div class="space-y-5">
+            <input type="email" id="email" placeholder="Email Address" 
+                   class="w-full p-4 rounded-xl text-base" 
+                   required>
+                   
+            <input type="password" id="password" placeholder="Password (min 6 characters)" 
+                   class="w-full p-4 rounded-xl text-base" 
+                   required>
+        </div>
+
+        <button onclick="handleRegister()" 
+                class="primary-btn w-full py-4 mt-8 font-bold rounded-xl text-white text-lg">
+            Sign Up
+        </button>
+        
+        <div class="flex items-center my-6">
+            <div class="flex-grow border-t border-gray-700"></div>
+            <span class="flex-shrink mx-4 text-gray-500 text-sm">OR</span>
+            <div class="flex-grow border-t border-gray-700"></div>
+        </div>
+
+        <button onclick="signInWithGoogle()" 
+                class="google-btn w-full py-3 font-semibold rounded-xl border border-gray-600 bg-gray-800 text-white shadow-md transition duration-300 flex items-center justify-center">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google Logo" class="w-5 h-5 mr-3">
+            Sign up with Google
+        </button>
+        
+        <p class="text-center text-gray-500 mt-8 text-sm">
+            Already have an account? 
+            <a href="./login.html" class="text-indigo-400 hover:text-pink-400 font-medium transition">
+                Log In
+            </a>
+        </p>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
