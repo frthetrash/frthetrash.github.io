@@ -49,11 +49,11 @@
             <h2>Let's build your BioLink!</h2>
             <form id="profile-setup-form">
                 <div class="setup-step active" data-step="1">
-                    <p class="step-title">1. Choose your unique BioLink name & credentials.</p>
+                    <p class="step-title">1. Choose your BioLink name & setup login.</p>
                     <input type="text" id="setup-username" placeholder="Unique BioLink Name (e.g., johnny_d)" required pattern="[a-zA-Z0-9_]{3,18}" title="3-18 alphanumeric characters or underscore">
+                    <div id="username-validation-status"></div>
                     <input type="email" id="setup-email" placeholder="Email (for Firebase Auth)" required>
                     <input type="password" id="setup-password" placeholder="Password (Secure)" required minlength="6">
-                    <div id="username-validation-status"></div>
                 </div>
 
                 <div class="setup-step" data-step="2">
@@ -64,12 +64,14 @@
                         <label><input type="radio" name="goal" value="Personal"> Personal</label>
                     </div>
                 </div>
+                
                 <div class="setup-step" data-step="3">
                     <p class="step-title">3. Profile Details.</p>
                     <input type="text" id="setup-name" placeholder="Display Name" required maxlength="30">
                     <input type="url" id="setup-avatar" placeholder="Avatar Image URL (e.g., https://.../pic.png)" required>
                     <textarea id="setup-bio" placeholder="Short Bio (max 80 chars)" maxlength="80" required></textarea>
                 </div>
+                
                 <div class="setup-step" data-step="4">
                     <p class="step-title">4. Links & Socials (Optional)</p>
                     <p class="section-title">External Links (Max 5)</p>
@@ -77,7 +79,7 @@
                         <div class="link-input-group">
                             <input type="text" class="link-label" placeholder="Link Label" required>
                             <input type="url" class="link-url" placeholder="URL (https://...)" required>
-                            <input type="text" class="link-icon" placeholder="Icon Class (e.g., fa-solid fa-link)" value="fa-solid fa-link">
+                            <input type="text" class="link-icon" placeholder="Icon Class (e.g., fa-solid fa-code)" value="fa-solid fa-link">
                         </div>
                     </div>
                     <button type="button" id="add-link-btn">Add Link</button>
@@ -87,6 +89,7 @@
                     <input type="text" id="social-twitter" placeholder="Twitter/X Handle (@user)">
                     <input type="text" id="social-youtube" placeholder="YouTube Channel URL">
                 </div>
+                
                 <div class="setup-step" data-step="5">
                     <p class="step-title">5. Embeds (Optional)</p>
                     <textarea id="setup-embed" placeholder="Paste an iframe embed code or image URL here (optional)"></textarea>
