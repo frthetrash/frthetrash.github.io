@@ -8,25 +8,26 @@ let unsubscribeLinks = null;
 // --- Utility: Link Rendering ---
 
 /**
- * Generates the elegant HTML structure for a single link item in the dashboard list.
+ * Generates the vibrant, interactive HTML structure for a single link item.
  * @param {Object} link - The link object from Firestore.
  * @returns {string} The HTML string.
  */
 const getLinkHtml = (link) => `
-    <div data-id="${link.id}" class="flex items-center justify-between p-4 bg-gray-900 rounded-lg my-3 border border-gray-700 transition duration-200 hover:bg-gray-800/70 shadow-md">
+    <div data-id="${link.id}" class="flex items-center justify-between p-4 bg-slate-700/50 rounded-xl my-3 border border-slate-600/50 
+         transition duration-200 hover:bg-slate-700 hover:shadow-lg hover:shadow-indigo-500/10">
         <div class="flex-1 min-w-0 mr-4">
-            <p class="font-bold text-white text-lg truncate">${link.title}</p>
-            <p class="text-sm text-gray-400 truncate">${link.url}</p>
+            <p class="font-bold text-lg ${link.active ? 'text-white' : 'text-gray-400'} truncate">${link.title}</p>
+            <p class="text-sm text-indigo-300 truncate">${link.url}</p>
         </div>
         
         <div class="flex items-center space-x-4">
             <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" ${link.active ? 'checked' : ''} class="sr-only peer" onchange="toggleLinkActive('${link.id}', event.target.checked)">
-                <div class="w-14 h-8 bg-gray-700 rounded-full peer peer-checked:bg-white transition duration-300 after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-black after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:after:translate-x-full"></div>
-                <span class="ml-3 text-sm font-medium text-gray-300">${link.active ? 'LIVE' : 'OFF'}</span>
+                <div class="w-12 h-6 bg-slate-600 rounded-full peer peer-checked:bg-pink-500 transition duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
             </label>
             
-            <button onclick="deleteLink('${link.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-gray-700 transition">
+            <button onclick="deleteLink('${link.id}')" 
+                    class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-slate-800 transition">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3"></path></svg>
             </button>
         </div>
@@ -42,7 +43,7 @@ function renderLinks() {
     
     listEl.innerHTML = '';
     
-    // Sort links by 'order' (which simulates drag-and-drop order)
+    // Sort links by 'order'
     userLinks.sort((a, b) => a.order - b.order).forEach(link => {
         listEl.innerHTML += getLinkHtml(link);
     });
@@ -52,35 +53,64 @@ function renderLinks() {
 // --- Firebase Data Fetching and Real-time Listeners ---
 
 /**
- * Fetches user profile data and sets up a real-time listener for the links subcollection.
+ * Fetches user profile data and sets up real-time listeners.
  * @param {string} uid - The current user's Firebase UID.
  */
 function fetchUserData(uid) {
     currentUserUid = uid;
     const profileRef = db.collection('users').doc(uid);
     
-    // 1. Real-time Profile Listener (Updates fields immediately if changed)
+    // 1. Real-time Profile Listener
     profileRef.onSnapshot(doc => {
         if (doc.exists) {
             userProfile = doc.data();
-            document.getElementById('display-name-input').value = userProfile.displayName || '';
-            document.getElementById('bio-input').value = userProfile.bio || '';
-            document.getElementById('profile-url-input').value = userProfile.profileImageUrl || '';
             
+            // Update main editor inputs
+            const displayNameInput = document.getElementById('display-name-input');
+            if (displayNameInput) displayNameInput.value = userProfile.displayName || '';
+            
+            const bioInput = document.getElementById('bio-input');
+            if (bioInput) bioInput.value = userProfile.bio || '';
+            
+            const profileUrlInput = document.getElementById('profile-url-input');
+            if (profileUrlInput) profileUrlInput.value = userProfile.profileImageUrl || '';
+            
+            // Update public link display
             const publicLink = `${window.location.origin}/profile.html?username=${userProfile.username}`;
-            document.getElementById('public-link-display').textContent = publicLink;
-            document.getElementById('public-link-display').href = publicLink;
+            const publicLinkDisplay = document.getElementById('public-link-display');
+            if (publicLinkDisplay) {
+                publicLinkDisplay.textContent = publicLink;
+                publicLinkDisplay.href = publicLink;
+            }
         }
     });
 
-    // 2. Real-time Link Listener (Updates the list whenever a link is added, deleted, or updated)
-    if (unsubscribeLinks) unsubscribeLinks(); // Clean up previous listener if switching users
+    // 2. Real-time Link Listener
+    if (unsubscribeLinks) unsubscribeLinks();
     
     const linksRef = profileRef.collection('links').orderBy('order', 'asc');
     
     unsubscribeLinks = linksRef.onSnapshot(snapshot => {
         userLinks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderLinks();
+        
+        // This check is part of the interactive setup logic (handled in dashboard.html script)
+        // Ensure the setup view is correctly shown/hidden based on links count
+        const initialSetupView = document.getElementById('initial-setup-view');
+        const linkEditorView = document.getElementById('link-editor-view');
+
+        if (initialSetupView && linkEditorView) {
+            // Check if profile is initialized AND links exist
+            if (userProfile.displayName && userLinks.length > 0) {
+                linkEditorView.classList.remove('hidden');
+                initialSetupView.classList.add('hidden');
+            } else if (!userProfile.displayName || userLinks.length === 0) {
+                // If profile is NOT initialized OR no links exist, show setup
+                linkEditorView.classList.add('hidden');
+                initialSetupView.classList.remove('hidden');
+            }
+        }
+
     }, error => {
         console.error("Link snapshot error:", error);
         alert("Error loading your links. Please refresh.");
@@ -96,14 +126,14 @@ function fetchUserData(uid) {
 async function updateProfile() {
     if (!currentUserUid) return alert('User not authenticated.');
 
-    const displayName = document.getElementById('display-name-input').value;
-    const bio = document.getElementById('bio-input').value;
-    const profileImageUrl = document.getElementById('profile-url-input').value;
+    const displayName = document.getElementById('display-name-input').value.trim();
+    const bio = document.getElementById('bio-input').value.trim();
+    const profileImageUrl = document.getElementById('profile-url-input').value.trim();
+
+    if (displayName.length < 3) return alert('Display Name must be at least 3 characters.');
 
     try {
         await db.collection('users').doc(currentUserUid).update({ displayName, bio, profileImageUrl });
-        
-        // Use the native browser alert for simplicity in a static project
         alert('✅ Profile updated successfully!'); 
     } catch (e) {
         console.error("Profile update failed:", e);
@@ -175,6 +205,10 @@ async function deleteLink(linkId) {
 
 // --- Initialization ---
 
-// Note: The main call to fetchUserData(user.uid) is deliberately intercepted 
-// in the <script> block of dashboard.html to manage the loading screen transition.
-// The auth.js observer ensures the user is present before this script runs.
+// Expose core functions globally (they will be called by dashboard.html)
+window.fetchUserData = fetchUserData;
+window.updateProfile = updateProfile;
+window.addNewLink = addNewLink;
+window.toggleLinkActive = toggleLinkActive;
+window.deleteLink = deleteLink;
+// The initial call is managed by the script in dashboard.html.
