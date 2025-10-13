@@ -3,56 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | LinkSpark - Create Your Elegant Profile</title>
-    <meta name="description" content="Register to create your elegant, custom link-in-bio page for free with LinkSpark.">
+    <title>Register | LinkShare - Create Your Profile</title>
+    <meta name="description" content="Register to create your custom link-in-bio page for free with LinkShare.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Deep Black Background */
+        /* 1. ELEGANT MULTI-COLOR GRADIENT BACKGROUND */
         body { 
-            background-color: #000000;
+            /* Subtle, non-jarring blend of the four colors */
+            background: linear-gradient(135deg, 
+                        #FF8C00 0%,     /* Deep Orange */
+                        #FFD700 25%,    /* Gold/Yellow */
+                        #00BFFF 75%,    /* Deep Sky Blue */
+                        #3CB371 100%);  /* Medium Sea Green */
+            background-size: 400% 400%; /* Stretches gradient for a smooth transition */
+            animation: gradient-shift 15s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        /* 1. Grid Pattern Styling */
-        .grid-background {
-            /* Full viewport coverage */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0; /* Ensures it stays behind the content card */
-            
-            /* Background image definition: repeating linear gradients */
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-            /* Sets the grid size (e.g., 50px spacing) */
-            background-size: 50px 50px; 
-            /* Subtle transparency */
-            opacity: 0.5;
-        }
-
-        /* 2. Card and Input Styles (Ensuring visibility over the pattern) */
+        /* 2. Card and Input Styles (Ensuring readability over the color) */
         .auth-card {
-            /* Makes the card visually float above the background */
+            /* Frosted glass effect for a premium, clean look */
+            background-color: rgba(255, 255, 255, 0.1); /* Very light, subtle opacity */
+            backdrop-filter: blur(15px); /* Strong blur for frosted effect */
+            -webkit-backdrop-filter: blur(15px); 
+            
             position: relative;
             z-index: 10;
-            /* Subtle dark gray border */
-            border: 2px solid #333; 
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Light border for definition */
+            
+            /* High-contrast shadow */
+            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.2); 
         }
         
         /* Focus state for inputs */
         input:focus {
-            box-shadow: 0 0 0 2px #fff; /* Crisp white glow on focus */
+            box-shadow: 0 0 0 2px #fff; 
         }
     </style>
 </head>
-<body class="bg-black flex items-center justify-center min-h-screen font-sans">
+<body class="text-white flex items-center justify-center min-h-screen font-sans">
     
-    <div class="grid-background"></div>
-    
-    <div class="auth-card w-full max-w-md mx-auto p-12 bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl transition duration-500 hover:shadow-2xl">
+    <div class="auth-card w-full max-w-md mx-auto p-12 rounded-2xl transition duration-500 hover:shadow-2xl">
         <h2 class="text-4xl font-extrabold text-white text-center mb-10 tracking-wide">
             Create Your Spark
         </h2>
@@ -60,15 +58,15 @@
         <div id="error-message" class="text-red-400 text-sm mb-4 text-center font-medium"></div>
         
         <input type="text" id="username" placeholder="Elegant Username" 
-               class="w-full p-4 my-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
+               class="w-full p-4 my-2 rounded-lg bg-white/10 text-white placeholder-gray-200 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
                required>
                
         <input type="email" id="email" placeholder="Email Address" 
-               class="w-full p-4 my-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
+               class="w-full p-4 my-2 rounded-lg bg-white/10 text-white placeholder-gray-200 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
                required>
                
         <input type="password" id="password" placeholder="Password (min 6 characters)" 
-               class="w-full p-4 my-2 rounded-lg bg-gray-800 text-white placeholder-gray-400 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
+               class="w-full p-4 my-2 rounded-lg bg-white/10 text-white placeholder-gray-200 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
                required>
 
         <button onclick="handleRegister()" 
@@ -78,9 +76,9 @@
             GET STARTED
         </button>
         
-        <p class="text-center text-gray-400 mt-6 text-sm">
+        <p class="text-center text-gray-200 mt-6 text-sm">
             Already sparking? 
-            <a href="./login.html" class="text-white hover:text-gray-300 font-medium transition">
+            <a href="./login.html" class="text-white hover:text-gray-100 font-medium transition underline">
                 Log In
             </a>
         </p>
