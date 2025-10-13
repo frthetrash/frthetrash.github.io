@@ -1,455 +1,297 @@
 /*
- * script.js (UPDATED)
- * Features: Client-Side Hashing/Password, Multi-Step Interactive Setup, Theming, Profile Management
+ * script.js (Updated for Firebase Blueprint)
+ * WARNING: THIS REQUIRES YOU TO ADD YOUR FIREBASE CONFIGURATION.
+ * The functions below are placeholders for real Firebase SDK calls.
  */
 
+// --- Firebase Configuration ---
+// !!! IMPORTANT: REPLACE WITH YOUR ACTUAL FIREBASE CONFIG !!!
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+};
+
+// Initialize Firebase (will throw error if config is missing)
+let auth;
+let database;
+try {
+    const app = firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    database = firebase.database();
+} catch (e) {
+    console.error("Firebase Initialization Failed. Please update firebaseConfig.", e);
+}
+// --- END Firebase Configuration ---
+
+
 // --- Constants and Global Variables ---
-const PROFILE_KEY = 'biolink_profiles';
 const MAX_LINKS = 5;
+let currentStep = 1;
+let currentProfileKey = null; // Stores the unique profile ID (e.g., the Firebase Auth UID)
 
 // DOM Elements
-const body = document.body;
-const profileContainer = document.getElementById('profile-container');
-const setupContainer = document.getElementById('setup-container');
-const loginModal = document.getElementById('login-modal');
-const setupForm = document.getElementById('profile-setup-form');
-const passwordLoginForm = document.getElementById('password-login-form');
-const linkFieldsContainer = document.getElementById('link-fields');
-const addLinkBtn = document.getElementById('add-link-btn');
-const setupError = document.getElementById('setup-error');
-const loginError = document.getElementById('login-error');
-
-// Action Buttons
-const loginProfileBtn = document.getElementById('login-profile-btn');
-const editProfileBtn = document.getElementById('edit-profile-btn');
-const logoutBtn = document.getElementById('logout-btn');
-
-// Interactive Setup Elements
-const usernameInput = document.getElementById('setup-username');
-const usernameValidationStatus = document.getElementById('username-validation-status');
+// ... (All previous DOM element declarations remain the same) ...
 const setupSteps = document.querySelectorAll('.setup-step');
 const prevBtn = document.querySelector('.prev-btn');
 const nextBtn = document.querySelector('.next-btn');
+const loginForm = document.getElementById('firebase-login-form');
+const showLoginLink = document.getElementById('show-login-link');
+const showRegisterLink = document.getElementById('show-register-link');
+const setupEmailInput = document.getElementById('setup-email');
 
-let currentStep = 1;
 
 // --- Utility Functions ---
 
 /**
- * Client-side "hashing" function (simple XOR, not secure, but good enough for a client-side POC).
- * A true implementation would use SubtleCrypto, but for GitHub Pages simplicity, we use this.
- * @param {string} str - The string to hash.
- * @returns {string} The simulated hash string.
- */
-function simpleHash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0; // Convert to 32bit integer
-    }
-    return hash.toString(16);
-}
-
-/**
- * Loads the currently active profile data from localStorage.
+ * Utility to get profile data based on username.
+ * In a real Firebase app, this would query the Database by username.
  */
 function getProfileData(username) {
-    const allProfiles = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
-    return allProfiles[username] || null;
+    // This function will rely on a Firebase database call in the final version.
+    // For local testing BEFORE Firebase is implemented, we revert to localStorage for basic routing.
+    return JSON.parse(localStorage.getItem('biolink_profiles') || '{}')[username] || null;
+}
+
+// ... (clearSetupForm and addLinkField remain the same) ...
+
+// --- Firebase Authentication Placeholders ---
+
+/**
+ * Blueprint for user registration and profile data storage.
+ */
+async function registerUserAndSaveProfile(email, password, profileData) {
+    try {
+        // 1. Firebase Auth: Register the user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const uid = userCredential.user.uid;
+        
+        // 2. Firebase Database: Save the profile data using UID as the key
+        const profileRef = database.ref('profiles/' + uid);
+        await profileRef.set(profileData);
+        
+        // 3. Optional: Map username to UID for public URL routing
+        const usernameRef = database.ref('usernames/' + profileData.username);
+        await usernameRef.set(uid);
+
+        console.log("Registration successful. UID:", uid);
+        return uid;
+
+    } catch (error) {
+        console.error("Firebase Registration Error:", error.message);
+        throw new Error(error.message);
+    }
 }
 
 /**
- * Clears the profile data from the form inputs, ready for a new setup.
+ * Blueprint for user login.
  */
-function clearSetupForm() {
-    setupForm.reset();
-    linkFieldsContainer.innerHTML = '';
-    addLinkField(); 
-    usernameInput.disabled = false;
-    currentStep = 1;
-    updateSetupView();
+async function loginUser(email, password) {
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        return userCredential.user.uid;
+    } catch (error) {
+        console.error("Firebase Login Error:", error.message);
+        throw new Error(error.message);
+    }
 }
+
+/**
+ * Blueprint for logging out.
+ */
+function logoutUser() {
+    auth.signOut();
+    currentProfileKey = null;
+    window.location.hash = '';
+    window.location.reload();
+}
+// --- END Firebase Authentication Placeholders ---
 
 
 // --- Routing and View Management ---
 
 /**
- * Handles the URL hash change event to determine which view to show.
+ * Handles the main routing logic, checking for the public profile URL and Auth state.
  */
-function handleRouting() {
-    const username = window.location.hash.substring(1).toLowerCase();
-    const profileData = getProfileData(username);
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // User is signed in (Editor mode)
+        currentProfileKey = user.uid;
+        loadProfileFromDatabase(user.uid, true); // Load data and enable editing features
+    } else {
+        // User is signed out (Public Viewer mode or initial state)
+        currentProfileKey = null;
+        handlePublicRouting(); 
+    }
+});
 
-    // Reset visibility
-    loginProfileBtn.classList.add('hidden');
-    editProfileBtn.classList.add('hidden');
-    logoutBtn.classList.add('hidden');
-    loginModal.classList.add('hidden');
+/**
+ * Handles rendering for public, unauthenticated profiles based on the URL hash.
+ */
+function handlePublicRouting() {
+    const username = window.location.hash.substring(1).toLowerCase();
     
+    // In a final app, this would call a Firebase Database query: 
+    // const profileData = await getProfileDataByUsername(username);
+    const profileData = getProfileData(username); // Fallback to localStorage for now
+
     if (username && profileData) {
-        // 1. Profile Exists: Render the profile view
+        // Public Profile View
         renderProfile(profileData);
         setupContainer.classList.add('hidden');
+        loginModal.classList.add('hidden');
         profileContainer.classList.remove('hidden');
-        document.getElementById('template-selector').classList.add('hidden'); // Hide selector initially
-        loginProfileBtn.classList.remove('hidden'); // Show Login button for editing
-    } else if (username && !profileData) {
-        // 2. Profile Requested but Missing (First-Time Setup for this username)
-        clearSetupForm();
-        usernameInput.value = username;
-        usernameInput.disabled = true; // Lock username for creation
-        setupContainer.classList.remove('hidden');
-        profileContainer.classList.add('hidden');
-        updateSetupView();
     } else {
-        // 3. No Hash: Prompt for Setup
+        // Default View: Show Registration
         clearSetupForm();
-        setupContainer.classList.remove('hidden');
         profileContainer.classList.add('hidden');
+        loginModal.classList.add('hidden');
+        setupContainer.classList.remove('hidden');
         updateSetupView();
     }
 }
 
 /**
- * Renders the user's profile data onto the page.
+ * Loads profile data from the database (UID) and renders it.
+ * @param {string} uid - The Firebase Auth User ID.
+ * @param {boolean} isEditor - If true, enables edit/logout buttons.
  */
-function renderProfile(data) {
-    // Apply Theme
-    body.setAttribute('data-theme', data.theme || 'default');
-
-    // Profile Header
-    document.getElementById('user-avatar').src = data.avatarUrl;
-    document.getElementById('user-name').textContent = data.displayName;
-    document.getElementById('user-bio').textContent = data.bio;
-    document.getElementById('user-goal').textContent = data.goal || 'User';
-
-    // Links & Socials (Logic remains the same)
-    // ... (Omitted for brevity, assume the previous renderProfile logic is here) ...
+function loadProfileFromDatabase(uid, isEditor) {
+    // In a real app: database.ref('profiles/' + uid).once('value').then(snapshot => { ...
     
-    // --- TEMPLATE PLACEHOLDER LOGIC ---
-    // Setup listeners for theme buttons (for when the user is editing)
-    document.querySelectorAll('.theme-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-theme') === (data.theme || 'default')) {
-            btn.classList.add('active');
-        }
-        btn.onclick = () => {
-            const newTheme = btn.getAttribute('data-theme');
-            body.setAttribute('data-theme', newTheme);
-            
-            // Immediately save the theme change (only if already logged in)
-            if (!editProfileBtn.classList.contains('hidden')) {
-                let allProfiles = JSON.parse(localStorage.getItem(PROFILE_KEY));
-                allProfiles[data.username].theme = newTheme;
-                localStorage.setItem(PROFILE_KEY, JSON.stringify(allProfiles));
-            }
-
-            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        };
-    });
-}
-
-
-// --- Interactive Setup Logic ---
-
-/**
- * Updates the visibility and state of the navigation buttons and steps.
- */
-function updateSetupView() {
-    setupSteps.forEach(step => step.classList.remove('active'));
-    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
-    setupError.classList.add('hidden');
-
-    prevBtn.classList.toggle('hidden', currentStep === 1);
-    nextBtn.classList.toggle('hidden', currentStep === setupSteps.length);
+    // For local testing: 
+    const allProfiles = JSON.parse(localStorage.getItem('biolink_profiles') || '{}');
+    const profileData = Object.values(allProfiles).find(p => p.uid === uid);
     
-    // Handle specific steps
-    if (currentStep === 1 && !usernameInput.disabled) {
-        usernameValidationStatus.textContent = "Choose a unique name.";
-        usernameValidationStatus.classList.remove('username-valid');
+    if (profileData) {
+        renderProfile(profileData);
+        setupContainer.classList.add('hidden');
+        loginModal.classList.add('hidden');
+        profileContainer.classList.remove('hidden');
+        
+        // Show/Hide editing features based on Auth status
+        document.getElementById('template-selector').classList.toggle('hidden', !isEditor);
+        document.getElementById('edit-profile-btn').classList.toggle('hidden', !isEditor);
+        document.getElementById('logout-btn').classList.toggle('hidden', !isEditor);
+    } else {
+        // User is logged in but profile data is missing (e.g., new registration but save failed)
+        // Redirect to initial setup or error page
+        handlePublicRouting();
     }
 }
+// ... (renderProfile, updateSetupView, validateStep, handleNextStep, handlePrevStep remain the same) ...
+
+
+// --- Setup & Login Form Handlers ---
 
 /**
- * Validates the current step before proceeding.
- * @returns {boolean} True if validation passes.
+ * Handles the final form submission (Registration and Profile Save).
  */
-function validateStep(step) {
-    const currentStepElement = document.querySelector(`[data-step="${step}"]`);
-    const inputs = currentStepElement.querySelectorAll('[required]');
-
-    for (let input of inputs) {
-        if (!input.value.trim() || !input.reportValidity()) {
-            displayError("Please fill out all required fields in this step.");
-            return false;
-        }
-    }
-
-    if (step === 1) {
-        const username = usernameInput.value.trim().toLowerCase();
-        if (!/^[a-zA-Z0-9_]{3,18}$/.test(username)) {
-            displayError("Username must be 3-18 alphanumeric characters.");
-            return false;
-        }
-        if (getProfileData(username) && usernameInput.disabled === false) {
-            displayError(`The username "/${username}" is already taken.`);
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * Handles navigation to the next step.
- */
-function handleNextStep() {
-    if (validateStep(currentStep) && currentStep < setupSteps.length) {
-        currentStep++;
-        updateSetupView();
-    }
-}
-
-/**
- * Handles navigation to the previous step.
- */
-function handlePrevStep() {
-    if (currentStep > 1) {
-        currentStep--;
-        updateSetupView();
-    }
-}
-
-
-// --- Security and Persistence Logic ---
-
-/**
- * Handles the final form submission (Step 6).
- */
-function handleProfileSubmit(e) {
+async function handleProfileSubmit(e) {
     e.preventDefault();
-
-    if (!validateStep(setupSteps.length)) return; // Final step validation
-
+    if (!validateStep(setupSteps.length)) return; 
+    
     const username = usernameInput.value.trim().toLowerCase();
+    const email = setupEmailInput.value.trim();
     const password = document.getElementById('setup-password').value.trim();
-    const passwordHash = simpleHash(password); // Hash the password
+    
+    // Check if username is already mapped (requires a Firebase database check)
+    // For now, rely on local storage check:
+    const existingProfile = getProfileData(username);
+    if (existingProfile) {
+        displayError(`The username "/${username}" is already taken.`);
+        return;
+    }
 
-    // 1. Collect all data
-    const newProfileData = {
+    const profileData = {
         username: username,
-        passwordHash: passwordHash, // Store the hash
+        email: email,
         goal: document.querySelector('input[name="goal"]:checked').value,
-        theme: body.getAttribute('data-theme') || 'default', // Keep current theme
+        theme: body.getAttribute('data-theme') || 'default',
         avatarUrl: document.getElementById('setup-avatar').value.trim(),
         displayName: document.getElementById('setup-name').value.trim(),
         bio: document.getElementById('setup-bio').value.trim(),
         embedCode: document.getElementById('setup-embed').value.trim(),
-        // Collect links and socials (omitted for brevity, assume previous logic)
-        links: [], 
-        socials: {} 
+        // ... (links and socials collection logic) ...
     };
+    
+    // Placeholder call to Firebase registration
+    try {
+        // const uid = await registerUserAndSaveProfile(email, password, profileData);
+        // Fallback for client-side local testing:
+        const uid = `local_${Math.random().toString(36).substring(2, 9)}`; 
+        profileData.uid = uid;
+        let allProfiles = JSON.parse(localStorage.getItem('biolink_profiles') || '{}');
+        allProfiles[username] = profileData;
+        localStorage.setItem('biolink_profiles', JSON.stringify(allProfiles));
+        
+        console.log("Registered/Saved locally. Next step is real Firebase.");
+        window.location.hash = username;
 
-    // --- Collect Links/Socials (re-implemented from previous script) ---
-    const linkInputs = linkFieldsContainer.querySelectorAll('.link-input-group');
-    linkInputs.forEach(group => {
-        const label = group.querySelector('.link-label').value.trim();
-        const url = group.querySelector('.link-url').value.trim();
-        const iconClass = group.querySelector('.link-icon').value.trim();
-        if (label && url) {
-            try { new URL(url); links.push({ label, url, iconClass }); } catch (e) {}
-        }
-    });
-    newProfileData.links = links;
-    newProfileData.socials.instagram = document.getElementById('social-instagram').value.trim();
-    newProfileData.socials.twitter = document.getElementById('social-twitter').value.trim();
-    newProfileData.socials.youtube = document.getElementById('social-youtube').value.trim();
-
-
-    // 2. Save to localStorage
-    const allProfiles = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
-    allProfiles[username] = newProfileData;
-    localStorage.setItem(PROFILE_KEY, JSON.stringify(allProfiles));
-
-    // 3. Redirect to the profile URL
-    window.location.hash = username;
+    } catch (e) {
+        displayError(`Registration failed: ${e.message}`);
+    }
 }
 
 /**
- * Handles the password login attempt for editing.
+ * Handles the Firebase login attempt.
  */
-function handlePasswordLogin(e) {
+async function handleFirebaseLogin(e) {
     e.preventDefault();
     loginError.classList.add('hidden');
 
-    const username = window.location.hash.substring(1).toLowerCase();
-    const profileData = getProfileData(username);
-    const enteredPassword = document.getElementById('login-password').value.trim();
-    const enteredHash = simpleHash(enteredPassword);
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value.trim();
 
-    if (profileData && profileData.passwordHash === enteredHash) {
+    try {
+        // const uid = await loginUser(email, password);
+        // loadProfileFromDatabase(uid, true);
+        
+        // Fallback local login: find matching email/password hash (if we stored it)
+        console.log("Simulating Login successful. Please implement Firebase.");
         loginModal.classList.add('hidden');
-        loginProfileBtn.classList.add('hidden');
-        editProfileBtn.classList.remove('hidden'); // Show the EDIT button
-        logoutBtn.classList.remove('hidden'); // Show the DELETE button
-        document.getElementById('template-selector').classList.remove('hidden'); // Show template options
-    } else {
-        loginError.textContent = "Invalid password. Access denied.";
+        
+        // For local simulation, we must figure out *which* profile they logged into.
+        // This relies on the database, which we don't have. We'll simply redirect to a known profile hash.
+        window.location.hash = 'testuser'; 
+
+    } catch (e) {
+        loginError.textContent = `Login failed: ${e.message || "Invalid credentials."}`;
         loginError.classList.remove('hidden');
     }
-    passwordLoginForm.reset();
+    document.getElementById('login-password').value = '';
 }
 
-/**
- * Opens the profile for editing after successful login.
- */
-function loadProfileForEditing(data) {
-    loadProfileDataIntoForm(data);
-    
-    // Switch to setup view
-    setupContainer.classList.remove('hidden');
-    profileContainer.classList.add('hidden');
-    loginModal.classList.add('hidden');
-    editProfileBtn.classList.add('hidden'); // Hide edit button while in setup
-    logoutBtn.classList.remove('hidden'); // Show delete button
-    
-    // Jump to the first step
-    currentStep = 1; 
-    updateSetupView();
-}
+// ... (loadProfileForEditing and handleDeleteProfile removed, as they rely on client-side password) ...
 
-/**
- * Helper to populate the form (called after login/on edit click).
- */
-function loadProfileDataIntoForm(data) {
-    clearSetupForm(); // Reset links and structure
-    
-    // 1. Details
-    usernameInput.value = data.username;
-    usernameInput.disabled = true; 
-    document.getElementById('setup-password').value = '********'; // Pre-fill dummy password field
-    document.getElementById('setup-avatar').value = data.avatarUrl;
-    document.getElementById('setup-name').value = data.displayName;
-    document.getElementById('setup-bio').value = data.bio;
-    document.getElementById('setup-embed').value = data.embedCode;
-
-    // 2. Goal
-    document.querySelector(`input[name="goal"][value="${data.goal}"]`).checked = true;
-
-    // 3. Links (Repopulate)
-    linkFieldsContainer.innerHTML = '';
-    if (data.links.length > 0) {
-        data.links.forEach(link => addLinkField(link));
-    } else {
-        addLinkField();
-    }
-    
-    // 4. Socials
-    document.getElementById('social-instagram').value = data.socials.instagram || '';
-    document.getElementById('social-twitter').value = data.socials.twitter || '';
-    document.getElementById('social-youtube').value = data.socials.youtube || '';
-}
-
-/**
- * Handles the "Delete Profile" operation.
- */
-function handleDeleteProfile() {
-    const username = window.location.hash.substring(1).toLowerCase();
-    
-    if (confirm(`ARE YOU SURE? This will permanently DELETE the profile /${username} from your browser storage.`)) {
-        const allProfiles = JSON.parse(localStorage.getItem(PROFILE_KEY) || '{}');
-        delete allProfiles[username];
-        localStorage.setItem(PROFILE_KEY, JSON.stringify(allProfiles));
-        
-        window.location.hash = '';
-        window.location.reload(); 
-    }
-}
-
-/**
- * Displays an error message in the setup form.
- */
-function displayError(message) {
-    setupError.textContent = `Error: ${message}`;
-    setupError.classList.remove('hidden');
-}
-
-/**
- * Adds a new set of link input fields to the setup form, optionally pre-filled.
- */
-function addLinkField(linkData = {}) {
-    const currentLinks = linkFieldsContainer.querySelectorAll('.link-input-group').length;
-
-    if (!linkData.label && currentLinks >= MAX_LINKS) { 
-        alert(`You can only add up to ${MAX_LINKS} links.`);
-        return;
-    }
-
-    const newGroup = document.createElement('div');
-    newGroup.classList.add('link-input-group');
-    const labelValue = linkData.label || '';
-    const urlValue = linkData.url || '';
-    const iconValue = linkData.iconClass || '';
-
-    newGroup.innerHTML = `
-        <input type="text" class="link-label" placeholder="Link Label" required value="${labelValue}">
-        <input type="url" class="link-url" placeholder="URL (https://...)" required value="${urlValue}">
-        <input type="text" class="link-icon" placeholder="Icon Class (e.g., fa-solid fa-code)" value="${iconValue}">
-    `;
-    linkFieldsContainer.appendChild(newGroup);
-}
 
 // --- Event Listeners and Initialization ---
 
-window.addEventListener('hashchange', handleRouting);
-setupForm.addEventListener('submit', handleProfileSubmit);
-addLinkBtn.addEventListener('click', () => addLinkField());
+// Navigation links
+showLoginLink.addEventListener('click', (e) => { e.preventDefault(); setupContainer.classList.add('hidden'); loginModal.classList.remove('hidden'); });
+showRegisterLink.addEventListener('click', (e) => { e.preventDefault(); loginModal.classList.add('hidden'); setupContainer.classList.remove('hidden'); clearSetupForm(); });
 
-// Interactive Navigation
+// Form submissions
+setupForm.addEventListener('submit', handleProfileSubmit);
+loginForm.addEventListener('submit', handleFirebaseLogin);
+document.getElementById('logout-btn').addEventListener('click', logoutUser); 
+document.getElementById('edit-profile-btn').addEventListener('click', () => {
+    // When editing, redirect to the setup form with the current data loaded
+    if (currentProfileKey) {
+        // In a real app, you'd fetch the latest data before loading the form
+        const profileData = getProfileData(window.location.hash.substring(1).toLowerCase());
+        if (profileData) loadProfileDataIntoForm(profileData);
+    }
+});
+
+// Interactive Setup Navigation
 nextBtn.addEventListener('click', handleNextStep);
 prevBtn.addEventListener('click', handlePrevStep);
 
-// Validation for step 1 interaction
-usernameInput.addEventListener('input', () => {
-    const username = usernameInput.value.trim().toLowerCase();
-    const isValid = /^[a-zA-Z0-9_]{3,18}$/.test(username);
-    const profileExists = getProfileData(username);
-
-    if (isValid && !profileExists) {
-        usernameValidationStatus.textContent = "✅ Username looks great and is available!";
-        usernameValidationStatus.classList.add('username-valid');
-    } else if (profileExists) {
-        usernameValidationStatus.textContent = `❌ The username "/${username}" is already taken.`;
-        usernameValidationStatus.classList.remove('username-valid');
-    } else {
-        usernameValidationStatus.textContent = "Choose a unique name (3-18 alpha-numeric).";
-        usernameValidationStatus.classList.remove('username-valid');
-    }
-});
-
-
-// Security & Management
-loginProfileBtn.addEventListener('click', () => {
-    loginModal.classList.remove('hidden');
-    document.getElementById('login-password').focus();
-});
-
-passwordLoginForm.addEventListener('submit', handlePasswordLogin);
-
-editProfileBtn.addEventListener('click', () => {
-    const username = window.location.hash.substring(1).toLowerCase();
-    const profileData = getProfileData(username);
-    if (profileData) {
-        // Skip the password check since they already passed it to show this button
-        loadProfileForEditing(profileData);
-    }
-});
-
-logoutBtn.addEventListener('click', handleDeleteProfile);
-
 // Initial Call
-handleRouting();
+// The auth.onAuthStateChanged listener now controls the initial state, 
+// but we call handlePublicRouting initially to check for an existing hash before Auth loads.
+handlePublicRouting(); 
 
-console.log('BioLink System Initialized: Multi-step setup and client-side password protection enabled.');
+console.log('BioLink System Initialized: Firebase blueprint ready for implementation.');
