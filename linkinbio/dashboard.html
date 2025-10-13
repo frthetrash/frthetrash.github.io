@@ -22,7 +22,7 @@
             background-image: linear-gradient(to right, #6366F1, #EC4899); /* Indigo to Pink */
         }
         
-        /* Glass-morphism Card/Panel Styling */
+        /* Glass-morphism Card/Panel Styling (Sleek, Programmer Look) */
         .glass-panel {
             background-color: rgba(30, 41, 59, 0.4); /* Dark Blue Slate with transparency */
             backdrop-filter: blur(10px); 
@@ -179,6 +179,9 @@
             <h2 class="text-4xl font-extrabold text-white mb-4">✨ Welcome to LinkShare!</h2>
             <p class="text-xl text-gray-300 mb-10">You're almost done! Please choose your **permanent** username.</p>
             
+            <div id="setup-success-message" class="bg-green-800/70 text-green-300 p-4 rounded-xl text-lg mb-6 mx-auto max-w-lg hidden transition duration-500 ease-in-out">
+                </div>
+
             <div id="setup-username-container" class="mb-6 mx-auto max-w-lg">
                 <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
                        class="w-full p-4 rounded-xl input-dark text-center text-lg"
@@ -233,11 +236,12 @@
 
     // Function to reload the live preview iframe
     function reloadPreview() {
-        const username = window.userProfile ? window.userProfile.username : null;
+        // Access global userProfile from dashboard-editor.js (must be loaded first)
+        const username = window.userProfile ? window.userProfile.username : null; 
         const iframe = document.getElementById('profile-preview-iframe');
         
         if (username) {
-            // Force the iframe to reload with the latest data
+            // Force the iframe to reload with the latest data using a timestamp to bypass cache
             iframe.src = `./profile.html?username=${username}&t=${new Date().getTime()}`;
         }
     }
@@ -259,7 +263,7 @@
         document.body.style.opacity = 1;
     }
     
-    // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC (Crucial Fix) ---
+    // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC (CRITICAL FIX) ---
     
     const setupNameInput = document.getElementById('setup-display-name');
     const setupUsernameInput = document.getElementById('setup-username');
@@ -267,6 +271,7 @@
     const setupButton = document.getElementById('setup-next-button');
     const usernamePreviewEl = document.getElementById('username-preview');
     const errorMessageEl = document.getElementById('setup-error-message');
+    const successMessageEl = document.getElementById('setup-success-message');
 
     // Button enabling logic
     const checkSetupInputs = () => {
@@ -281,8 +286,9 @@
 
     setupNameInput.addEventListener('input', checkSetupInputs);
     setupUsernameInput.addEventListener('input', () => {
+        // Sanitize input: only lowercase letters, numbers, hyphen, and underscore
         const username = setupUsernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
-        setupUsernameInput.value = username; // Sanitize input
+        setupUsernameInput.value = username; 
         usernamePreviewEl.textContent = username || 'username'; // Live preview below input
         checkSetupInputs();
     });
@@ -295,6 +301,7 @@
         // Wait a moment for the data to populate the global userProfile variable
         setTimeout(() => {
             // Check if userProfile is available and the username is NOT set (null)
+            // The global userProfile is populated by originalFetchUserData which comes from dashboard-editor.js
             const isFirstTimeSetup = window.userProfile && !window.userProfile.username;
 
             if (isFirstTimeSetup) {
@@ -317,17 +324,23 @@
 
     // The CRITICAL logic for saving the permanent username and display name
     window.updateDisplayNameFromSetup = async () => {
+        setupButton.disabled = true; // Disable button immediately
+        errorMessageEl.textContent = '';
+        successMessageEl.classList.add('hidden'); // Hide any previous success message
+        
         const displayName = setupNameInput.value.trim();
         let updates = { displayName: displayName };
         let newUsername = null;
 
         if (displayName.length < 3) {
             errorMessageEl.textContent = 'Display name must be at least 3 characters.';
+            setupButton.disabled = false;
             return;
         }
         
         if (!window.currentUserUid) {
             errorMessageEl.textContent = 'Authentication error. Please refresh and log in.';
+            setupButton.disabled = false;
             return; 
         }
 
@@ -338,23 +351,27 @@
             // Basic validation
             if (newUsername.length < 3) {
                 errorMessageEl.textContent = 'Username must be at least 3 characters.';
+                setupButton.disabled = false;
                 return;
             }
             if (!/^[a-z0-9_-]+$/.test(newUsername)) {
                 errorMessageEl.textContent = 'Username can only contain lowercase letters, numbers, hyphen (-) and underscore (_).';
+                setupButton.disabled = false;
                 return;
             }
 
-            // 1. Check Uniqueness (Moved here from dashboard-editor.js for immediate access)
+            // 1. Check Uniqueness (This logic MUST be here for instant feedback)
             try {
                 const userQuery = await db.collection('users').where('username', '==', newUsername).limit(1).get();
                 if (!userQuery.empty) {
                     errorMessageEl.textContent = 'That username is already taken. Try another.';
+                    setupButton.disabled = false;
                     return;
                 }
             } catch(e) {
                 console.error("Username Check Failed:", e);
                 errorMessageEl.textContent = 'Could not check username uniqueness. Try again.';
+                setupButton.disabled = false;
                 return;
             }
 
@@ -374,15 +391,28 @@
                 window.userProfile.username = newUsername;
             }
 
-            // 5. Success Message & UI Switch
-            alert(`🎉 Profile setup complete! Your public link is ready.`);
+            // 5. Success Message & UI Switch (In-page notification FIX)
+            const profileUrl = `${window.location.origin}/profile.html?username=${window.userProfile.username}`;
             
-            // Re-run the fetch logic to switch views based on the now-set username
-            window.fetchUserData(window.currentUserUid); 
+            successMessageEl.innerHTML = `
+                🎉 **Setup Complete!** Your public link is ready to share.
+                <br>
+                <a href="${profileUrl}" target="_blank" class="text-white underline font-semibold mt-1 block hover:text-pink-300 transition">
+                    ${profileUrl}
+                </a>
+            `;
+            successMessageEl.classList.remove('hidden');
+
+            // Delay the switch to the main dashboard so the user can see the link
+            setTimeout(() => {
+                // Re-run the fetch logic to switch views based on the now-set username
+                window.fetchUserData(window.currentUserUid); 
+            }, 3000); // Wait 3 seconds before redirecting to the main dashboard view
             
         } catch (e) {
             console.error("Setup update failed with Firestore error:", e);
             errorMessageEl.textContent = 'Failed to save setup. Please check the console for details.';
+            setupButton.disabled = false;
         }
     };
     // --- END OF CRITICAL FIX ---
