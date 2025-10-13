@@ -48,12 +48,11 @@ async function handleRegister() {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        // 3. Create initial Firestore Profile Document
+        // 3. Create initial Firestore Profile Document (Crucial step for new user data)
         await db.collection('users').doc(user.uid).set({
-            username: username,
-            // Use a capitalized version for a clean initial display name
+            username: username, // <-- MUST BE PRESENT for the public profile query to work
             displayName: username.charAt(0).toUpperCase() + username.slice(1), 
-            profileImageUrl: 'https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png', // Using the sleek logo
+            profileImageUrl: 'https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png', 
             bio: '👋 Check out my links!',
             templateId: 'vibrant'
         });
