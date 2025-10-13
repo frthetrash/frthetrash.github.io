@@ -7,9 +7,6 @@ let currentUserUid = null;
 window.userProfile = {}; // Made global for dashboard.html script access (CRITICAL for setup check)
 let userLinks = [];
 
-const linkEditorView = document.getElementById('link-editor-view'); 
-const initialSetupView = document.getElementById('initial-setup-view'); 
-
 // --- 1. DATA LOADING AND INITIALIZATION ---
 
 /**
