@@ -1,8 +1,8 @@
 /* --- Global Styles & Resets --- */
 :root {
-    --default-gradient: linear-gradient(90deg, #0073E6, #00C4CC); /* Original H1 gradient */
-    --instagram-gradient: linear-gradient(90deg, #833ab4, #fd1d1d, #fcb045); /* Instagram colors: Purple, Red, Yellow */
-    --warning-gradient: linear-gradient(90deg, #ffcc00, #ff6600); /* Warning colors: Yellow to Orange */
+    --default-gradient: linear-gradient(90deg, #0073E6, #00C4CC);
+    --instagram-gradient: linear-gradient(90deg, #833ab4, #fd1d1d, #fcb045);
+    --warning-gradient: linear-gradient(90deg, #ffcc00, #ff6600);
 }
 
 * {
@@ -20,12 +20,17 @@ body {
     display: grid;
     place-items: center;
 
-    /* Subtle Background Pattern */
+    /* Subtle Background Pattern - NOW THREE LAYERS */
     background-image:
+        /* 1. New Subtle Diagonal Pattern (Opacity 0.02, 80% more subtle than the 0.04 grid) */
+        linear-gradient(135deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%), 
+        /* 2. Original Vertical Grid lines */
         linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        /* 3. Original Horizontal Grid lines */
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
     background-size: 50px 50px;
 }
+/* ... rest of the CSS remains unchanged ... */
 /* --- Content Styling --- */
 .content-wrapper {
     display: flex;
