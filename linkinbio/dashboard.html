@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | LinkSpark - Manage Your Links</title>
+    <meta name="description" content="Dashboard to manage profile settings, links, and templates for LinkSpark.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for an elegant look */
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background-color: #5B21B6; /* Deep Purple */
+            border-radius: 4px;
+        }
+        body {
+            /* Background matches the login/register aesthetic */
+            background-color: #1a202c;
+            background-image: linear-gradient(to bottom right, #1f2937, #374151);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen font-sans">
+    
+    <div id="loading-screen" class="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+        <div class="p-8 bg-gray-800/70 rounded-xl shadow-2xl text-center">
+            <img src="https://via.placeholder.com/60/FF8C00/FFFFFF?text=Q" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-orange-500 animate-pulse">
+            
+            <p class="text-xl font-medium text-gray-200">
+                Loading <span class="text-orange-400">LinkSpark</span> Dashboard...
+            </p>
+            <div class="w-24 h-1 mt-4 mx-auto bg-gray-600 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-500 animate-progress"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Define the custom animation for the loader
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        progress: 'progress-bar 1.5s linear infinite',
+                    },
+                    keyframes: {
+                        'progress-bar': {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+
+    <div id="dashboard-content" class="max-w-4xl mx-auto p-6 transition-all duration-500 opacity-0 hidden">
+        <header class="flex justify-between items-center py-6 border-b border-gray-700 mb-8">
+            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 tracking-wider">
+                LinkSpark Editor
+            </h1>
+            <button onclick="handleLogout()" class="py-2 px-4 rounded-full text-sm font-medium text-red-300 bg-red-900/40 hover:bg-red-900 transition duration-300">
+                Logout
+            </button>
+        </header>
+
+        <div class="bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-2xl mb-10 border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 text-indigo-300">Profile Settings</h2>
+            <div class="bg-gray-700/50 p-3 rounded-lg mb-4 text-sm text-gray-300 flex items-center justify-between">
+                <span>Your Public URL:</span>
+                <a id="public-link-display" href="#" target="_blank" class="text-indigo-400 font-mono hover:text-indigo-300 hover:underline transition truncate ml-4">
+                    Loading...
+                </a>
+            </div>
+
+            <input type="text" id="display-name-input" placeholder="Display Name" class="w-full p-3 my-2 rounded bg-gray-700 text-white border-none focus:ring-orange-500 focus:border-orange-500">
+            <input type="url" id="profile-url-input" placeholder="Profile Image URL (External link only)" class="w-full p-3 my-2 rounded bg-gray-700 text-white border-none focus:ring-orange-500 focus:border-orange-500">
+            <textarea id="bio-input" placeholder="Bio (Max 150 chars)" rows="2" class="w-full p-3 my-2 rounded bg-gray-700 text-white border-none focus:ring-orange-500 focus:border-orange-500"></textarea>
+            
+            <button onclick="updateProfile()" class="py-2 px-6 mt-4 font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition duration-300">
+                Save Profile Updates
+            </button>
+        </div>
+
+        <div class="bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-gray-700">
+            <h2 class="text-xl font-semibold mb-6 text-orange-300">Your Links (Drag & Drop not supported in static JS, sorted by Order)</h2>
+            
+            <div id="link-list" class="mb-8 space-y-3">
+                </div>
+
+            <h3 class="text-lg font-semibold mb-4 border-t border-gray-700 pt-6 text-gray-200">Add New Link</h3>
+            <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
+                <input type="text" id="new-link-title" placeholder="Link Title (e.g., My YouTube Channel)" class="flex-grow p-3 rounded-lg bg-gray-700 text-white border-none focus:ring-green-500">
+                <input type="url" id="new-link-url" placeholder="Destination URL (https://...)" class="flex-grow p-3 rounded-lg bg-gray-700 text-white border-none focus:ring-green-500">
+                <button onclick="addNewLink()" class="py-3 px-6 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-500 shadow-md transition duration-300">
+                    Add Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="./js/firebase-config.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/dashboard-editor.js"></script>
+
+    <script>
+        // This script ensures the loading screen hides only after the dashboard-editor.js
+        // has had a chance to fetch the user's data and render content.
+        document.addEventListener('DOMContentLoaded', () => {
+            const dashboardContent = document.getElementById('dashboard-content');
+            const loadingScreen = document.getElementById('loading-screen');
+
+            // Override the standard dashboard-editor initialization to handle the loader
+            const originalFetchUserData = fetchUserData; 
+            fetchUserData = (uid) => {
+                // Execute original fetch logic
+                originalFetchUserData(uid);
+
+                // Wait a moment for rendering, then show content
+                setTimeout(() => {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                        dashboardContent.classList.remove('opacity-0', 'hidden');
+                        dashboardContent.classList.add('opacity-100');
+                    }, 500); // Wait for opacity transition
+                }, 1000); // Simulate network latency and data processing for better UX
+            };
+            
+            // Re-run auth observer to catch the current user state and trigger fetchUserData
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // This call will now use the modified fetchUserData function
+                    fetchUserData(user.uid); 
+                }
+            });
+        });
+    </script>
+</body>
+</html>
