@@ -112,13 +112,14 @@
                 <h2 class="text-3xl text-gradient font-extrabold mb-4">Let's Get Started!</h2>
                 <p class="text-xl text-gray-300 mb-8">It looks like this is your first time here. Create your display name to begin.</p>
                 
-                <input type="text" id="setup-display-name" placeholder="Enter Display Name (Min 3 characters)" 
+                <input type="text" id="setup-display-name" placeholder="ENTER DISPLAY NAME (Min 3 characters)" 
                        class="w-full max-w-sm p-4 my-4 rounded-lg bg-slate-700 text-white border-none text-lg focus:ring-pink-500 transition duration-300 text-center mx-auto">
                 
                 <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
                         class="py-3 px-10 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg disabled:opacity-50">
                     Continue to Dashboard
                 </button>
+
                 <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
             </div>
 
@@ -132,7 +133,6 @@
     <script>
         // --- Dashboard Initialization and Loading Logic ---
         
-        // This is a crucial block to manage the seamless loading experience.
         document.addEventListener('DOMContentLoaded', () => {
             const dashboardContent = document.getElementById('dashboard-content');
             const loadingScreen = document.getElementById('loading-screen');
@@ -149,29 +149,24 @@
                 }, 500); // Wait for opacity transition
             };
 
-            // INTERCEPT: Modify fetchUserData to check for setup completion
+            // INTERCEPT: Modify fetchUserData to handle loading and setup check
             const originalFetchUserData = fetchUserData; 
             fetchUserData = (uid) => {
-                // Execute original fetch logic (setting up listeners)
                 originalFetchUserData(uid);
 
-                // Wait for the links data to be returned (or timed delay)
                 setTimeout(() => {
-                    // Check if the user has a profile and links
+                    // Check if the user has a display name AND links (ensures a link-free user sees setup)
                     if (userProfile.displayName && userLinks.length > 0) {
                         linkEditorView.classList.remove('hidden');
                         initialSetupView.classList.add('hidden');
                         revealContent();
-                    } else if (!userProfile.displayName || userLinks.length === 0) {
-                        // Display initial setup if profile is missing display name OR links are empty
+                    } else {
+                        // Display initial setup if profile is incomplete OR links are empty
                         linkEditorView.classList.add('hidden');
                         initialSetupView.classList.remove('hidden');
                         revealContent();
-                    } else {
-                        // Fallback reveal
-                        revealContent();
                     }
-                }, 1200); // Simulate network and rendering time for a smooth reveal
+                }, 1200); // Minimum display time for a smooth reveal
             };
             
             // Re-run auth observer (from auth.js) to trigger the modified fetchUserData
@@ -185,37 +180,50 @@
             // Interactive logic for the setup screen
             const setupNameInput = document.getElementById('setup-display-name');
             const setupButton = document.getElementById('setup-next-button');
+            const errorMessageEl = document.getElementById('setup-error-message');
+
             setupButton.disabled = true;
 
             setupNameInput.addEventListener('input', () => {
                 const name = setupNameInput.value.trim();
                 setupButton.disabled = name.length < 3;
-                document.getElementById('setup-error-message').textContent = '';
+                errorMessageEl.textContent = '';
             });
 
-            // Make new function available globally
+            // Make new function available globally and CORRECTED FOR AUTH CHECK
             window.updateDisplayNameFromSetup = async () => {
                 const displayName = setupNameInput.value.trim();
+
                 if (displayName.length < 3) {
-                    document.getElementById('setup-error-message').textContent = 'Display name must be at least 3 characters.';
+                    errorMessageEl.textContent = 'Display name must be at least 3 characters.';
                     return;
                 }
                 
+                // CRITICAL CHECK: Ensure currentUserUid is available from dashboard-editor.js
+                if (!currentUserUid) {
+                    errorMessageEl.textContent = 'Authentication error. Please refresh and log in.';
+                    console.error("Setup Update Error: currentUserUid is missing.");
+                    return; 
+                }
+
                 try {
-                    // 1. Update Profile
-                    await db.collection('users').doc(currentUserUid).update({ displayName });
+                    // 1. Update Profile in Firestore
+                    await db.collection('users').doc(currentUserUid).update({ displayName: displayName });
                     
-                    // 2. Hide Setup and Show Editor
+                    // 2. Update the profile object (crucial for local UI update)
+                    userProfile.displayName = displayName; 
+
+                    // 3. Hide Setup and Show Editor
                     initialSetupView.classList.add('hidden');
                     linkEditorView.classList.remove('hidden');
                     
-                    // 3. Update the main editor field with the new name
+                    // 4. Update the main editor field with the new name
                     document.getElementById('display-name-input').value = displayName;
                     
                     alert('🎉 Profile initialized! Now add your first link.');
                 } catch (e) {
-                    console.error("Setup update failed:", e);
-                    document.getElementById('setup-error-message').textContent = 'Failed to save name. Try again.';
+                    console.error("Setup update failed with Firestore error:", e);
+                    errorMessageEl.textContent = 'Failed to save name. Please check the console for details.';
                 }
             };
         });
