@@ -1,9 +1,9 @@
 // /js/auth.js
 
 // NOTE: This script relies on global variables 'auth' and 'db' being initialized 
-// in /js/firebase-config.js, and the SDKs being loaded in the HTML.
+// in /js/firebase-config.js.
 
-// --- Utility: Error Message Handler (Updated for Sleek Theme) ---
+// --- Utility: Error Message Handler ---
 
 /**
  * Displays a clean, temporary error message in the dedicated placeholder element.
@@ -12,7 +12,7 @@
 const setError = (message) => {
     const el = document.getElementById('error-message');
     if (el) {
-        // Apply styling for a visually sleek, temporary error box
+        // Apply styling for the dark/frosted theme
         el.textContent = message;
         el.classList.add('text-red-400', 'font-medium', 'bg-red-900/20', 'p-2', 'rounded-lg');
         
@@ -28,13 +28,31 @@ const setError = (message) => {
 // --- Core Auth Functions ---
 
 /**
- * Handles user registration, including username uniqueness check and initial profile creation.
+ * Ensures a Firestore user profile exists for new sign-ins (used by both Email/Password and Google).
+ * @param {Object} user - The Firebase User object.
+ * @param {string} username - The desired username (provided by input or derived from email/name).
+ */
+async function createOrUpdateUserProfile(user, username) {
+    const userRef = db.collection('users').doc(user.uid);
+    
+    // Use .set with {merge: true} to safely create or update the document without overwriting links.
+    await userRef.set({
+        // CRITICALLY IMPORTANT: The username field for public profile queries
+        username: username, 
+        displayName: user.displayName || username.charAt(0).toUpperCase() + username.slice(1), 
+        profileImageUrl: user.photoURL || 'https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png', 
+        bio: '👋 Check out my links!',
+        templateId: 'vibrant'
+    }, { merge: true });
+}
+
+/**
+ * Handles user registration with Email and Password.
  */
 async function handleRegister() {
     setError('');
     const email = document.getElementById('email')?.value;
     const password = document.getElementById('password')?.value;
-    // Ensure username is clean and lowercase for database indexing/lookups
     const username = document.getElementById('username')?.value.toLowerCase().trim();
 
     if (!username || !email || !password) return setError('Please fill in all fields.');
@@ -48,32 +66,76 @@ async function handleRegister() {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        // 3. Create initial Firestore Profile Document (Guaranteed to include the 'username' field)
-        await db.collection('users').doc(user.uid).set({
-            username: username, // <-- CRITICALLY IMPORTANT FIELD for public profile query
-            displayName: username.charAt(0).toUpperCase() + username.slice(1), 
-            profileImageUrl: 'https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png', 
-            bio: '👋 Check out my links!',
-            templateId: 'vibrant'
-        });
+        // 3. Create initial Firestore Profile Document
+        await createOrUpdateUserProfile(user, username);
 
-        // Redirect only after the Firestore operation is complete.
+        // Redirect on success
         window.location.replace('./dashboard.html');
 
     } catch (error) {
-        // Handle common Firebase Auth errors gracefully
-        let message = 'An unknown error occurred. Please try again.';
+        let message = 'An error occurred during sign up.';
         if (error.code === 'auth/weak-password') message = 'Password must be at least 6 characters.';
         else if (error.code === 'auth/email-already-in-use') message = 'This email is already registered.';
-        else if (error.code === 'auth/invalid-email') message = 'The email address is not valid.';
-
+        
         setError(message);
         console.error("Registration Error:", error);
     }
 }
 
 /**
- * Handles user login.
+ * Handles Google Authentication Sign-In/Sign-Up.
+ */
+async function signInWithGoogle() {
+    setError('');
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    try {
+        const result = await auth.signInWithPopup(provider);
+        const user = result.user;
+        
+        // Derive a clean username from the Google display name or email prefix
+        let suggestedUsername = user.email.split('@')[0].replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+        // 1. Check if user already exists in Firestore (via UID, which always exists after Google sign-in)
+        const userRef = db.collection('users').doc(user.uid);
+        const doc = await userRef.get();
+
+        if (doc.exists) {
+            // Existing user: proceed to dashboard
+        } else {
+            // New user: ensure username is unique before creating profile
+            let usernameIsUnique = false;
+            let counter = 0;
+            let finalUsername = suggestedUsername;
+            
+            while (!usernameIsUnique && counter < 5) {
+                const query = await db.collection('users').where('username', '==', finalUsername).limit(1).get();
+                if (query.empty) {
+                    usernameIsUnique = true;
+                } else {
+                    counter++;
+                    finalUsername = `${suggestedUsername}${counter}`;
+                }
+            }
+            
+            // 2. Create profile with the derived/unique username
+            await createOrUpdateUserProfile(user, finalUsername);
+        }
+
+        window.location.replace('./dashboard.html');
+
+    } catch (error) {
+        let message = 'Google sign-in failed. Please try again.';
+        if (error.code === 'auth/popup-closed-by-user') message = 'Sign-in window closed. Please try again.';
+        
+        setError(message);
+        console.error("Google Sign-In Error:", error);
+    }
+}
+
+
+/**
+ * Handles user login with Email and Password.
  */
 async function handleLogin() {
     setError('');
@@ -100,7 +162,6 @@ function handleLogout() {
         window.location.replace('./login.html');
     }).catch(e => {
         console.error("Logout failed:", e);
-        // Fallback alert for network errors
         alert("Logout failed. Please check your connection.");
     });
 }
@@ -116,7 +177,6 @@ auth.onAuthStateChanged(user => {
     if (user) {
         // USER IS LOGGED IN
         if (path.includes('login.html') || path.includes('register.html') || path.endsWith('/')) {
-            // Redirect from public entry points to the dashboard
             window.location.replace('./dashboard.html');
         }
     } else {
@@ -125,7 +185,6 @@ auth.onAuthStateChanged(user => {
             // Protect the dashboard by redirecting to login
             window.location.replace('./login.html');
         }
-        // If the path ends in '/' (i.e., index.html), send them to the register page.
         else if (path.endsWith('/') || path.endsWith('index.html')) {
              window.location.replace('./register.html');
         }
