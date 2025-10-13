@@ -5,9 +5,8 @@
 // being defined in the inline script in dashboard.html.
 
 let currentUserUid = null;
-window.userProfile = {}; // Made global for dashboard.html script access (CRITICAL for setup check)
+window.userProfile = {}; // CRITICAL: Made global for dashboard.html setup check
 let userLinks = [];
-
 
 // --- 1. DATA LOADING AND INITIALIZATION ---
 
@@ -22,14 +21,14 @@ async function fetchUserData(uid) {
     // 1. Fetch Profile Data
     let profileDoc = await db.collection('users').doc(uid).get();
     
-    // --- FIX 2: If the document is missing, create it immediately and refetch ---
+    // FIX: If the document is missing, create it immediately and refetch (Self-healing logic)
     if (!profileDoc.exists) {
         console.warn("Profile document missing. Attempting to create default profile.");
         
-        // Use default profile values 
         await db.collection('users').doc(uid).set({
             email: auth.currentUser.email,
-            displayName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
+            // CRITICAL CHANGE: We will ONLY use a default username, no displayName fallback
+            displayName: auth.currentUser.email.split('@')[0], 
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             username: null,
             isUsernameSet: false,
@@ -39,7 +38,7 @@ async function fetchUserData(uid) {
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Now, refetch the newly created document
+        // Refetch the newly created document
         profileDoc = await db.collection('users').doc(uid).get(); 
         
         if (!profileDoc.exists) {
@@ -48,8 +47,6 @@ async function fetchUserData(uid) {
         }
     } 
     window.userProfile = profileDoc.data();
-    // --- END FIX 2 ---
-
 
     // 2. Fetch Links Data (only happens if profile data was successfully retrieved)
     const linksSnapshot = await db.collection('users').doc(uid).collection('links').orderBy('order', 'asc').get();
@@ -59,19 +56,21 @@ async function fetchUserData(uid) {
     updateUIFromProfile();
     renderLinksList();
     
-    // 4. Load Live Preview (function is now empty in HTML, but the call remains)
     reloadPreview(); 
 }
 
 /**
  * Updates all static UI elements based on the fetched profile data.
+ * CRITICAL: This is simplified to use only username for the sidebar display.
  */
 function updateUIFromProfile() {
-    // Top Right Info Card Display
-    document.getElementById('profile-name-display').textContent = window.userProfile.displayName || 'User Profile';
+    // Top Right Info Card Display: Shows @username if set, otherwise shows email.
+    const displayId = window.userProfile.username ? `@${window.userProfile.username}` : window.userProfile.email;
+    document.getElementById('profile-name-display').textContent = displayId;
 
     // Profile & Bio Tab Inputs
-    document.getElementById('display-name-input').value = window.userProfile.displayName || '';
+    // CRITICAL: We still need to populate the input fields, even if we don't display the displayName in the info card
+    document.getElementById('display-name-input').value = window.userProfile.displayName || ''; 
     document.getElementById('bio-input').value = window.userProfile.bio || '';
     document.getElementById('profile-image-input').value = window.userProfile.profileImageUrl || '';
     
@@ -109,7 +108,7 @@ window.updateProfileDetails = async () => {
         window.userProfile.displayName = displayName;
         window.userProfile.bio = bio;
         window.userProfile.profileImageUrl = imageUrl;
-        updateUIFromProfile();
+        updateUIFromProfile(); // Important: call this to update the sidebar if username is missing
 
         alert("Profile details saved successfully!");
         reloadPreview();
@@ -192,8 +191,6 @@ window.addLink = async () => {
 
 /**
  * Removes a link from Firestore and the local array.
- * This is exposed globally via 'window.' for the inline HTML onclick.
- * @param {string} linkId - The ID of the link document.
  */
 window.deleteLink = async (linkId) => {
     if (!confirm("Are you sure you want to delete this link?")) return;
@@ -214,6 +211,7 @@ window.deleteLink = async (linkId) => {
 
 /**
  * Renders the list of links in the links-list div.
+ * CRITICAL: Styling matches the Emerald Green Professional theme.
  */
 function renderLinksList() {
     const listEl = document.getElementById('links-list');
@@ -226,12 +224,12 @@ function renderLinksList() {
 
     userLinks.forEach(link => {
         const div = document.createElement('div');
-        // Tailwind styling for the list item (Neon Blue styling)
-        div.className = 'flex items-center justify-between p-4 rounded-lg bg-[#2A2A2A] border border-[#333333] shadow-lg';
+        // Tailwind styling for the list item (Updated to use Emerald theme colors)
+        div.className = 'flex items-center justify-between p-4 rounded-lg bg-[#2D3748] border border-[#4A5568] shadow-lg';
         div.innerHTML = `
             <div class="flex-grow min-w-0 pr-4">
                 <p class="font-semibold truncate text-white">${link.title}</p>
-                <a href="${link.url}" target="_blank" class="text-[#00BFFF] text-sm truncate hover:text-[#00A3D9]">${link.url}</a>
+                <a href="${link.url}" target="_blank" class="text-[#38A169] text-sm truncate hover:text-[#2F855A]">${link.url}</a>
             </div>
             <div class="flex space-x-2">
                 <button onclick="deleteLink('${link.id}')" class="text-red-400 hover:text-red-500 transition p-1" title="Delete Link">
