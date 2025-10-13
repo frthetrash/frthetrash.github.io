@@ -1,0 +1,434 @@
+/*
+ * style.css
+ * BioLink Modern UI/UX Styles
+ * Theme: Subtle, Modern, AI-Brand Inspired Gradients
+ * Focus: Mobile-first, Responsive, Clean Typography
+ */
+
+:root {
+    /* Subtle AI-Brand Color Palette (Inspired by Google, OpenAI, Anthropic, Gemini) */
+    --color-primary-a: #508DDA; /* Soft Blue */
+    --color-primary-b: #92C7CF; /* Light Cyan */
+    --color-accent-a: #74E291;  /* Soft Green */
+    --color-accent-b: #FFC72C;  /* Soft Yellow */
+    --color-background-dark: #121212;
+    --color-card-background: #1e1e1e;
+    --color-text-light: #f5f5f5;
+    --color-text-muted: #aaaaaa;
+
+    /* Custom Gradients */
+    --gradient-main: linear-gradient(135deg, var(--color-primary-a) 0%, var(--color-primary-b) 100%);
+    --gradient-hover: linear-gradient(135deg, var(--color-accent-a) 0%, var(--color-accent-b) 100%);
+    
+    /* Layout Constants */
+    --max-content-width: 600px;
+    --border-radius: 12px;
+    --transition-speed: 0.3s;
+}
+
+/* Global Reset and Base Styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    background-color: var(--color-background-dark);
+    color: var(--color-text-light);
+    display: flex;
+    flex-direction: column; /* Changed to column to stack header and main content */
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    transition: background-color var(--transition-speed);
+}
+
+/* 60% Opacity Pattern Grid Background Effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Subtle Grid Pattern */
+    background-image: linear-gradient(0deg, transparent 99%, rgba(255, 255, 255, 0.1) 100%),
+                      linear-gradient(90deg, transparent 99%, rgba(255, 255, 255, 0.1) 100%);
+    background-size: 40px 40px; /* Grid Cell Size */
+    opacity: 0.6; /* Key Requirement: 60% opacity */
+    pointer-events: none; /* Allows clicks on content underneath */
+    z-index: -1;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- New Header/Logo Styling --- */
+#app-header {
+    width: 100%;
+    max-width: var(--max-content-width);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 20px;
+}
+
+.app-logo {
+    height: 40px; /* Adjust size for visibility */
+    transition: transform var(--transition-speed);
+}
+
+.app-logo:hover {
+    transform: scale(1.05);
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    padding: 8px 15px;
+    background-color: var(--color-card-background);
+    color: var(--color-primary-a);
+    border: 1px solid var(--color-primary-a);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color var(--transition-speed), color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.action-btn:hover {
+    background-color: var(--color-primary-a);
+    color: var(--color-background-dark);
+    box-shadow: 0 2px 8px rgba(80, 141, 218, 0.4);
+}
+
+/* --- Profile View Styling --- */
+.profile-view {
+    width: 100%;
+    max-width: var(--max-content-width);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeIn var(--transition-speed) ease-out;
+}
+
+/* Profile Header */
+.profile-header {
+    text-align: center;
+    padding: 10px 0;
+}
+
+#user-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--color-primary-a); /* Small accent border */
+    box-shadow: 0 0 15px rgba(80, 141, 218, 0.5);
+}
+
+#user-name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+#user-bio {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+/* Link Buttons */
+.link-buttons-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.link-button {
+    position: relative; /* Added for ::before positioning */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--color-text-light);
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed), background-color var(--transition-speed);
+    overflow: hidden; 
+    z-index: 1; /* Ensure content is above ::before */
+}
+
+/* Gradient Button Accent (Subtle, on hover) */
+.link-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-main);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity var(--transition-speed);
+}
+
+.link-button:hover, .link-button:focus {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    outline: none;
+}
+
+.link-button:hover::before, .link-button:focus::before {
+    opacity: 0.15; /* Subtle gradient on hover */
+}
+
+.link-button i {
+    margin-right: 10px;
+    font-size: 1.2em;
+    color: var(--color-primary-a);
+    transition: color var(--transition-speed);
+}
+
+.link-button:hover i {
+    color: var(--color-accent-a); /* Icon color change on hover */
+}
+
+/* Social Icons */
+.social-icons-section {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.social-icons a {
+    color: var(--color-text-muted);
+    font-size: 1.8rem;
+    margin: 0 10px;
+    transition: color var(--transition-speed), transform var(--transition-speed);
+    display: inline-block;
+}
+
+/* Gradient Hover Effect for Icons */
+.social-icons a:hover {
+    transform: scale(1.1);
+    background-image: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(80, 141, 218, 0.5); /* Subtle glow */
+}
+
+/* Optional Embeds */
+.embeds-section {
+    padding: 10px 0;
+}
+
+.embed-item {
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive iframe styling (Spotify, YouTube) */
+.embed-item iframe {
+    width: 100%;
+    max-width: 100%;
+    height: 300px; 
+    border-radius: 8px;
+    border: none;
+}
+
+/* Responsive Image styling */
+.embed-item img {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Analytics Placeholder */
+.analytics-footer {
+    text-align: center;
+    padding-top: 20px;
+}
+
+#views-placeholder {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    opacity: 0.7;
+}
+
+/* --- Setup View Styling --- */
+.setup-view {
+    width: 100%;
+    max-width: var(--max-content-width);
+    padding: 20px;
+}
+
+.setup-card {
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.setup-card h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    background-image: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#profile-setup-form input,
+#profile-setup-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    background-color: var(--color-background-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: var(--color-text-light);
+    font-size: 1rem;
+    transition: border-color var(--transition-speed);
+}
+
+#profile-setup-form input:focus,
+#profile-setup-form textarea:focus {
+    border-color: var(--color-primary-a);
+    outline: none;
+}
+
+#profile-setup-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+#setup-username:disabled {
+    background-color: #333;
+    cursor: not-allowed;
+    color: var(--color-text-muted);
+}
+
+.section-title {
+    margin: 15px 0 10px;
+    font-weight: 600;
+    color: var(--color-primary-b);
+}
+
+.link-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.link-input-group input {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+
+.link-input-group .link-label { flex: 2; }
+.link-input-group .link-url { flex: 3; }
+.link-input-group .link-icon { flex: 1; max-width: 100px; }
+
+#add-link-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: 1px dashed var(--color-text-muted);
+    color: var(--color-text-muted);
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+#add-link-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-light);
+    border-color: var(--color-text-light);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--transition-speed), opacity var(--transition-speed), box-shadow var(--transition-speed);
+    
+    background: var(--gradient-main);
+    color: var(--color-background-dark);
+    box-shadow: 0 4px 15px rgba(80, 141, 218, 0.4);
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+    box-shadow: 0 6px 20px rgba(80, 141, 218, 0.6);
+}
+
+.setup-error {
+    color: #ff6b6b;
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(255, 107, 107, 0.1);
+    border-radius: 6px;
+}
+
+/* Keyframe for subtle fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 650px) {
+    body {
+        padding: 10px;
+    }
+
+    .profile-view {
+        padding: 10px 0;
+        gap: 15px;
+    }
+
+    #user-name {
+        font-size: 1.5rem;
+    }
+
+    .link-button {
+        padding: 12px 15px;
+        font-size: 1rem;
+    }
+
+    .link-input-group {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .link-input-group .link-icon { max-width: 100%; }
+}
