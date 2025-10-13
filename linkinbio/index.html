@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkSpark | The Elegant Link-in-Bio Tool for Creators</title>
-    <meta name="description" content="The elegant link-in-bio tool powered by static hosting and Firebase.">
+    <title>LinkSpark | Initializing...</title>
+    <meta name="description" content="Initializing LinkSpark, the elegant link-in-bio tool.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom styles to ensure the deep, elegant gradient background matches the aesthetic */
+        /* Ensures a deep black background */
         body { 
-            background-color: #1a202c; /* Fallback */
-            background-image: linear-gradient(to bottom right, #1f2937, #374151); /* Deep subtle gradient */
+            background-color: #000000;
         }
     </style>
 </head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center font-sans">
+<body class="bg-black min-h-screen flex items-center justify-center font-sans">
     
-    <div class="text-center text-white p-8 bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-2xl">
-        <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500 mb-3">
-            LinkSpark ✨
+    <div class="text-center text-white p-12 bg-gray-900 rounded-2xl shadow-xl border border-gray-700">
+        <h1 class="text-4xl font-extrabold text-white mb-3 tracking-widest">
+            LINKSPARK
         </h1>
-        <p class="text-gray-300 text-lg">Checking authentication status...</p>
+        <p class="text-gray-400 text-lg font-light">
+            Checking authentication status...
+        </p>
         
-        <svg class="animate-spin h-8 w-8 text-indigo-400 mx-auto mt-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-8 w-8 text-white mx-auto mt-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -38,10 +39,8 @@
     <script src="./js/auth.js"></script>
     
     <script>
-        // NOTE: The primary redirection logic resides in auth.js (onAuthStateChanged observer).
-        // This file simply loads the necessary scripts, and auth.js handles:
-        // - IF user is logged in, redirect to ./dashboard.html
-        // - IF user is NOT logged in, redirect to ./register.html
+        // No inline redirection logic needed here; it is fully managed by auth.js.
+        // Once scripts load, auth.js handles routing to /dashboard or /register.
     </script>
 </body>
 </html>
