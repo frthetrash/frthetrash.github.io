@@ -1,1 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkSpark | The Elegant Link-in-Bio Tool</title>
+    <meta name="description" content="Check out this creator's professional links, powered by LinkSpark.">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Deep, solid black background */
+        body { background-color: #000000; }
+        
+        /* Custom styles for the high-contrast link buttons */
+        .link-button {
+            /* Large, generous padding */
+            padding-top: 1.25rem; 
+            padding-bottom: 1.25rem;
+            
+            /* High-contrast white text on black background, with elegant border */
+            border: 2px solid white; 
+            background-color: transparent;
+            color: white;
+            
+            /* Animation for the 'lift' effect on hover */
+            transition: all 0.3s ease-in-out;
+            transform: scale(1); /* Base scale */
+        }
+        
+        .link-button:hover {
+            /* Subtle 'lift' and inverse coloring effect */
+            background-color: white;
+            color: black;
+            transform: scale(1.02); 
+            box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.2); /* Soft white glow */
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen p-8 font-sans">
+    
+    <div id="public-profile-container" class="w-full max-w-xl mx-auto py-12 text-center">
+        
+        <div id="status-message" class="text-white text-xl mt-8 font-light tracking-wide">
+            Loading profile...
+        </div>
+        
+        </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script src="./js/firebase-config.js"></script>
+    <script src="./js/auth.js"></script> 
+    <script src="./js/public-profile.js"></script>
+</body>
+</html>
