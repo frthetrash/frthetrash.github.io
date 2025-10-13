@@ -1,1 +1,71 @@
+/* /css/style.css 
+This file contains the Tailwind CSS directives. 
+It must be processed by the Tailwind CLI/Build Tool to generate the final styles.
+*/
 
+/* 1. Base Tailwind Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* 2. Global Reset / Base Styles (Elegant Black & White Theme) */
+html {
+    /* Smoother scrolling, common in modern sites */
+    scroll-behavior: smooth;
+}
+
+body {
+    /* Ensures a deep black background */
+    background-color: #000000;
+    /* Sets a clean, standard font across the application */
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; 
+    /* Slightly less jarring text color than pure white */
+    color: #f5f5f5;
+}
+
+/* 3. Custom Component Overrides (For Reusable Elements) */
+
+/* Custom styling for the elegant link buttons on the profile page */
+.link-button {
+    /* High-contrast black border, base white text */
+    border: 2px solid #ffffff; 
+    background-color: transparent;
+    color: #ffffff;
+    
+    /* Transition for a smooth hover effect */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: scale(1);
+    /* Sets a slightly larger touch target */
+    padding: 1.25rem; 
+}
+
+/* Invert colors and slightly lift on hover */
+.link-button:hover {
+    background-color: #ffffff;
+    color: #000000;
+    transform: scale(1.03); 
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1); /* Subtle white shadow */
+}
+
+/* Styling for the input fields to ensure consistency and elegance */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+textarea {
+    /* Removes default browser outlines/borders */
+    border: none !important;
+    /* Elegant placeholder color */
+    color: #ffffff;
+    /* High-contrast focus ring */
+    box-shadow: 0 0 0 0 transparent;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+input:focus,
+textarea:focus {
+    /* A crisp, white focus outline for the B&W theme */
+    box-shadow: 0 0 0 2px #ffffff !important;
+    outline: none;
+}
