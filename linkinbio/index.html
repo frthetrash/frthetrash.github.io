@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioLink | Modern Profile</title>
+    <link rel="icon" type="image/png" href="png.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header id="app-header">
+        <a href="/" class="logo-link">
+            <img src="png.png" alt="BioLink Logo" class="app-logo">
+        </a>
+        <div class="header-actions">
+            <button id="edit-profile-btn" class="action-btn hidden"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+            <button id="logout-btn" class="action-btn hidden"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+    </header>
+
+    <main id="profile-container" class="profile-view hidden">
+        <section class="profile-header">
+            <img id="user-avatar" src="https://via.placeholder.com/150/508DDA/FFFFFF?text=A" alt="User Avatar">
+            <h1 id="user-name"></h1>
+            <p id="user-bio"></p>
+        </section>
+        <section id="link-buttons" class="link-buttons-section"></section>
+        <section id="embeds-section" class="embeds-section"></section>
+        <section class="social-icons-section">
+            <div id="social-icons" class="social-icons"></div>
+        </section>
+        <section class="analytics-footer">
+            <span id="views-placeholder">Views: 0</span>
+        </section>
+    </main>
+
+    <div id="setup-container" class="setup-view hidden">
+        <div class="setup-card">
+            <h2>🚀 Create/Edit BioLink Profile</h2>
+            <form id="profile-setup-form">
+                <input type="text" id="setup-username" placeholder="Unique Username (e.g., johnny_d)" required pattern="[a-zA-Z0-9_]{3,15}" title="3-15 alphanumeric characters or underscore">
+                <input type="url" id="setup-avatar" placeholder="Avatar Image URL (e.g., https://.../pic.png)" required>
+                <input type="text" id="setup-name" placeholder="Display Name" required maxlength="30">
+                <textarea id="setup-bio" placeholder="Short Bio (max 80 chars)" maxlength="80" required></textarea>
+
+                <p class="section-title">External Links (Max 5)</p>
+                <div id="link-fields">
+                    <div class="link-input-group">
+                        <input type="text" class="link-label" placeholder="Link Label (e.g., My Portfolio)" required>
+                        <input type="url" class="link-url" placeholder="URL (e.g., https://...)" required>
+                        <input type="text" class="link-icon" placeholder="Icon Class (e.g., fa-solid fa-code)" value="fa-solid fa-link">
+                    </div>
+                </div>
+                <button type="button" id="add-link-btn">Add Link</button>
+
+                <p class="section-title">Social Media Handles</p>
+                <input type="text" id="social-instagram" placeholder="Instagram Handle (e.g., @user)">
+                <input type="text" id="social-twitter" placeholder="Twitter/X Handle (@user)">
+                <input type="text" id="social-youtube" placeholder="YouTube Channel URL">
+
+                <p class="section-title">Optional Embeds</p>
+                <textarea id="setup-embed" placeholder="Paste an iframe embed code (e.g., Spotify, YouTube) or image URL here (optional)"></textarea>
+
+                <button type="submit" class="submit-btn">Save & Go to Profile</button>
+                <p class="setup-error hidden" id="setup-error"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
