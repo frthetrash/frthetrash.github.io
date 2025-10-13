@@ -8,9 +8,9 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base Dark Theme and Typography */
+        /* Base Dark Theme and Typography (Charcoal Base) */
         body { 
-            background-color: #0A0A10; /* Near-black background */
+            background-color: #0F172A; /* Slate/Charcoal background */
             color: #E2E8F0;
             font-family: ui-sans-serif, system-ui;
             opacity: 0; /* Hidden initially to prevent FOUC */
@@ -19,23 +19,26 @@
 
         /* Vibrant Accent Gradient */
         .vibrant-gradient {
-            background-image: linear-gradient(to right, #6366F1, #EC4899); /* Indigo to Pink */
+            background-image: linear-gradient(to right, #4F46E5, #EC4899); /* Stronger Indigo to Pink */
         }
         
-        /* Glass-morphism Card/Panel Styling (Sleek, Programmer Look) */
+        /* Refined Glass-morphism Card/Panel Styling */
         .glass-panel {
-            background-color: rgba(30, 41, 59, 0.4); /* Dark Blue Slate with transparency */
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle white border */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background-color: rgba(2, 6, 23, 0.6); /* Darker, more subtle background */
+            backdrop-filter: blur(12px); 
+            -webkit-backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 1rem; /* Consistent large radius */
+            box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.5);
         }
 
         /* Input/Form Element Styling */
         .input-dark {
-            background-color: #1A1A22;
-            border: 1px solid #334155;
+            background-color: #1E293B; /* Slightly lighter input background */
+            border: 1px solid #475569;
             color: #E2E8F0;
+            padding: 0.8rem 1rem; /* Better padding */
+            border-radius: 0.6rem; /* Soft roundness */
             transition: all 0.2s ease;
         }
         .input-dark:focus {
@@ -57,18 +60,18 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 3px;
-            background: linear-gradient(to right, #6366F1, #EC4899);
+            height: 4px; /* Thicker line */
+            background: linear-gradient(to right, #4F46E5, #EC4899);
             border-radius: 2px 2px 0 0;
         }
 
         /* Mobile Preview Mockup */
         .mobile-preview {
             background-color: #0F172A;
-            border: 10px solid #1E293B;
-            border-radius: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-            height: 600px;
+            border: 12px solid #334155; /* Thicker border */
+            border-radius: 48px; /* Softer phone shape */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            height: 650px; /* Slightly taller */
             overflow: hidden;
             position: relative;
         }
@@ -83,7 +86,7 @@
 
 <div id="app-container" class="min-h-screen">
 
-    <header class="bg-gray-900/50 glass-panel p-4 shadow-xl sticky top-0 z-20">
+    <header class="glass-panel p-4 shadow-xl sticky top-0 z-20 rounded-none">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
@@ -92,9 +95,9 @@
             </div>
             
             <div class="flex space-x-4 items-center">
-                <span id="profile-name-display" class="text-indigo-300 font-medium hidden lg:block"></span>
+                <span id="profile-name-display" class="text-indigo-300 font-medium hidden lg:block text-sm"></span>
                 
-                <button onclick="copyProfileLink()" class="py-2 px-4 rounded-lg text-sm text-white font-medium bg-green-600 hover:bg-green-700 transition duration-300 shadow-md">
+                <button onclick="copyProfileLink()" class="py-2 px-4 rounded-full text-sm text-white font-medium bg-green-600 hover:bg-green-700 transition duration-300 shadow-md">
                     🔗 Share Profile
                 </button>
                 <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition duration-300 p-2 text-sm">
@@ -104,49 +107,51 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <main class="max-w-7xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        <section id="link-editor-view" class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-2xl min-h-[80vh] hidden">
+        <section id="link-editor-view" class="lg:col-span-2 glass-panel p-8 min-h-[80vh] hidden">
             
-            <div class="flex border-b border-gray-700 mb-8">
+            <div class="flex border-b border-gray-700 mb-8 -mx-8 px-8">
                 <button id="tab-profile" class="tab-btn active" onclick="showTab('profile')">Profile & Bio</button>
                 <button id="tab-links" class="tab-btn" onclick="showTab('links')">Links Manager</button>
                 <button id="tab-design" class="tab-btn" onclick="showTab('design')">Design & Theme</button>
             </div>
 
-            <div id="tab-content-profile" class="tab-content">
-                <h3 class="text-2xl font-bold text-indigo-400 mb-4">Edit Profile Details</h3>
+            <div id="tab-content-profile" class="tab-content space-y-8">
+                <h3 class="text-2xl font-bold text-indigo-400">Edit Profile Details</h3>
                 
-                <div class="mb-6 space-y-6">
+                <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Display Name</label>
-                        <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full p-3 rounded-xl input-dark">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Display Name</label>
+                        <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full input-dark">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Bio (Max 100 characters)</label>
-                        <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full p-3 rounded-xl input-dark h-24 resize-none"></textarea>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Bio (Max 100 characters)</label>
+                        <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full input-dark h-24 resize-none"></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-1">Profile Image URL</label>
-                        <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full p-3 rounded-xl input-dark">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Profile Image URL</label>
+                        <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full input-dark">
                     </div>
                 </div>
                 
-                <button onclick="updateProfileDetails()" class="py-3 px-8 font-bold rounded-xl text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                <button onclick="updateProfileDetails()" class="py-3 px-8 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
                     💾 Save Profile Changes
                 </button>
             </div>
 
-            <div id="tab-content-links" class="tab-content hidden">
-                <h3 class="text-2xl font-bold text-indigo-400 mb-6">Manage Links</h3>
+            <div id="tab-content-links" class="tab-content hidden space-y-8">
+                <h3 class="text-2xl font-bold text-indigo-400">Manage Links</h3>
                 
-                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-8 p-4 rounded-xl border border-gray-700 bg-gray-800/50">
-                    <input type="text" id="new-link-title" placeholder="Link Title" class="w-full sm:w-1/3 p-3 rounded-lg input-dark">
-                    <input type="url" id="new-link-url" placeholder="URL (e.g., https://example.com)" class="w-full sm:w-2/3 p-3 rounded-lg input-dark">
-                    <button onclick="addLink()" class="py-3 px-5 font-bold rounded-lg vibrant-gradient text-slate-900 hover:opacity-90 transition duration-300 flex-shrink-0">
-                        + Add
+                <div class="p-5 rounded-xl border border-gray-700 bg-gray-800/30 space-y-4">
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                        <input type="text" id="new-link-title" placeholder="Link Title" class="w-full sm:w-1/3 input-dark">
+                        <input type="url" id="new-link-url" placeholder="URL (e.g., https://example.com)" class="w-full sm:w-2/3 input-dark">
+                    </div>
+                    <button onclick="addLink()" class="w-full py-3 font-bold rounded-lg vibrant-gradient text-slate-900 hover:opacity-90 transition duration-300">
+                        + Add New Link
                     </button>
                 </div>
                 
@@ -155,19 +160,19 @@
                 </div>
             </div>
             
-            <div id="tab-content-design" class="tab-content hidden">
-                <h3 class="text-2xl font-bold text-indigo-400 mb-4">Design Customization</h3>
+            <div id="tab-content-design" class="tab-content hidden space-y-8">
+                <h3 class="text-2xl font-bold text-indigo-400">Design Customization</h3>
                 
-                <div class="mb-8">
+                <div class="p-5 rounded-xl border border-gray-700 bg-gray-800/30">
                     <label class="block text-sm font-medium text-gray-300 mb-2">Select Profile Template</label>
-                    <select id="template-select" class="w-full max-w-sm p-3 rounded-xl input-dark">
+                    <select id="template-select" class="w-full max-w-sm input-dark">
                         <option value="vibrant">Vibrant (Indigo/Pink)</option>
                         <option value="clean">Clean Minimal</option>
                         <option value="dark">Dark Mode Classic</option>
                     </select>
                 </div>
                 
-                <button onclick="updateDesign()" class="py-3 px-8 font-bold rounded-xl text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                <button onclick="updateDesign()" class="py-3 px-8 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
                     🎨 Apply Theme
                 </button>
             </div>
@@ -175,7 +180,7 @@
         </section>
 
 
-        <div id="initial-setup-view" class="lg:col-span-3 w-full text-center py-20 glass-panel p-12 rounded-2xl shadow-2xl hidden">
+        <div id="initial-setup-view" class="lg:col-span-3 w-full text-center py-20 glass-panel p-12 hidden">
             <h2 class="text-4xl font-extrabold text-white mb-4">✨ Welcome to LinkShare!</h2>
             <p class="text-xl text-gray-300 mb-10">You're almost done! Please choose your **permanent** username.</p>
             
@@ -184,16 +189,16 @@
 
             <div id="setup-username-container" class="mb-6 mx-auto max-w-lg">
                 <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
-                       class="w-full p-4 rounded-xl input-dark text-center text-lg"
+                       class="w-full input-dark text-center text-lg"
                        maxlength="20">
                 <p class="text-sm text-pink-400 mt-2">⚠️ Your profile link will be: **linkshare.com/<span id="username-preview">username</span>**. This cannot be changed.</p>
             </div>
             
             <input type="text" id="setup-display-name" placeholder="SET DISPLAY NAME (e.g., Jane Doe)" 
-                   class="w-full max-w-lg p-4 my-4 rounded-xl input-dark text-center text-lg mx-auto">
+                   class="w-full max-w-lg input-dark text-center text-lg mx-auto mb-8">
             
             <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
-                    class="py-4 px-12 font-bold rounded-xl text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg mt-6 disabled:opacity-50">
+                    class="py-4 px-12 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg disabled:opacity-50">
                 🚀 Finish Setup
             </button>
 
@@ -222,6 +227,7 @@
 
 <script>
     // --- UI/Tab Management & Setup Logic ---
+    // NO REDECLARATIONS HERE (Fix for Uncaught SyntaxError)
     const linkEditorView = document.getElementById('link-editor-view');
     const initialSetupView = document.getElementById('initial-setup-view');
 
@@ -236,12 +242,10 @@
 
     // Function to reload the live preview iframe
     function reloadPreview() {
-        // Access global userProfile from dashboard-editor.js (must be loaded first)
         const username = window.userProfile ? window.userProfile.username : null; 
         const iframe = document.getElementById('profile-preview-iframe');
         
         if (username) {
-            // Force the iframe to reload with the latest data using a timestamp to bypass cache
             iframe.src = `./profile.html?username=${username}&t=${new Date().getTime()}`;
         }
     }
@@ -264,7 +268,6 @@
     }
     
     // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC (CRITICAL FIX) ---
-    
     const setupNameInput = document.getElementById('setup-display-name');
     const setupUsernameInput = document.getElementById('setup-username');
     const setupUsernameContainer = document.getElementById('setup-username-container');
@@ -277,7 +280,6 @@
     const checkSetupInputs = () => {
         const displayName = setupNameInput.value.trim();
         const username = setupUsernameInput.value.trim();
-        
         const isUsernameRequired = setupUsernameContainer.style.display !== 'none';
         
         setupButton.disabled = displayName.length < 3 || (isUsernameRequired && username.length < 3);
@@ -286,26 +288,21 @@
 
     setupNameInput.addEventListener('input', checkSetupInputs);
     setupUsernameInput.addEventListener('input', () => {
-        // Sanitize input: only lowercase letters, numbers, hyphen, and underscore
         const username = setupUsernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
         setupUsernameInput.value = username; 
-        usernamePreviewEl.textContent = username || 'username'; // Live preview below input
+        usernamePreviewEl.textContent = username || 'username';
         checkSetupInputs();
     });
     
     // Override the dashboard-editor function to implement the UI switch
     const originalFetchUserData = window.fetchUserData; 
     window.fetchUserData = (uid) => {
-        originalFetchUserData(uid); // Run the original data fetch
+        originalFetchUserData(uid);
 
-        // Wait a moment for the data to populate the global userProfile variable
         setTimeout(() => {
-            // Check if userProfile is available and the username is NOT set (null)
-            // The global userProfile is populated by originalFetchUserData which comes from dashboard-editor.js
             const isFirstTimeSetup = window.userProfile && !window.userProfile.username;
 
             if (isFirstTimeSetup) {
-                // FORCE SETUP VIEW: Show username input and the setup screen
                 setupUsernameContainer.style.display = 'block';
                 initialSetupView.classList.remove('hidden');
                 linkEditorView.classList.add('hidden');
@@ -313,20 +310,19 @@
                 setupNameInput.value = window.userProfile.displayName || '';
                 checkSetupInputs();
             } else {
-                // Normal view: Hide username input and show main editor
                 setupUsernameContainer.style.display = 'none';
                 initialSetupView.classList.add('hidden');
                 linkEditorView.classList.remove('hidden');
             }
-            revealContent(); // Finally show the body
+            revealContent();
         }, 100); 
     };
 
     // The CRITICAL logic for saving the permanent username and display name
     window.updateDisplayNameFromSetup = async () => {
-        setupButton.disabled = true; // Disable button immediately
+        setupButton.disabled = true;
         errorMessageEl.textContent = '';
-        successMessageEl.classList.add('hidden'); // Hide any previous success message
+        successMessageEl.classList.add('hidden');
         
         const displayName = setupNameInput.value.trim();
         let updates = { displayName: displayName };
@@ -344,11 +340,9 @@
             return; 
         }
 
-        // Check and SET PERMANENT USERNAME (only if not already set)
         if (!window.userProfile.username) {
             newUsername = setupUsernameInput.value.toLowerCase().trim();
             
-            // Basic validation
             if (newUsername.length < 3) {
                 errorMessageEl.textContent = 'Username must be at least 3 characters.';
                 setupButton.disabled = false;
@@ -360,7 +354,6 @@
                 return;
             }
 
-            // 1. Check Uniqueness (This logic MUST be here for instant feedback)
             try {
                 const userQuery = await db.collection('users').where('username', '==', newUsername).limit(1).get();
                 if (!userQuery.empty) {
@@ -375,23 +368,19 @@
                 return;
             }
 
-            // 2. Prepare the updates payload
             updates.username = newUsername;
-            updates.isUsernameSet = true; // LOCK the username
+            updates.isUsernameSet = true;
         }
 
 
         try {
-            // 3. Update Profile in Firestore
             await db.collection('users').doc(window.currentUserUid).set(updates, { merge: true });
             
-            // 4. Update global profile object
             window.userProfile.displayName = displayName; 
             if (newUsername) {
                 window.userProfile.username = newUsername;
             }
 
-            // 5. Success Message & UI Switch (In-page notification FIX)
             const profileUrl = `${window.location.origin}/profile.html?username=${window.userProfile.username}`;
             
             successMessageEl.innerHTML = `
@@ -403,11 +392,9 @@
             `;
             successMessageEl.classList.remove('hidden');
 
-            // Delay the switch to the main dashboard so the user can see the link
             setTimeout(() => {
-                // Re-run the fetch logic to switch views based on the now-set username
                 window.fetchUserData(window.currentUserUid); 
-            }, 3000); // Wait 3 seconds before redirecting to the main dashboard view
+            }, 3000);
             
         } catch (e) {
             console.error("Setup update failed with Firestore error:", e);
@@ -415,7 +402,6 @@
             setupButton.disabled = false;
         }
     };
-    // --- END OF CRITICAL FIX ---
 </script>
 
 </body>
