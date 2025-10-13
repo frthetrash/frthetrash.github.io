@@ -84,28 +84,75 @@
 
 <div id="app-container" class="min-h-screen">
 
+    <header class="w-full bg-[#2D3748] shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+             <div class="flex items-center space-x-3">
+                <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
+                     alt="LinkShare Logo" class="w-7 h-7">
+                <h1 class="text-xl font-bold emerald-green">LinkShare</h1>
+            </div>
+            <button onclick="handleLogout()" class="py-1 px-3 rounded-md text-sm text-gray-400 font-medium hover:text-white transition duration-200">
+                Log Out
+            </button>
+        </div>
+    </header>
+
+
     <main class="max-w-7xl mx-auto p-6 lg:p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        <section id="link-editor-view" class="lg:col-span-2 dashboard-panel p-8 min-h-[85vh] hidden">
+        <section id="link-editor-view" class="lg:col-span-2 min-h-[85vh]">
             
-            <div class="flex border-b border-gray-600 mb-8 -mx-8 px-8">
-                <button id="tab-profile" class="tab-btn active" onclick="showTab('profile')">Profile</button>
-                <button id="tab-links" class="tab-btn" onclick="showTab('links')">Links Manager</button>
-                <button id="tab-design" class="tab-btn" onclick="showTab('design')">Design</button>
+            <div class="dashboard-panel mb-8 p-0">
+                <div class="flex">
+                    <button id="tab-links" class="tab-btn active" onclick="showTab('links')">Links</button>
+                    <button id="tab-profile" class="tab-btn" onclick="showTab('profile')">Appearance & Settings</button>
+                </div>
             </div>
 
-            <div id="tab-content-profile" class="tab-content space-y-8">
-                <h3 class="text-2xl font-bold emerald-green">Edit Profile</h3>
+            <div id="tab-content-links" class="tab-content space-y-6">
                 
-                <div class="space-y-6">
+                <h2 class="text-3xl font-bold text-white">Links Manager</h2>
+
+                <div class="p-5 rounded-lg border border-[#4A5568] bg-[#2D3748] space-y-4">
+                    <p class="font-semibold text-lg text-gray-300">Add a new link</p>
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                        <input type="text" id="new-link-title" placeholder="Link Title (e.g., My New Product)" class="w-full sm:w-1/3 input-dark">
+                        <input type="url" id="new-link-url" placeholder="URL (e.g., https://mysite.com)" class="w-full sm:w-2/3 input-dark">
+                    </div>
+                    <button onclick="addLink()" class="primary-btn w-full py-3 rounded-lg shadow-xl">
+                        + Add Link
+                    </button>
+                </div>
+                
+                <div id="links-list" class="space-y-4 pt-4">
+                    <p class="text-gray-500 text-center p-8">No links yet. Add one above!</p>
+                </div>
+            </div>
+            
+            <div id="tab-content-profile" class="tab-content hidden space-y-8">
+                
+                <h2 class="text-3xl font-bold text-white">Appearance & Profile</h2>
+
+                <div class="dashboard-panel p-6 space-y-6">
+                    <h3 class="text-xl font-bold emerald-green border-b border-gray-600 pb-3">Public Profile Settings</h3>
+                    
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Display Name</label>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Username (@ will be applied automatically)</label>
+                        <div class="flex items-center input-dark p-0">
+                            <span class="p-3 text-gray-400 font-mono">linkinbio/</span>
+                            <input type="text" id="username-input" placeholder="your_unique_name" class="w-full bg-transparent p-3 focus:outline-none">
+                        </div>
+                        <p id="username-error-message" class="text-red-400 text-sm mt-2"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Display Name (Public Name)</label>
                         <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full input-dark">
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Bio (Max 100 characters)</label>
-                        <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full input-dark h-24 resize-none"></textarea>
+                        <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full input-dark h-20 resize-none"></textarea>
                     </div>
                     
                     <div>
@@ -113,44 +160,22 @@
                         <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full input-dark">
                     </div>
                 </div>
-                
-                <button onclick="updateProfileDetails()" class="primary-btn w-full py-3 px-8 rounded-lg shadow-xl">
-                    💾 Save Profile Changes
-                </button>
-            </div>
 
-            <div id="tab-content-links" class="tab-content hidden space-y-8">
-                <h3 class="text-2xl font-bold emerald-green">Manage Links</h3>
-                
-                <div class="p-5 rounded-lg border border-[#4A5568] bg-[#2D3748] space-y-4">
-                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                        <input type="text" id="new-link-title" placeholder="Link Title" class="w-full sm:w-1/3 input-dark">
-                        <input type="url" id="new-link-url" placeholder="URL (e.g., https://example.com)" class="w-full sm:w-2/3 input-dark">
+                <div class="dashboard-panel p-6 space-y-6">
+                    <h3 class="text-xl font-bold emerald-green border-b border-gray-600 pb-3">Theme Selection</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Select Profile Template</label>
+                        <select id="template-select" class="w-full max-w-sm input-dark">
+                            <option value="vibrant">Vibrant (Indigo/Pink)</option>
+                            <option value="clean">Clean Minimal</option>
+                            <option value="dark">Dark Mode Classic</option>
+                        </select>
                     </div>
-                    <button onclick="addLink()" class="primary-btn w-full py-3 rounded-lg shadow-xl">
-                        + Add New Link
-                    </button>
                 </div>
                 
-                <div id="links-list" class="space-y-4">
-                    <p class="text-gray-500 text-center p-8">No links yet. Add one above!</p>
-                </div>
-            </div>
-            
-            <div id="tab-content-design" class="tab-content hidden space-y-8">
-                <h3 class="text-2xl font-bold emerald-green">Design Customization</h3>
-                
-                <div class="p-5 rounded-lg border border-[#4A5568] bg-[#2D3748]">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Select Profile Template</label>
-                    <select id="template-select" class="w-full max-w-sm input-dark">
-                        <option value="vibrant">Vibrant (Indigo/Pink)</option>
-                        <option value="clean">Clean Minimal</option>
-                        <option value="dark">Dark Mode Classic</option>
-                    </select>
-                </div>
-                
-                <button onclick="updateDesign()" class="primary-btn w-full max-w-sm py-3 rounded-lg shadow-xl">
-                    🎨 Apply Theme
+                <button onclick="updateProfileAndDesign()" class="primary-btn w-full max-w-sm py-3 rounded-lg shadow-xl">
+                    💾 Save All Appearance Changes
                 </button>
             </div>
 
@@ -159,19 +184,17 @@
 
         <section class="lg:col-span-1 space-y-6">
             
-            <div class="dashboard-panel p-6 space-y-4">
-                <div class="flex items-center space-x-3 border-b border-gray-600 pb-4">
-                    <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
-                         alt="LinkShare Logo" class="w-8 h-8 rounded-full border border-gray-500">
-                    <h2 class="text-xl font-bold">LinkShare</h2>
-                </div>
+            <div class="dashboard-panel p-6 space-y-4 sticky top-6">
+                <h4 class="text-lg font-bold border-b border-gray-600 pb-3">Your Public Link</h4>
                 
                 <p class="text-gray-400 text-sm">
-                    Logged in as: <span id="profile-name-display" class="font-medium text-white"></span>
+                    **Active Link:**
+                    <a id="public-link-display" target="_blank" class="block font-mono text-lg emerald-green hover:underline break-all">
+                        </a>
                 </p>
 
                 <button onclick="copyProfileLink()" class="w-full py-3 rounded-lg text-sm text-white font-medium bg-indigo-600 hover:bg-indigo-700 transition duration-300 shadow-md">
-                    🔗 Copy Profile Link
+                    🔗 Copy Link
                 </button>
                 
                 <button onclick="handleLogout()" class="w-full py-3 rounded-lg text-sm text-gray-400 font-medium bg-[#4A5568] hover:bg-[#6B7280] transition duration-300 border border-[#4A5568]">
@@ -179,44 +202,9 @@
                 </button>
             </div>
 
-            <div class="dashboard-panel p-6 space-y-3">
-                <h4 class="text-lg font-bold emerald-green">💡 Quick Tips</h4>
-                <ul class="list-disc list-inside text-sm text-gray-400 space-y-1">
-                    <li>Username is **permanent**.</li>
-                    <li>Links must include `https://`.</li>
-                    <li>Profile updates **instantly** on your public page.</li>
-                </ul>
-            </div>
         </section>
         
-        <div id="initial-setup-view" class="absolute inset-0 z-50 bg-[#1A202C]/95 backdrop-blur-md flex items-center justify-center p-8 hidden">
-            <div class="dashboard-panel w-full max-w-xl text-center p-12 shadow-2xl">
-                <h2 class="text-4xl font-extrabold emerald-green mb-4">Final Setup</h2>
-                <p class="text-xl text-gray-300 mb-10">Choose your **permanent** username.</p>
-                
-                <div id="setup-success-message" class="bg-green-800/70 text-green-300 p-4 rounded-lg text-lg mb-6 mx-auto hidden transition duration-500 ease-in-out">
-                    </div>
-
-                <div id="setup-username-container" class="mb-6 mx-auto">
-                    <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
-                           class="w-full input-dark text-center text-lg"
-                           maxlength="20">
-                    <p class="text-sm text-gray-500 mt-2">Your link: linkshare.com/<span id="username-preview" class="emerald-green font-mono">username</span>. Cannot be changed.</p>
-                </div>
-                
-                <input type="text" id="setup-display-name" placeholder="SET DISPLAY NAME (e.g., Jane Doe)" 
-                       class="w-full input-dark text-center text-lg mx-auto mb-8">
-                
-                <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
-                        class="primary-btn w-full py-4 rounded-lg shadow-xl disabled:opacity-50">
-                    🚀 Finish Setup
-                </button>
-
-                <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
-            </div>
-        </div>
-
-    </main>
+        </main>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -228,10 +216,8 @@
 <script src="./js/dashboard-editor.js"></script>
 
 <script>
-    // --- UI/Tab Management & Setup Logic ---
-    const linkEditorView = document.getElementById('link-editor-view');
-    const initialSetupView = document.getElementById('initial-setup-view');
-
+    // --- UI/Tab Management & Utility Functions ---
+    
     // Function to show the selected tab content
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -242,17 +228,16 @@
     }
 
     // Function to reload the live preview iframe (removed, but kept for compatibility)
-    function reloadPreview() {
-        // Function now empty as preview is removed, but required by dashboard-editor.js
-    }
+    function reloadPreview() { /* Placeholder */ }
 
     // Function to copy the profile link
     function copyProfileLink() {
-        if (!window.userProfile || !window.userProfile.username) {
-            alert("Please complete the setup first to get your permanent profile link!");
+        const linkEl = document.getElementById('public-link-display');
+        const profileUrl = linkEl.href;
+        if (!profileUrl) {
+            alert("Profile link is not yet set. Please save your settings first.");
             return;
         }
-        const profileUrl = `${window.location.origin}/profile.html?username=${window.userProfile.username}`;
         navigator.clipboard.writeText(profileUrl).then(() => {
             alert(`Profile link copied! Share this link: ${profileUrl}`);
         });
@@ -263,151 +248,25 @@
         document.body.style.opacity = 1;
     }
     
-    // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC ---
-    const setupNameInput = document.getElementById('setup-display-name');
-    const setupUsernameInput = document.getElementById('setup-username');
-    const setupUsernameContainer = document.getElementById('setup-username-container');
-    const setupButton = document.getElementById('setup-next-button');
-    const usernamePreviewEl = document.getElementById('username-preview');
-    const errorMessageEl = document.getElementById('setup-error-message');
-    const successMessageEl = document.getElementById('setup-success-message');
-
-    // Button enabling logic
-    const checkSetupInputs = () => {
-        const displayName = setupNameInput.value.trim();
-        const username = setupUsernameInput.value.trim();
-        const isUsernameRequired = initialSetupView.classList.contains('hidden') ? false : true; 
-        
-        setupButton.disabled = displayName.length < 3 || (isUsernameRequired && username.length < 3);
-        errorMessageEl.textContent = '';
-    };
-
-    setupNameInput.addEventListener('input', checkSetupInputs);
-    setupUsernameInput.addEventListener('input', () => {
-        const username = setupUsernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
-        setupUsernameInput.value = username; 
-        usernamePreviewEl.textContent = username || 'username';
-        checkSetupInputs();
-    });
-    
-    // Override the dashboard-editor function to implement the UI switch
+    // CRITICAL: We override the fetchUserData here *only* to ensure the UI reveals when ready.
     const originalFetchUserData = window.fetchUserData; 
     window.fetchUserData = (uid) => {
         originalFetchUserData(uid);
-
-        setTimeout(() => {
-            const isFirstTimeSetup = window.userProfile && !window.userProfile.username;
-
-            if (isFirstTimeSetup) {
-                // Show the full-screen modal intercept
-                initialSetupView.classList.remove('hidden');
-                linkEditorView.classList.add('hidden');
-                setupUsernameInput.value = ''; 
-                setupNameInput.value = window.userProfile.displayName || '';
-                checkSetupInputs();
-            } else {
-                // Hide intercept, show editor
-                initialSetupView.classList.add('hidden');
-                linkEditorView.classList.remove('hidden');
-            }
-            revealContent();
-        }, 100); 
+        setTimeout(revealContent, 100); 
     };
 
-    // The CRITICAL logic for saving the permanent username and display name
-    window.updateDisplayNameFromSetup = async () => {
-        setupButton.disabled = true;
-        errorMessageEl.textContent = '';
-        successMessageEl.classList.add('hidden');
-        
-        const displayName = setupNameInput.value.trim();
-        let updates = { displayName: displayName };
-        let newUsername = null;
-
-        // --- FIX 1: Ensure currentUserUid is available ---
-        if (!window.currentUserUid) {
-            const firebaseUser = auth.currentUser;
-            if (firebaseUser) {
-                window.currentUserUid = firebaseUser.uid;
-            }
-        }
-        
-        if (!window.currentUserUid) {
-            errorMessageEl.textContent = 'Authentication error. Please refresh and log in.';
-            setupButton.disabled = false;
-            return; 
-        }
-        // --- END FIX 1 ---
-        
-        if (displayName.length < 3) {
-            errorMessageEl.textContent = 'Display name must be at least 3 characters.';
-            setupButton.disabled = false;
-            return;
-        }
-        
-
-        if (!window.userProfile.username) {
-            newUsername = setupUsernameInput.value.toLowerCase().trim();
-            
-            if (newUsername.length < 3) {
-                errorMessageEl.textContent = 'Username must be at least 3 characters.';
-                setupButton.disabled = false;
-                return;
-            }
-            if (!/^[a-z0-9_-]+$/.test(newUsername)) {
-                errorMessageEl.textContent = 'Username can only contain lowercase letters, numbers, hyphen (-) and underscore (_).';
-                setupButton.disabled = false;
-                return;
-            }
-
-            try {
-                const userQuery = await db.collection('users').where('username', '==', newUsername).limit(1).get();
-                if (!userQuery.empty) {
-                    errorMessageEl.textContent = 'That username is already taken. Try another.';
-                    setupButton.disabled = false;
-                    return;
-                }
-            } catch(e) {
-                console.error("Username Check Failed:", e);
-                errorMessageEl.textContent = 'Could not check username uniqueness. Try again.';
-                setupButton.disabled = false;
-                return;
-            }
-
-            updates.username = newUsername;
-            updates.isUsernameSet = true;
-        }
-
+    // New combined function to handle all saves in the Appearance tab
+    window.updateProfileAndDesign = async () => {
+        const saveButton = document.querySelector('#tab-content-profile button');
+        saveButton.disabled = true;
 
         try {
-            await db.collection('users').doc(window.currentUserUid).set(updates, { merge: true });
-            
-            window.userProfile.displayName = displayName; 
-            if (newUsername) {
-                window.userProfile.username = newUsername;
-            }
-
-            const profileUrl = `${window.location.origin}/profile.html?username=${window.userProfile.username}`;
-            
-            successMessageEl.innerHTML = `
-                🎉 **Setup Complete!** Your public link is ready to share.
-                <br>
-                <a href="${profileUrl}" target="_blank" class="text-white underline font-semibold mt-1 block hover:text-[#38A169] transition">
-                    ${profileUrl}
-                </a>
-            `;
-            successMessageEl.classList.remove('hidden');
-
-            setTimeout(() => {
-                window.fetchUserData(window.currentUserUid); 
-            }, 3000);
-            
-        } catch (e) {
-            console.error("Setup update failed with Firestore error:", e);
-            errorMessageEl.textContent = 'Failed to save setup. Please check the console for details.';
-            setupButton.disabled = false;
+            // NOTE: The main logic for updating username, profile details, and design is now in dashboard-editor.js
+            await window.saveAllProfileChanges();
+        } finally {
+            saveButton.disabled = false;
         }
-    };
+    }
 </script>
 
 </body>
