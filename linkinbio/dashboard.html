@@ -8,47 +8,61 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base Dark Theme and Typography (Charcoal Base) */
+        /* Base Theme: Deep Charcoal & High Contrast */
         body { 
-            background-color: #0F172A; /* Slate/Charcoal background */
-            color: #E2E8F0;
+            background-color: #121212; /* Deep Charcoal Black */
+            color: #F8FAFC; /* Near-white text */
             font-family: ui-sans-serif, system-ui;
-            opacity: 0; /* Hidden initially to prevent FOUC */
+            opacity: 0; 
             transition: opacity 0.5s;
         }
 
-        /* Vibrant Accent Gradient */
-        .vibrant-gradient {
-            background-image: linear-gradient(to right, #4F46E5, #EC4899); /* Stronger Indigo to Pink */
+        /* Accent Color: Neon Blue */
+        .neon-blue {
+            color: #00BFFF; /* Deep Sky Blue */
+        }
+        .neon-bg {
+            background-color: #00BFFF; 
         }
         
-        /* Refined Glass-morphism Card/Panel Styling */
-        .glass-panel {
-            background-color: rgba(2, 6, 23, 0.6); /* Darker, more subtle background */
-            backdrop-filter: blur(12px); 
-            -webkit-backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 1rem; /* Consistent large radius */
-            box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.5);
+        /* Card/Panel Styling (Crisp, High-Contrast Cards) */
+        .dashboard-panel {
+            background-color: #1E1E1E; /* Slightly lighter card background */
+            border: 1px solid #333333; /* Dark gray border */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: box-shadow 0.3s;
+        }
+
+        /* Primary Button Style */
+        .primary-btn {
+            background-color: #00BFFF;
+            color: #121212; /* Dark text on bright button */
+            font-weight: 700;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .primary-btn:hover {
+            background-color: #00A3D9;
+            transform: translateY(-1px);
         }
 
         /* Input/Form Element Styling */
         .input-dark {
-            background-color: #1E293B; /* Slightly lighter input background */
-            border: 1px solid #475569;
-            color: #E2E8F0;
-            padding: 0.8rem 1rem; /* Better padding */
-            border-radius: 0.6rem; /* Soft roundness */
+            background-color: #2D2D2D; /* Darker input field */
+            border: 1px solid #555555;
+            color: #F8FAFC;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
             transition: all 0.2s ease;
         }
         .input-dark:focus {
-            border-color: #EC4899;
-            box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5);
+            border-color: #00BFFF;
+            box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.5);
         }
 
         /* Tab Navigation Bar */
         .tab-btn {
-            @apply px-5 py-3 font-semibold text-gray-400 transition duration-300 relative overflow-hidden;
+            @apply px-4 py-3 font-semibold text-gray-400 transition duration-300 relative overflow-hidden;
         }
         .tab-btn.active {
             @apply text-white;
@@ -60,25 +74,9 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 4px; /* Thicker line */
-            background: linear-gradient(to right, #4F46E5, #EC4899);
+            height: 3px;
+            background-color: #00BFFF; /* Neon Blue Accent */
             border-radius: 2px 2px 0 0;
-        }
-
-        /* Mobile Preview Mockup */
-        .mobile-preview {
-            background-color: #0F172A;
-            border: 12px solid #334155; /* Thicker border */
-            border-radius: 48px; /* Softer phone shape */
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            height: 650px; /* Slightly taller */
-            overflow: hidden;
-            position: relative;
-        }
-        .mobile-screen {
-            background-color: #0A0A10;
-            height: 100%;
-            overflow-y: auto;
         }
     </style>
 </head>
@@ -86,71 +84,50 @@
 
 <div id="app-container" class="min-h-screen">
 
-    <header class="glass-panel p-4 shadow-xl sticky top-0 z-20 rounded-none">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
-                     alt="LinkShare Logo" class="w-8 h-8 rounded-full border border-pink-500">
-                <h1 class="text-2xl font-bold text-white tracking-wider">LinkShare <span class="text-indigo-400">/ Dashboard</span></h1>
-            </div>
-            
-            <div class="flex space-x-4 items-center">
-                <span id="profile-name-display" class="text-indigo-300 font-medium hidden lg:block text-sm"></span>
-                
-                <button onclick="copyProfileLink()" class="py-2 px-4 rounded-full text-sm text-white font-medium bg-green-600 hover:bg-green-700 transition duration-300 shadow-md">
-                    🔗 Share Profile
-                </button>
-                <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition duration-300 p-2 text-sm">
-                    Logout
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <main class="max-w-7xl mx-auto p-6 lg:p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        <section id="link-editor-view" class="lg:col-span-2 glass-panel p-8 min-h-[80vh] hidden">
+        <section id="link-editor-view" class="lg:col-span-2 dashboard-panel p-8 min-h-[85vh] hidden">
             
             <div class="flex border-b border-gray-700 mb-8 -mx-8 px-8">
-                <button id="tab-profile" class="tab-btn active" onclick="showTab('profile')">Profile & Bio</button>
+                <button id="tab-profile" class="tab-btn active" onclick="showTab('profile')">Profile</button>
                 <button id="tab-links" class="tab-btn" onclick="showTab('links')">Links Manager</button>
-                <button id="tab-design" class="tab-btn" onclick="showTab('design')">Design & Theme</button>
+                <button id="tab-design" class="tab-btn" onclick="showTab('design')">Design</button>
             </div>
 
             <div id="tab-content-profile" class="tab-content space-y-8">
-                <h3 class="text-2xl font-bold text-indigo-400">Edit Profile Details</h3>
+                <h3 class="text-2xl font-bold neon-blue">Edit Profile</h3>
                 
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Display Name</label>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Display Name</label>
                         <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full input-dark">
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Bio (Max 100 characters)</label>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Bio (Max 100 characters)</label>
                         <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full input-dark h-24 resize-none"></textarea>
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Profile Image URL</label>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Profile Image URL</label>
                         <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full input-dark">
                     </div>
                 </div>
                 
-                <button onclick="updateProfileDetails()" class="py-3 px-8 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                <button onclick="updateProfileDetails()" class="primary-btn w-full py-3 px-8 rounded-lg shadow-xl">
                     💾 Save Profile Changes
                 </button>
             </div>
 
             <div id="tab-content-links" class="tab-content hidden space-y-8">
-                <h3 class="text-2xl font-bold text-indigo-400">Manage Links</h3>
+                <h3 class="text-2xl font-bold neon-blue">Manage Links</h3>
                 
-                <div class="p-5 rounded-xl border border-gray-700 bg-gray-800/30 space-y-4">
+                <div class="p-5 rounded-lg border border-[#333333] bg-[#2A2A2A] space-y-4">
                     <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
                         <input type="text" id="new-link-title" placeholder="Link Title" class="w-full sm:w-1/3 input-dark">
                         <input type="url" id="new-link-url" placeholder="URL (e.g., https://example.com)" class="w-full sm:w-2/3 input-dark">
                     </div>
-                    <button onclick="addLink()" class="w-full py-3 font-bold rounded-lg vibrant-gradient text-slate-900 hover:opacity-90 transition duration-300">
+                    <button onclick="addLink()" class="primary-btn w-full py-3 rounded-lg shadow-xl">
                         + Add New Link
                     </button>
                 </div>
@@ -161,10 +138,10 @@
             </div>
             
             <div id="tab-content-design" class="tab-content hidden space-y-8">
-                <h3 class="text-2xl font-bold text-indigo-400">Design Customization</h3>
+                <h3 class="text-2xl font-bold neon-blue">Design Customization</h3>
                 
-                <div class="p-5 rounded-xl border border-gray-700 bg-gray-800/30">
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Select Profile Template</label>
+                <div class="p-5 rounded-lg border border-[#333333] bg-[#2A2A2A]">
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Select Profile Template</label>
                     <select id="template-select" class="w-full max-w-sm input-dark">
                         <option value="vibrant">Vibrant (Indigo/Pink)</option>
                         <option value="clean">Clean Minimal</option>
@@ -172,7 +149,7 @@
                     </select>
                 </div>
                 
-                <button onclick="updateDesign()" class="py-3 px-8 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                <button onclick="updateDesign()" class="primary-btn w-full max-w-sm py-3 rounded-lg shadow-xl">
                     🎨 Apply Theme
                 </button>
             </div>
@@ -180,39 +157,64 @@
         </section>
 
 
-        <div id="initial-setup-view" class="lg:col-span-3 w-full text-center py-20 glass-panel p-12 hidden">
-            <h2 class="text-4xl font-extrabold text-white mb-4">✨ Welcome to LinkShare!</h2>
-            <p class="text-xl text-gray-300 mb-10">You're almost done! Please choose your **permanent** username.</p>
+        <section class="lg:col-span-1 space-y-6">
             
-            <div id="setup-success-message" class="bg-green-800/70 text-green-300 p-4 rounded-xl text-lg mb-6 mx-auto max-w-lg hidden transition duration-500 ease-in-out">
+            <div class="dashboard-panel p-6 space-y-4">
+                <div class="flex items-center space-x-3 border-b border-gray-700 pb-4">
+                    <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
+                         alt="LinkShare Logo" class="w-8 h-8 rounded-full border border-gray-500">
+                    <h2 class="text-xl font-bold">LinkShare</h2>
                 </div>
+                
+                <p class="text-gray-400 text-sm">
+                    Logged in as: <span id="profile-name-display" class="font-medium text-white"></span>
+                </p>
 
-            <div id="setup-username-container" class="mb-6 mx-auto max-w-lg">
-                <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
-                       class="w-full input-dark text-center text-lg"
-                       maxlength="20">
-                <p class="text-sm text-pink-400 mt-2">⚠️ Your profile link will be: **linkshare.com/<span id="username-preview">username</span>**. This cannot be changed.</p>
+                <button onclick="copyProfileLink()" class="w-full py-3 rounded-lg text-sm text-white font-medium bg-green-600 hover:bg-green-700 transition duration-300 shadow-md">
+                    🔗 Copy Profile Link
+                </button>
+                
+                <button onclick="handleLogout()" class="w-full py-3 rounded-lg text-sm text-gray-400 font-medium bg-[#2A2A2A] hover:bg-[#333333] transition duration-300 border border-[#333333]">
+                    Log Out
+                </button>
             </div>
-            
-            <input type="text" id="setup-display-name" placeholder="SET DISPLAY NAME (e.g., Jane Doe)" 
-                   class="w-full max-w-lg input-dark text-center text-lg mx-auto mb-8">
-            
-            <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
-                    class="py-4 px-12 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg disabled:opacity-50">
-                🚀 Finish Setup
-            </button>
 
-            <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
-        </div>
-
-        <section class="lg:col-span-1 hidden lg:block">
-            <div class="sticky top-24">
-                <h2 class="text-xl font-bold mb-4 text-center text-indigo-400">Live Mobile Preview</h2>
-                <div class="mobile-preview">
-                    <iframe id="profile-preview-iframe" class="mobile-screen" src="" frameborder="0"></iframe>
-                </div>
+            <div class="dashboard-panel p-6 space-y-3">
+                <h4 class="text-lg font-bold neon-blue">💡 Quick Tips</h4>
+                <ul class="list-disc list-inside text-sm text-gray-400 space-y-1">
+                    <li>Username is permanent.</li>
+                    <li>Links must include `https://`.</li>
+                    <li>Profile updates instantly on your public page.</li>
+                </ul>
             </div>
         </section>
+        
+        <div id="initial-setup-view" class="absolute inset-0 z-50 bg-[#121212]/95 backdrop-blur-md flex items-center justify-center p-8 hidden">
+            <div class="dashboard-panel w-full max-w-xl text-center p-12 shadow-2xl">
+                <h2 class="text-4xl font-extrabold neon-blue mb-4">Final Setup</h2>
+                <p class="text-xl text-gray-300 mb-10">Choose your **permanent** username.</p>
+                
+                <div id="setup-success-message" class="bg-green-800/70 text-green-300 p-4 rounded-lg text-lg mb-6 mx-auto hidden transition duration-500 ease-in-out">
+                    </div>
+
+                <div id="setup-username-container" class="mb-6 mx-auto">
+                    <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
+                           class="w-full input-dark text-center text-lg"
+                           maxlength="20">
+                    <p class="text-sm text-gray-500 mt-2">Your link: linkshare.com/<span id="username-preview" class="neon-blue font-mono">username</span>. Cannot be changed.</p>
+                </div>
+                
+                <input type="text" id="setup-display-name" placeholder="SET DISPLAY NAME (e.g., Jane Doe)" 
+                       class="w-full input-dark text-center text-lg mx-auto mb-8">
+                
+                <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
+                        class="primary-btn w-full py-4 rounded-lg shadow-xl disabled:opacity-50">
+                    🚀 Finish Setup
+                </button>
+
+                <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
+            </div>
+        </div>
 
     </main>
 </div>
@@ -227,7 +229,6 @@
 
 <script>
     // --- UI/Tab Management & Setup Logic ---
-    // NO REDECLARATIONS HERE (Fix for Uncaught SyntaxError)
     const linkEditorView = document.getElementById('link-editor-view');
     const initialSetupView = document.getElementById('initial-setup-view');
 
@@ -240,14 +241,9 @@
         document.getElementById(`tab-${tabId}`).classList.add('active');
     }
 
-    // Function to reload the live preview iframe
+    // Function to reload the live preview iframe (Removed the iframe but keeping the function for compatibility)
     function reloadPreview() {
-        const username = window.userProfile ? window.userProfile.username : null; 
-        const iframe = document.getElementById('profile-preview-iframe');
-        
-        if (username) {
-            iframe.src = `./profile.html?username=${username}&t=${new Date().getTime()}`;
-        }
+        // Function now empty as preview is removed, but required by dashboard-editor.js
     }
 
     // Function to copy the profile link
@@ -267,7 +263,7 @@
         document.body.style.opacity = 1;
     }
     
-    // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC (CRITICAL FIX) ---
+    // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC ---
     const setupNameInput = document.getElementById('setup-display-name');
     const setupUsernameInput = document.getElementById('setup-username');
     const setupUsernameContainer = document.getElementById('setup-username-container');
@@ -280,7 +276,7 @@
     const checkSetupInputs = () => {
         const displayName = setupNameInput.value.trim();
         const username = setupUsernameInput.value.trim();
-        const isUsernameRequired = setupUsernameContainer.style.display !== 'none';
+        const isUsernameRequired = initialSetupView.classList.contains('hidden') ? false : true; // Only required if setup view is visible
         
         setupButton.disabled = displayName.length < 3 || (isUsernameRequired && username.length < 3);
         errorMessageEl.textContent = '';
@@ -303,14 +299,14 @@
             const isFirstTimeSetup = window.userProfile && !window.userProfile.username;
 
             if (isFirstTimeSetup) {
-                setupUsernameContainer.style.display = 'block';
+                // Show the full-screen modal intercept
                 initialSetupView.classList.remove('hidden');
                 linkEditorView.classList.add('hidden');
                 setupUsernameInput.value = ''; 
                 setupNameInput.value = window.userProfile.displayName || '';
                 checkSetupInputs();
             } else {
-                setupUsernameContainer.style.display = 'none';
+                // Hide intercept, show editor
                 initialSetupView.classList.add('hidden');
                 linkEditorView.classList.remove('hidden');
             }
@@ -386,7 +382,7 @@
             successMessageEl.innerHTML = `
                 🎉 **Setup Complete!** Your public link is ready to share.
                 <br>
-                <a href="${profileUrl}" target="_blank" class="text-white underline font-semibold mt-1 block hover:text-pink-300 transition">
+                <a href="${profileUrl}" target="_blank" class="text-white underline font-semibold mt-1 block hover:text-[#00BFFF] transition">
                     ${profileUrl}
                 </a>
             `;
