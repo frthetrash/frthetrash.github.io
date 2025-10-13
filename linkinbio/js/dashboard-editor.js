@@ -8,8 +8,6 @@ let currentUserUid = null;
 window.userProfile = {}; // Made global for dashboard.html script access (CRITICAL for setup check)
 let userLinks = [];
 
-// Removed: Redundant DOM declarations (e.g., const linkEditorView) to fix SyntaxError.
-
 
 // --- 1. DATA LOADING AND INITIALIZATION ---
 
@@ -22,17 +20,38 @@ async function fetchUserData(uid) {
     currentUserUid = uid;
     
     // 1. Fetch Profile Data
-    const profileDoc = await db.collection('users').doc(uid).get();
+    let profileDoc = await db.collection('users').doc(uid).get();
     
-    // Safety check: This shouldn't fail if auth.js worked, but we handle it defensively.
+    // --- FIX 2: If the document is missing, create it immediately and refetch ---
     if (!profileDoc.exists) {
-        console.error("Profile document not found. The application will attempt to proceed.");
-        // If the document is missing here, it means the ensureUserProfile logic failed.
-        return;
-    }
-    window.userProfile = profileDoc.data();
+        console.warn("Profile document missing. Attempting to create default profile.");
+        
+        // Use default profile values 
+        await db.collection('users').doc(uid).set({
+            email: auth.currentUser.email,
+            displayName: auth.currentUser.displayName || auth.currentUser.email.split('@')[0],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            username: null,
+            isUsernameSet: false,
+            bio: "Check out my links!",
+            profileImageUrl: "https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png",
+            templateId: 'vibrant',
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
-    // 2. Fetch Links Data (using subcollection)
+        // Now, refetch the newly created document
+        profileDoc = await db.collection('users').doc(uid).get(); 
+        
+        if (!profileDoc.exists) {
+            console.error("Failed to create profile document even after second attempt.");
+            return;
+        }
+    } 
+    window.userProfile = profileDoc.data();
+    // --- END FIX 2 ---
+
+
+    // 2. Fetch Links Data (only happens if profile data was successfully retrieved)
     const linksSnapshot = await db.collection('users').doc(uid).collection('links').orderBy('order', 'asc').get();
     userLinks = linksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -49,15 +68,15 @@ async function fetchUserData(uid) {
  */
 function updateUIFromProfile() {
     // Top Right Info Card Display
-    document.getElementById('profile-name-display').textContent = userProfile.displayName || 'User Profile';
+    document.getElementById('profile-name-display').textContent = window.userProfile.displayName || 'User Profile';
 
     // Profile & Bio Tab Inputs
-    document.getElementById('display-name-input').value = userProfile.displayName || '';
-    document.getElementById('bio-input').value = userProfile.bio || '';
-    document.getElementById('profile-image-input').value = userProfile.profileImageUrl || '';
+    document.getElementById('display-name-input').value = window.userProfile.displayName || '';
+    document.getElementById('bio-input').value = window.userProfile.bio || '';
+    document.getElementById('profile-image-input').value = window.userProfile.profileImageUrl || '';
     
     // Design Tab Input
-    document.getElementById('template-select').value = userProfile.templateId || 'vibrant';
+    document.getElementById('template-select').value = window.userProfile.templateId || 'vibrant';
 }
 
 // --- 2. PROFILE & DESIGN MANAGEMENT (Tabs 'profile' and 'design') ---
@@ -207,7 +226,7 @@ function renderLinksList() {
 
     userLinks.forEach(link => {
         const div = document.createElement('div');
-        // Tailwind styling for the list item (updated for new color scheme)
+        // Tailwind styling for the list item (Neon Blue styling)
         div.className = 'flex items-center justify-between p-4 rounded-lg bg-[#2A2A2A] border border-[#333333] shadow-lg';
         div.innerHTML = `
             <div class="flex-grow min-w-0 pr-4">
