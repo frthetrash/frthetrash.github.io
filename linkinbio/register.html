@@ -3,82 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | LinkShare - Create Your Profile</title>
-    <meta name="description" content="Register to create your custom link-in-bio page for free with LinkShare.">
+    <title>Register | LinkShare - Get Started</title>
+    <meta name="description" content="Register to create your elegant, custom link-in-bio page for free with LinkShare.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* 1. ELEGANT MULTI-COLOR GRADIENT BACKGROUND */
+        /* 1. SOFT, LOW-CONTRAST BACKGROUND */
         body { 
-            /* Subtle, non-jarring blend of the four colors */
-            background: linear-gradient(135deg, 
-                        #FF8C00 0%,     /* Deep Orange */
-                        #FFD700 25%,    /* Gold/Yellow */
-                        #00BFFF 75%,    /* Deep Sky Blue */
-                        #3CB371 100%);  /* Medium Sea Green */
-            background-size: 400% 400%; /* Stretches gradient for a smooth transition */
-            animation: gradient-shift 15s ease infinite;
-        }
-        
-        @keyframes gradient-shift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            background-color: #0F172A; /* Deep Blue-Gray Base */
+            background-image: radial-gradient(circle at 50% 10%, #4F46E5 0%, transparent 70%); /* Subtle Purple Glow */
+            color: #E2E8F0;
         }
 
-        /* 2. Card and Input Styles (Ensuring readability over the color) */
+        /* 2. Frosted Glass Card for Elegance */
         .auth-card {
-            /* Frosted glass effect for a premium, clean look */
-            background-color: rgba(255, 255, 255, 0.1); /* Very light, subtle opacity */
-            backdrop-filter: blur(15px); /* Strong blur for frosted effect */
-            -webkit-backdrop-filter: blur(15px); 
-            
-            position: relative;
-            z-index: 10;
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Light border for definition */
-            
-            /* High-contrast shadow */
-            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.2); 
+            background-color: rgba(255, 255, 255, 0.05); /* Very slight white tint */
+            backdrop-filter: blur(10px); /* Frosted effect */
+            -webkit-backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            transition: all 0.3s ease;
         }
         
-        /* Focus state for inputs */
+        /* 3. Gradient Button Styling */
+        .vibrant-gradient-btn {
+            background-image: linear-gradient(to right, #6366F1, #EC4899); /* Indigo to Pink */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+        .vibrant-gradient-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* 4. Inputs */
         input:focus {
-            box-shadow: 0 0 0 2px #fff; 
+            box-shadow: 0 0 0 2px #6366F1; /* Indigo focus ring */
         }
     </style>
 </head>
-<body class="text-white flex items-center justify-center min-h-screen font-sans">
+<body class="flex items-center justify-center min-h-screen font-sans p-4">
     
-    <div class="auth-card w-full max-w-md mx-auto p-12 rounded-2xl transition duration-500 hover:shadow-2xl">
-        <h2 class="text-4xl font-extrabold text-white text-center mb-10 tracking-wide">
-            Create Your Spark
+    <div class="auth-card w-full max-w-md mx-auto p-8 sm:p-12 rounded-2xl shadow-2xl">
+        
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white text-center mb-8 tracking-tight">
+            LinkShare
         </h2>
+        <p class="text-gray-400 text-center mb-10 text-lg">
+            Create your high-impact link profile.
+        </p>
         
         <div id="error-message" class="text-red-400 text-sm mb-4 text-center font-medium"></div>
         
-        <input type="text" id="username" placeholder="Elegant Username" 
-               class="w-full p-4 my-2 rounded-lg bg-white/10 text-white placeholder-gray-200 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
+        <input type="text" id="username" placeholder="@Username" 
+               class="w-full p-4 my-2 rounded-lg bg-white/5 text-white placeholder-gray-400 border-none text-lg transition duration-300" 
                required>
                
         <input type="email" id="email" placeholder="Email Address" 
-               class="w-full p-4 my-2 rounded-lg bg-white/10 text-white placeholder-gray-200 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
+               class="w-full p-4 my-2 rounded-lg bg-white/5 text-white placeholder-gray-400 border-none text-lg transition duration-300" 
                required>
                
         <input type="password" id="password" placeholder="Password (min 6 characters)" 
-               class="w-full p-4 my-2 rounded-lg bg-white/10 text-white placeholder-gray-200 border-none text-lg transition duration-300 focus:ring-4 focus:ring-white/50" 
+               class="w-full p-4 my-2 rounded-lg bg-white/5 text-white placeholder-gray-400 border-none text-lg transition duration-300" 
                required>
 
         <button onclick="handleRegister()" 
-                class="w-full py-4 mt-8 font-bold rounded-lg text-black text-xl 
-                       bg-white hover:bg-gray-200 shadow-lg 
-                       hover:shadow-xl transition duration-300 border border-white">
-            GET STARTED
+                class="vibrant-gradient-btn w-full py-4 mt-6 font-bold rounded-xl text-white text-lg">
+            Sign Up
         </button>
         
-        <p class="text-center text-gray-200 mt-6 text-sm">
-            Already sparking? 
-            <a href="./login.html" class="text-white hover:text-gray-100 font-medium transition underline">
+        <div class="flex items-center my-6">
+            <div class="flex-grow border-t border-gray-700"></div>
+            <span class="flex-shrink mx-4 text-gray-500 text-sm">OR</span>
+            <div class="flex-grow border-t border-gray-700"></div>
+        </div>
+
+        <button onclick="signInWithGoogle()" 
+                class="w-full py-3 font-semibold rounded-xl bg-white text-gray-900 shadow-md hover:bg-gray-100 transition duration-300 flex items-center justify-center">
+            <img src="https://www.svgrepo.com/show/303102/google-logo.svg" alt="Google Logo" class="w-5 h-5 mr-3">
+            Sign up with Google
+        </button>
+        
+        <p class="text-center text-gray-500 mt-8 text-sm">
+            Already have an account? 
+            <a href="./login.html" class="text-indigo-400 hover:text-indigo-300 font-medium transition">
                 Log In
             </a>
         </p>
