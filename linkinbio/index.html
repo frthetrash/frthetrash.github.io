@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header id="app-header">
+<body data-theme="default"> <header id="app-header">
         <a href="/" class="logo-link">
             <img src="png.png" alt="BioLink Logo" class="app-logo">
         </a>
         <div class="header-actions">
+            <button id="login-profile-btn" class="action-btn hidden"><i class="fa-solid fa-lock"></i> Login to Edit</button>
             <button id="edit-profile-btn" class="action-btn hidden"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-            <button id="logout-btn" class="action-btn hidden"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            <button id="logout-btn" class="action-btn hidden"><i class="fa-solid fa-trash-can"></i> Delete Profile</button>
         </div>
     </header>
 
@@ -24,7 +24,18 @@
             <img id="user-avatar" src="https://via.placeholder.com/150/508DDA/FFFFFF?text=A" alt="User Avatar">
             <h1 id="user-name"></h1>
             <p id="user-bio"></p>
+            <span id="user-goal" class="user-goal-tag"></span>
         </section>
+
+        <section id="template-selector" class="template-selector hidden">
+            <label>Template/Theme:</label>
+            <div class="theme-options">
+                <button data-theme="default" class="theme-btn active">Blue</button>
+                <button data-theme="red" class="theme-btn">Red</button>
+                <button data-theme="green" class="theme-btn">Green</button>
+            </div>
+        </section>
+
         <section id="link-buttons" class="link-buttons-section"></section>
         <section id="embeds-section" class="embeds-section"></section>
         <section class="social-icons-section">
@@ -37,33 +48,78 @@
 
     <div id="setup-container" class="setup-view hidden">
         <div class="setup-card">
-            <h2>🚀 Create/Edit BioLink Profile</h2>
+            <h2>Let's build your BioLink!</h2>
             <form id="profile-setup-form">
-                <input type="text" id="setup-username" placeholder="Unique Username (e.g., johnny_d)" required pattern="[a-zA-Z0-9_]{3,15}" title="3-15 alphanumeric characters or underscore">
-                <input type="url" id="setup-avatar" placeholder="Avatar Image URL (e.g., https://.../pic.png)" required>
-                <input type="text" id="setup-name" placeholder="Display Name" required maxlength="30">
-                <textarea id="setup-bio" placeholder="Short Bio (max 80 chars)" maxlength="80" required></textarea>
+                <div class="setup-step active" data-step="1">
+                    <p class="step-title">1. Choose your unique BioLink name.</p>
+                    <input type="text" id="setup-username" placeholder="Unique Username (e.g., johnny_d)" required pattern="[a-zA-Z0-9_]{3,18}" title="3-18 alphanumeric characters or underscore">
+                    <div id="username-validation-status"></div>
+                </div>
 
-                <p class="section-title">External Links (Max 5)</p>
-                <div id="link-fields">
-                    <div class="link-input-group">
-                        <input type="text" class="link-label" placeholder="Link Label (e.g., My Portfolio)" required>
-                        <input type="url" class="link-url" placeholder="URL (e.g., https://...)" required>
-                        <input type="text" class="link-icon" placeholder="Icon Class (e.g., fa-solid fa-code)" value="fa-solid fa-link">
+                <div class="setup-step" data-step="2">
+                    <p class="step-title">2. Set a private password for editing.</p>
+                    <input type="password" id="setup-password" placeholder="Editing Password" required minlength="6">
+                    <p class="subtle-note">This is a client-side password to prevent others from editing your BioLink.</p>
+                </div>
+
+                <div class="setup-step" data-step="3">
+                    <p class="step-title">3. Which best describes your goal?</p>
+                    <div class="goal-selection">
+                        <label><input type="radio" name="goal" value="Creator" required> Creator</label>
+                        <label><input type="radio" name="goal" value="Business"> Business</label>
+                        <label><input type="radio" name="goal" value="Personal"> Personal</label>
                     </div>
                 </div>
-                <button type="button" id="add-link-btn">Add Link</button>
 
-                <p class="section-title">Social Media Handles</p>
-                <input type="text" id="social-instagram" placeholder="Instagram Handle (e.g., @user)">
-                <input type="text" id="social-twitter" placeholder="Twitter/X Handle (@user)">
-                <input type="text" id="social-youtube" placeholder="YouTube Channel URL">
+                <div class="setup-step" data-step="4">
+                    <p class="step-title">4. Profile Details.</p>
+                    <input type="text" id="setup-name" placeholder="Display Name" required maxlength="30">
+                    <input type="url" id="setup-avatar" placeholder="Avatar Image URL (e.g., https://.../pic.png)" required>
+                    <textarea id="setup-bio" placeholder="Short Bio (max 80 chars)" maxlength="80" required></textarea>
+                </div>
 
-                <p class="section-title">Optional Embeds</p>
-                <textarea id="setup-embed" placeholder="Paste an iframe embed code (e.g., Spotify, YouTube) or image URL here (optional)"></textarea>
+                <div class="setup-step" data-step="5">
+                    <p class="step-title">5. Links & Socials (Optional)</p>
+                    <p class="section-title">External Links (Max 5)</p>
+                    <div id="link-fields">
+                        <div class="link-input-group">
+                            <input type="text" class="link-label" placeholder="Link Label" required>
+                            <input type="url" class="link-url" placeholder="URL (https://...)" required>
+                            <input type="text" class="link-icon" placeholder="Icon Class (e.g., fa-solid fa-code)" value="fa-solid fa-link">
+                        </div>
+                    </div>
+                    <button type="button" id="add-link-btn">Add Link</button>
 
-                <button type="submit" class="submit-btn">Save & Go to Profile</button>
-                <p class="setup-error hidden" id="setup-error"></p>
+                    <p class="section-title">Social Media Handles</p>
+                    <input type="text" id="social-instagram" placeholder="Instagram Handle (@user)">
+                    <input type="text" id="social-twitter" placeholder="Twitter/X Handle (@user)">
+                    <input type="text" id="social-youtube" placeholder="YouTube Channel URL">
+                </div>
+
+                <div class="setup-step" data-step="6">
+                    <p class="step-title">6. Embeds (Optional)</p>
+                    <textarea id="setup-embed" placeholder="Paste an iframe embed code or image URL here (optional)"></textarea>
+                    
+                    <button type="submit" class="submit-btn final-step-btn">Save & Go to Profile</button>
+                </div>
+            </form>
+            
+            <p class="setup-error hidden" id="setup-error"></p>
+            
+            <div class="setup-navigation">
+                <button type="button" class="nav-btn prev-btn hidden"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+                <button type="button" class="nav-btn next-btn">Next <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-modal" class="setup-view hidden">
+        <div class="setup-card">
+            <h2>🔑 Enter Profile Password</h2>
+            <form id="password-login-form">
+                <input type="password" id="login-password" placeholder="Editing Password" required>
+                <button type="submit" class="submit-btn">Unlock Profile</button>
+                <p class="setup-error hidden" id="login-error"></p>
             </form>
         </div>
     </div>
