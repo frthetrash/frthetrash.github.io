@@ -14,27 +14,28 @@
             width: 8px;
         }
         body::-webkit-scrollbar-thumb {
-            background-color: #5B21B6; /* Deep Purple */
+            background-color: #333; /* Dark Gray */
             border-radius: 4px;
         }
         body {
-            /* Background matches the login/register aesthetic */
-            background-color: #1a202c;
-            background-image: linear-gradient(to bottom right, #1f2937, #374151);
+            /* Deep, solid black background */
+            background-color: #000000;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen font-sans">
+<body class="bg-black text-white min-h-screen font-sans">
     
-    <div id="loading-screen" class="fixed inset-0 bg-gray-900 flex flex-col items-center justify-center z-50 transition-opacity duration-500">
-        <div class="p-8 bg-gray-800/70 rounded-xl shadow-2xl text-center">
-            <img src="https://via.placeholder.com/60/FF8C00/FFFFFF?text=Q" alt="Logo" class="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-orange-500 animate-pulse">
+    <div id="loading-screen" class="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+        <div class="p-12 bg-gray-900 rounded-2xl shadow-2xl text-center border border-gray-700">
+            <svg class="w-16 h-16 mx-auto mb-6 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
             
-            <p class="text-xl font-medium text-gray-200">
-                Loading <span class="text-orange-400">LinkSpark</span> Dashboard...
+            <p class="text-2xl font-light text-gray-200">
+                Loading <span class="text-white font-semibold">LinkSpark</span> Dashboard...
             </p>
-            <div class="w-24 h-1 mt-4 mx-auto bg-gray-600 rounded-full overflow-hidden">
-                <div class="h-full bg-indigo-500 animate-progress"></div>
+            <div class="w-40 h-1.5 mt-6 mx-auto bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-white animate-progress"></div>
             </div>
         </div>
     </div>
@@ -58,46 +59,48 @@
     </script>
 
 
-    <div id="dashboard-content" class="max-w-4xl mx-auto p-6 transition-all duration-500 opacity-0 hidden">
-        <header class="flex justify-between items-center py-6 border-b border-gray-700 mb-8">
-            <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 tracking-wider">
-                LinkSpark Editor
+    <div id="dashboard-content" class="max-w-5xl mx-auto p-8 transition-all duration-500 opacity-0 hidden">
+        <header class="flex justify-between items-center py-8 border-b border-gray-700 mb-12">
+            <h1 class="text-4xl font-extrabold text-white tracking-widest">
+                LINKSPARK DASHBOARD
             </h1>
-            <button onclick="handleLogout()" class="py-2 px-4 rounded-full text-sm font-medium text-red-300 bg-red-900/40 hover:bg-red-900 transition duration-300">
+            <button onclick="handleLogout()" class="py-2.5 px-6 rounded-lg text-sm font-medium text-gray-200 border border-gray-600 hover:bg-gray-800 transition duration-300">
                 Logout
             </button>
         </header>
 
-        <div class="bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-2xl mb-10 border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4 text-indigo-300">Profile Settings</h2>
-            <div class="bg-gray-700/50 p-3 rounded-lg mb-4 text-sm text-gray-300 flex items-center justify-between">
-                <span>Your Public URL:</span>
-                <a id="public-link-display" href="#" target="_blank" class="text-indigo-400 font-mono hover:text-indigo-300 hover:underline transition truncate ml-4">
+        <div class="bg-gray-900 p-8 rounded-xl shadow-xl mb-12 border border-gray-700">
+            <h2 class="text-2xl font-semibold mb-6 text-white border-b border-gray-700 pb-3">PROFILE & APPEARANCE</h2>
+            
+            <div class="bg-gray-800 p-4 rounded-lg mb-6 text-lg text-gray-400 flex items-center justify-between">
+                <span class="font-light">Your Public Profile Link:</span>
+                <a id="public-link-display" href="#" target="_blank" class="text-white font-mono hover:underline transition truncate ml-6 text-base">
                     Loading...
                 </a>
             </div>
 
-            <input type="text" id="display-name-input" placeholder="Display Name" class="w-full p-3 my-2 rounded bg-gray-700 text-white border-none focus:ring-orange-500 focus:border-orange-500">
-            <input type="url" id="profile-url-input" placeholder="Profile Image URL (External link only)" class="w-full p-3 my-2 rounded bg-gray-700 text-white border-none focus:ring-orange-500 focus:border-orange-500">
-            <textarea id="bio-input" placeholder="Bio (Max 150 chars)" rows="2" class="w-full p-3 my-2 rounded bg-gray-700 text-white border-none focus:ring-orange-500 focus:border-orange-500"></textarea>
+            <input type="text" id="display-name-input" placeholder="Display Name" class="w-full p-4 my-3 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white focus:border-white">
+            <input type="url" id="profile-url-input" placeholder="Profile Image URL (External link only)" class="w-full p-4 my-3 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white focus:border-white">
+            <textarea id="bio-input" placeholder="Bio (Max 150 characters)" rows="3" class="w-full p-4 my-3 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white focus:border-white"></textarea>
             
-            <button onclick="updateProfile()" class="py-2 px-6 mt-4 font-semibold rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition duration-300">
-                Save Profile Updates
+            <button onclick="updateProfile()" class="py-3 px-8 mt-6 font-bold rounded-lg text-black bg-white hover:bg-gray-200 shadow-md transition duration-300 border border-white">
+                SAVE PROFILE CHANGES
             </button>
         </div>
 
-        <div class="bg-gray-800/70 backdrop-blur-sm p-6 rounded-xl shadow-2xl border border-gray-700">
-            <h2 class="text-xl font-semibold mb-6 text-orange-300">Your Links (Drag & Drop not supported in static JS, sorted by Order)</h2>
+        <div class="bg-gray-900 p-8 rounded-xl shadow-xl border border-gray-700">
+            <h2 class="text-2xl font-semibold mb-6 text-white border-b border-gray-700 pb-3">MANAGE LINKS</h2>
             
-            <div id="link-list" class="mb-8 space-y-3">
+            <div id="link-list" class="mb-8 space-y-4">
                 </div>
 
-            <h3 class="text-lg font-semibold mb-4 border-t border-gray-700 pt-6 text-gray-200">Add New Link</h3>
-            <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
-                <input type="text" id="new-link-title" placeholder="Link Title (e.g., My YouTube Channel)" class="flex-grow p-3 rounded-lg bg-gray-700 text-white border-none focus:ring-green-500">
-                <input type="url" id="new-link-url" placeholder="Destination URL (https://...)" class="flex-grow p-3 rounded-lg bg-gray-700 text-white border-none focus:ring-green-500">
-                <button onclick="addNewLink()" class="py-3 px-6 font-semibold rounded-lg text-white bg-green-600 hover:bg-green-500 shadow-md transition duration-300">
-                    Add Link
+            <h3 class="text-xl font-medium mb-4 border-t border-gray-700 pt-6 text-gray-200">Add New Link</h3>
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                <input type="text" id="new-link-title" placeholder="Link Title" class="flex-grow p-4 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white">
+                <input type="url" id="new-link-url" placeholder="Destination URL (https://...)" class="flex-grow p-4 rounded-lg bg-gray-800 text-white border-none text-lg focus:ring-white">
+                
+                <button onclick="addNewLink()" class="py-3 px-8 font-bold rounded-lg text-black bg-white hover:bg-gray-200 shadow-md transition duration-300">
+                    ADD LINK
                 </button>
             </div>
         </div>
@@ -111,8 +114,7 @@
     <script src="./js/dashboard-editor.js"></script>
 
     <script>
-        // This script ensures the loading screen hides only after the dashboard-editor.js
-        // has had a chance to fetch the user's data and render content.
+        // This script handles the loading screen transition after data fetch.
         document.addEventListener('DOMContentLoaded', () => {
             const dashboardContent = document.getElementById('dashboard-content');
             const loadingScreen = document.getElementById('loading-screen');
@@ -123,21 +125,20 @@
                 // Execute original fetch logic
                 originalFetchUserData(uid);
 
-                // Wait a moment for rendering, then show content
+                // Wait for rendering, then seamlessly hide the loader and show the dashboard.
                 setTimeout(() => {
                     loadingScreen.style.opacity = '0';
                     setTimeout(() => {
                         loadingScreen.style.display = 'none';
                         dashboardContent.classList.remove('opacity-0', 'hidden');
                         dashboardContent.classList.add('opacity-100');
-                    }, 500); // Wait for opacity transition
-                }, 1000); // Simulate network latency and data processing for better UX
+                    }, 500); // Transition duration
+                }, 1200); // Minimum display time for a professional feel
             };
             
-            // Re-run auth observer to catch the current user state and trigger fetchUserData
+            // Re-run auth observer to ensure fetchUserData is triggered
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    // This call will now use the modified fetchUserData function
                     fetchUserData(user.uid); 
                 }
             });
