@@ -1,214 +1,222 @@
 // /js/dashboard-editor.js
 
+// NOTE: Relies on global variables 'auth', 'db', and functions like 'reloadPreview()' 
+// being defined in firebase-config.js and dashboard.html.
+
 let currentUserUid = null;
 let userProfile = {};
 let userLinks = [];
-let unsubscribeLinks = null;
 
-// --- Utility: Link Rendering ---
+const linkEditorView = document.getElementById('link-editor-view'); // Placeholder for the main view
+const initialSetupView = document.getElementById('initial-setup-view'); // The setup overlay
 
-/**
- * Generates the vibrant, interactive HTML structure for a single link item.
- * @param {Object} link - The link object from Firestore.
- * @returns {string} The HTML string.
- */
-const getLinkHtml = (link) => `
-    <div data-id="${link.id}" class="flex items-center justify-between p-4 bg-slate-700/50 rounded-xl my-3 border border-slate-600/50 
-         transition duration-200 hover:bg-slate-700 hover:shadow-lg hover:shadow-indigo-500/10">
-        <div class="flex-1 min-w-0 mr-4">
-            <p class="font-bold text-lg ${link.active ? 'text-white' : 'text-gray-400'} truncate">${link.title}</p>
-            <p class="text-sm text-indigo-300 truncate">${link.url}</p>
-        </div>
-        
-        <div class="flex items-center space-x-4">
-            <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" ${link.active ? 'checked' : ''} class="sr-only peer" onchange="toggleLinkActive('${link.id}', event.target.checked)">
-                <div class="w-12 h-6 bg-slate-600 rounded-full peer peer-checked:bg-pink-500 transition duration-300 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-            </label>
-            
-            <button onclick="deleteLink('${link.id}')" 
-                    class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-slate-800 transition">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3"></path></svg>
-            </button>
-        </div>
-    </div>
-`;
+// --- 1. DATA LOADING AND INITIALIZATION ---
 
 /**
- * Renders the current list of links to the DOM.
+ * Fetches user profile data from Firestore and sets up the dashboard state.
  */
-function renderLinks() {
-    const listEl = document.getElementById('link-list');
-    if (!listEl) return;
-    
-    listEl.innerHTML = '';
-    
-    // Sort links by 'order'
-    userLinks.sort((a, b) => a.order - b.order).forEach(link => {
-        listEl.innerHTML += getLinkHtml(link);
-    });
-}
-
-
-// --- Firebase Data Fetching and Real-time Listeners ---
-
-/**
- * Fetches user profile data and sets up real-time listeners.
- * @param {string} uid - The current user's Firebase UID.
- */
-function fetchUserData(uid) {
+async function fetchUserData(uid) {
     currentUserUid = uid;
-    const profileRef = db.collection('users').doc(uid);
     
-    // 1. Real-time Profile Listener
-    profileRef.onSnapshot(doc => {
-        if (doc.exists) {
-            userProfile = doc.data();
-            
-            // Update main editor inputs
-            const displayNameInput = document.getElementById('display-name-input');
-            if (displayNameInput) displayNameInput.value = userProfile.displayName || '';
-            
-            const bioInput = document.getElementById('bio-input');
-            if (bioInput) bioInput.value = userProfile.bio || '';
-            
-            const profileUrlInput = document.getElementById('profile-url-input');
-            if (profileUrlInput) profileUrlInput.value = userProfile.profileImageUrl || '';
-            
-            // Update public link display
-            const publicLink = `${window.location.origin}/profile.html?username=${userProfile.username}`;
-            const publicLinkDisplay = document.getElementById('public-link-display');
-            if (publicLinkDisplay) {
-                publicLinkDisplay.textContent = publicLink;
-                publicLinkDisplay.href = publicLink;
-            }
-        }
-    });
+    // 1. Fetch Profile Data
+    const profileDoc = await db.collection('users').doc(uid).get();
+    if (!profileDoc.exists) {
+        // This should not happen if auth.js worked, but good safeguard
+        console.error("Profile document not found.");
+        return;
+    }
+    userProfile = profileDoc.data();
 
-    // 2. Real-time Link Listener
-    if (unsubscribeLinks) unsubscribeLinks();
+    // 2. Fetch Links Data (using subcollection)
+    const linksSnapshot = await db.collection('users').doc(uid).collection('links').orderBy('order', 'asc').get();
+    userLinks = linksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // 3. Set up the UI
+    updateUIFromProfile();
+    renderLinksList();
     
-    const linksRef = profileRef.collection('links').orderBy('order', 'asc');
+    // 4. Handle Setup Interception
+    // The conditional logic to show/hide initialSetupView is now in the <script> block of dashboard.html
+    // This script only needs to set the initial values.
+    document.getElementById('setup-display-name').value = userProfile.displayName || '';
     
-    unsubscribeLinks = linksRef.onSnapshot(snapshot => {
-        userLinks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderLinks();
-        
-        // This check is part of the interactive setup logic (handled in dashboard.html script)
-        // Ensure the setup view is correctly shown/hidden based on links count
-        const initialSetupView = document.getElementById('initial-setup-view');
-        const linkEditorView = document.getElementById('link-editor-view');
-
-        if (initialSetupView && linkEditorView) {
-            // Check if profile is initialized AND links exist
-            if (userProfile.displayName && userLinks.length > 0) {
-                linkEditorView.classList.remove('hidden');
-                initialSetupView.classList.add('hidden');
-            } else if (!userProfile.displayName || userLinks.length === 0) {
-                // If profile is NOT initialized OR no links exist, show setup
-                linkEditorView.classList.add('hidden');
-                initialSetupView.classList.remove('hidden');
-            }
-        }
-
-    }, error => {
-        console.error("Link snapshot error:", error);
-        alert("Error loading your links. Please refresh.");
-    });
+    // 5. Load Live Preview
+    reloadPreview();
 }
 
+/**
+ * Updates all static UI elements based on the fetched profile data.
+ */
+function updateUIFromProfile() {
+    // Top Header Display
+    document.getElementById('profile-name-display').textContent = userProfile.displayName;
 
-// --- CRUD Operations ---
+    // Profile & Bio Tab Inputs
+    document.getElementById('display-name-input').value = userProfile.displayName || '';
+    document.getElementById('bio-input').value = userProfile.bio || '';
+    document.getElementById('profile-image-input').value = userProfile.profileImageUrl || '';
+    
+    // Design Tab Input
+    document.getElementById('template-select').value = userProfile.templateId || 'vibrant';
+}
+
+// --- 2. PROFILE & DESIGN MANAGEMENT (Tab 'profile' and 'design') ---
 
 /**
- * Updates the user's profile information in Firestore.
+ * Saves changes to Display Name, Bio, and Image URL.
  */
-async function updateProfile() {
-    if (!currentUserUid) return alert('User not authenticated.');
-
+async function updateProfileDetails() {
     const displayName = document.getElementById('display-name-input').value.trim();
-    const bio = document.getElementById('bio-input').value.trim();
-    const profileImageUrl = document.getElementById('profile-url-input').value.trim();
+    const bio = document.getElementById('bio-input').value.trim().substring(0, 100);
+    const imageUrl = document.getElementById('profile-image-input').value.trim();
 
-    if (displayName.length < 3) return alert('Display Name must be at least 3 characters.');
+    if (displayName.length < 3) return alert("Display Name must be at least 3 characters.");
 
     try {
-        await db.collection('users').doc(currentUserUid).update({ displayName, bio, profileImageUrl });
-        alert('✅ Profile updated successfully!'); 
+        await db.collection('users').doc(currentUserUid).set({
+            displayName: displayName,
+            bio: bio,
+            profileImageUrl: imageUrl,
+        }, { merge: true });
+
+        // Update local state and UI
+        userProfile.displayName = displayName;
+        userProfile.bio = bio;
+        userProfile.profileImageUrl = imageUrl;
+        updateUIFromProfile();
+
+        alert("Profile details saved successfully!");
+        reloadPreview();
+
     } catch (e) {
-        console.error("Profile update failed:", e);
-        alert('❌ Failed to update profile. Check your input and network connection.');
+        console.error("Error updating profile:", e);
+        alert("Failed to save profile details. Check console.");
     }
 }
 
 /**
- * Adds a new link document to the user's links subcollection.
+ * Saves the selected design template.
  */
-async function addNewLink() {
-    if (!currentUserUid) return;
+async function updateDesign() {
+    const templateId = document.getElementById('template-select').value;
+    
+    try {
+        await db.collection('users').doc(currentUserUid).set({
+            templateId: templateId
+        }, { merge: true });
 
+        userProfile.templateId = templateId; // Update local state
+        alert(`Design template updated to '${templateId}'!`);
+        reloadPreview();
+
+    } catch (e) {
+        console.error("Error updating design:", e);
+        alert("Failed to save design changes.");
+    }
+}
+
+
+// --- 3. LINKS MANAGEMENT (Tab 'links') ---
+
+/**
+ * Adds a new link to Firestore and the local array.
+ */
+async function addLink() {
     const title = document.getElementById('new-link-title').value.trim();
-    const url = document.getElementById('new-link-url').value.trim();
+    let url = document.getElementById('new-link-url').value.trim();
 
-    if (!title || !url) return alert('Please enter both title and URL.');
-    if (!url.startsWith('http')) return alert('URL must start with http:// or https://');
-
-    // Calculate the next order number to append the link to the bottom
-    const newOrder = userLinks.length > 0 ? Math.max(...userLinks.map(l => l.order)) + 1 : 1;
+    if (!title || title.length < 2 || url.length < 5) return alert("Please provide a valid title and URL.");
+    if (!url.startsWith('http')) url = 'https://' + url; // Basic safety check
 
     try {
-        await db.collection('users').doc(currentUserUid).collection('links').add({
-            title, 
-            url, 
-            order: newOrder, 
-            active: true
-        });
+        const newOrder = userLinks.length > 0 ? userLinks[userLinks.length - 1].order + 1 : 0;
         
-        // Clear inputs on success
+        const newLinkRef = await db.collection('users').doc(currentUserUid).collection('links').add({
+            title: title,
+            url: url,
+            order: newOrder,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() // Timestamp for stability
+        });
+
+        // Add to local state
+        userLinks.push({ id: newLinkRef.id, title, url, order: newOrder });
+
+        // Clear inputs and refresh UI
         document.getElementById('new-link-title').value = '';
         document.getElementById('new-link-url').value = '';
+        renderLinksList();
+        reloadPreview();
 
     } catch (e) {
-        console.error("Add link failed:", e);
-        alert('❌ Could not add link. Please try again.');
+        console.error("Error adding link:", e);
+        alert("Failed to add link. Check console.");
     }
 }
 
 /**
- * Toggles the 'active' status of a link.
+ * Removes a link from Firestore and the local array.
+ * @param {string} linkId - The ID of the link document.
  */
-async function toggleLinkActive(linkId, isActive) {
-    if (!currentUserUid) return;
-    try {
-        await db.collection('users').doc(currentUserUid).collection('links').doc(linkId).update({ active: isActive });
-    } catch (e) {
-        console.error("Toggle link failed:", e);
-        alert('❌ Failed to toggle link status.');
-    }
-}
-
-/**
- * Deletes a link from the subcollection.
- */
-async function deleteLink(linkId) {
-    if (!currentUserUid) return;
-    if (!confirm('Are you sure you want to permanently delete this link?')) return;
+window.deleteLink = async (linkId) => {
+    if (!confirm("Are you sure you want to delete this link?")) return;
 
     try {
         await db.collection('users').doc(currentUserUid).collection('links').doc(linkId).delete();
+
+        // Remove from local state and update UI
+        userLinks = userLinks.filter(link => link.id !== linkId);
+        // Re-render to reflect removal
+        renderLinksList();
+        reloadPreview();
+
     } catch (e) {
-        console.error("Delete link failed:", e);
-        alert('❌ Failed to delete link.');
+        console.error("Error deleting link:", e);
+        alert("Failed to delete link.");
     }
 }
 
+/**
+ * Renders the list of links in the links-list div.
+ */
+function renderLinksList() {
+    const listEl = document.getElementById('links-list');
+    listEl.innerHTML = ''; // Clear existing list
 
-// --- Initialization ---
+    if (userLinks.length === 0) {
+        listEl.innerHTML = '<p class="text-gray-500 text-center p-8">No links yet. Add one above!</p>';
+        return;
+    }
 
-// Expose core functions globally (they will be called by dashboard.html)
-window.fetchUserData = fetchUserData;
-window.updateProfile = updateProfile;
-window.addNewLink = addNewLink;
-window.toggleLinkActive = toggleLinkActive;
-window.deleteLink = deleteLink;
-// The initial call is managed by the script in dashboard.html.
+    userLinks.forEach(link => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700 shadow-md';
+        div.innerHTML = `
+            <div class="flex-grow min-w-0 pr-4">
+                <p class="font-semibold truncate text-white">${link.title}</p>
+                <a href="${link.url}" target="_blank" class="text-indigo-400 text-sm truncate">${link.url}</a>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="deleteLink('${link.id}')" class="text-red-400 hover:text-red-500 transition p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        `;
+        listEl.appendChild(div);
+    });
+}
+
+
+// --- 4. AUTH STATE INTEGRATION ---
+
+// We rely on auth.onAuthStateChanged in auth.js to call fetchUserData(user.uid)
+// when the user successfully logs in/registers and lands on dashboard.html.
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // User is logged in, begin data loading and UI setup
+        fetchUserData(user.uid);
+    } else {
+        // User is logged out (handled by logic in auth.js)
+    }
+});
