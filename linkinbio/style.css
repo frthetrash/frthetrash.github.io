@@ -1,8 +1,9 @@
 /*
- * style.css (Updated for Linktree Aesthetic and Header Removal)
+ * style.css (Final - Linktree Aesthetic & Centered)
  */
 
 :root {
+    /* Base Colors */
     --color-background-dark: #121212;
     --color-card-background: #1e1e1e;
     --color-text-light: #f5f5f5;
@@ -12,24 +13,24 @@
     --transition-speed: 0.3s;
 }
 
-/* Theme Variables (Customization - Default Theme) */
+/* Theme Variables (Customization) */
 body[data-theme="default"] {
-    --color-primary-a: #508DDA; 
+    --color-primary-a: #508DDA; /* Blue */
     --color-primary-b: #92C7CF;
     --gradient-main: linear-gradient(135deg, var(--color-primary-a) 0%, var(--color-primary-b) 100%);
 }
 body[data-theme="red"] {
-    --color-primary-a: #FF4B5C;
+    --color-primary-a: #FF4B5C; /* Red */
     --color-primary-b: #FFC72C;
     --gradient-main: linear-gradient(135deg, var(--color-primary-a) 0%, var(--color-primary-b) 100%);
 }
 body[data-theme="green"] {
-    --color-primary-a: #00B37F;
+    --color-primary-a: #00B37F; /* Green */
     --color-primary-b: #74E291;
     --gradient-main: linear-gradient(135deg, var(--color-primary-a) 0%, var(--color-primary-b) 100%);
 }
 
-/* Global Styles */
+/* Global Reset and Centering */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
@@ -37,10 +38,10 @@ body {
     color: var(--color-text-light);
     display: flex;
     flex-direction: column; 
-    align-items: center;
-    /* Adjust padding top to lift content up, removing header space */
+    align-items: center; /* Horizontally center content */
     min-height: 100vh;
     padding: 10px 20px; 
+    /* The main content wrapper (profile/setup) handles the max-width */
 }
 body::before { /* Grid pattern (same) */
     content: '';
@@ -57,9 +58,7 @@ body::before { /* Grid pattern (same) */
 }
 .hidden { display: none !important; }
 
-/* REMOVED: #app-header, .app-logo, .header-actions styles */
-
-/* Action Buttons (Moved into Profile View) */
+/* Action Buttons (Used for Edit/Logout/Login) */
 .profile-auth-actions {
     display: flex;
     gap: 10px;
@@ -82,24 +81,122 @@ body::before { /* Grid pattern (same) */
     box-shadow: 0 2px 8px rgba(80, 141, 218, 0.4);
 }
 
-/* --- Profile View Styling (Lifted) --- */
+/* --- Profile View Styling (Linktree Style) --- */
 .profile-view {
     width: 100%;
     max-width: var(--max-content-width);
-    padding: 10px 0; /* Reduced padding from 20px 0 */
+    padding: 10px 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
     animation: fadeIn var(--transition-speed) ease-out;
 }
-/* ... (Rest of Profile Header, Links, Socials CSS remains the same) ... */
 
-/* --- Setup View (Multi-Step Interaction) --- */
-.setup-view {
-    /* Ensures setup card starts higher on the screen */
-    margin-top: 20px;
+/* Profile Header */
+.profile-header {
+    text-align: center;
+    padding: 10px 0;
+}
+#user-avatar {
+    width: 100px; /* Slightly smaller for minimalism */
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    border: 3px solid var(--color-primary-a);
+    box-shadow: 0 0 10px rgba(80, 141, 218, 0.5);
+}
+#user-name {
+    font-size: 1.5rem; /* Slightly smaller */
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+#user-bio {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    max-width: 90%;
+    margin: 0 auto;
+}
+.user-goal-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--color-background-dark);
+    background: var(--gradient-main);
+    border-radius: 4px;
+    font-weight: 600;
 }
 
+/* Link Buttons (Ensuring Center Alignment within the max-width) */
+.link-buttons-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+.link-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--color-text-light);
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    overflow: hidden; 
+    z-index: 1;
+}
+.link-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-main);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity var(--transition-speed);
+}
+.link-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+.link-button i {
+    margin-right: 10px;
+    font-size: 1.2em;
+    color: var(--color-primary-a);
+    transition: color var(--transition-speed);
+}
+.link-button:hover i {
+    color: var(--color-text-light); /* Icon color change on hover */
+}
+
+/* --- Setup View (Interactive Form) --- */
+.setup-view {
+    width: 100%;
+    max-width: var(--max-content-width);
+    padding: 20px;
+    margin-top: 20px;
+}
+.setup-card {
+    background-color: var(--color-card-background);
+    border-radius: var(--border-radius);
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    /* Ensures absolute positioning of steps works within here */
+    position: relative; 
+}
+#profile-setup-form {
+    position: relative; /* Container for absolute steps */
+}
 .setup-step {
     padding: 10px 0;
     opacity: 0;
@@ -107,6 +204,9 @@ body::before { /* Grid pattern (same) */
     pointer-events: none;
     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
     position: absolute; 
+    width: 100%;
+    left: 0; 
+    /* Adjust width calculation for absolute positioning to fit card padding */
     width: calc(100% - 60px); 
 }
 .setup-step.active {
@@ -116,25 +216,71 @@ body::before { /* Grid pattern (same) */
     position: relative; 
     min-height: 200px;
 }
-.setup-card {
-    background-color: var(--color-card-background);
-    border-radius: var(--border-radius);
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+/* Form Inputs */
+#profile-setup-form input,
+#profile-setup-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    background-color: var(--color-background-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: var(--color-text-light);
 }
 
-/* New: Login/Register Link */
+/* Navigation & Subtitles */
+.setup-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.step-title {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: var(--color-primary-b);
+}
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--gradient-main);
+    color: var(--color-background-dark);
+}
+
+/* Goal Selection */
+.goal-selection label {
+    display: block;
+    text-align: center;
+    background-color: var(--color-background-dark);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+.goal-selection input[type="radio"] {
+    display: none; /* Hide radio button itself */
+}
+.goal-selection input[type="radio"]:checked + label {
+    border-color: var(--color-primary-a);
+    box-shadow: 0 0 10px rgba(80, 141, 218, 0.5);
+}
+.goal-selection label {
+    display: block;
+}
+
+/* Alternate Action (Login/Register Links) */
 .alternate-action {
     text-align: center;
     margin-top: 20px;
     font-size: 0.9rem;
 }
 .alternate-action a {
-    color: var(--color-primary-b);
+    color: var(--color-primary-a);
     text-decoration: none;
 }
-.alternate-action a:hover {
-    text-decoration: underline;
-}
-
-/* ... (Rest of Setup CSS remains the same) ... */
