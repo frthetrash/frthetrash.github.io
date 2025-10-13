@@ -3,45 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkSpark | The Elegant Link-in-Bio Tool</title>
-    <meta name="description" content="Check out this creator's professional links, powered by LinkSpark.">
+    <title>LinkShare | Profile</title>
+    <meta name="description" content="Check out this creator's professional links, powered by LinkShare.">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Deep, solid black background */
-        body { background-color: #000000; }
+        /* Theme Setup: Deep background with subtle texture */
+        body {
+            background-color: #0F172A; /* Deep Blue-Gray */
+            color: #E2E8F0; /* Light Gray Text */
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
         
-        /* Custom styles for the high-contrast link buttons */
+        /* Define the Vibrant Gradient for text/elements */
+        .vibrant-gradient {
+            background-image: linear-gradient(to right, #6366F1, #F472B6); /* Indigo to Pink */
+        }
+        
+        /* Define the Gradient Text */
+        .text-gradient {
+            background-image: linear-gradient(to right, #6366F1, #F472B6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Custom styles for the vibrant link buttons */
         .link-button {
-            /* Large, generous padding */
-            padding-top: 1.25rem; 
-            padding-bottom: 1.25rem;
+            padding: 1.25rem; /* Large, generous padding */
+            background-color: #1E293B; /* Dark Blue-Gray base */
+            border: 1px solid #334155; /* Subtle border */
+            color: #E2E8F0;
             
-            /* High-contrast white text on black background, with elegant border */
-            border: 2px solid white; 
-            background-color: transparent;
-            color: white;
-            
-            /* Animation for the 'lift' effect on hover */
+            /* Animation for the 'lift' and glow effect on hover */
             transition: all 0.3s ease-in-out;
-            transform: scale(1); /* Base scale */
+            transform: scale(1);
         }
         
         .link-button:hover {
-            /* Subtle 'lift' and inverse coloring effect */
-            background-color: white;
-            color: black;
+            /* Use a soft shadow with the vibrant pink/indigo colors */
+            background-color: #334155; 
             transform: scale(1.02); 
-            box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.2); /* Soft white glow */
+            box-shadow: 0 10px 20px -3px rgba(244, 114, 182, 0.2); 
+            border-color: #F472B6; /* Pink border on hover */
         }
     </style>
 </head>
-<body class="bg-black text-white min-h-screen p-8 font-sans">
+<body class="bg-slate-900 text-white min-h-screen p-6 font-sans">
     
-    <div id="public-profile-container" class="w-full max-w-xl mx-auto py-12 text-center">
+    <div id="public-profile-container" class="w-full max-w-lg mx-auto py-12 text-center">
         
-        <div id="status-message" class="text-white text-xl mt-8 font-light tracking-wide">
+        <div id="status-message" class="text-white text-xl mt-8 font-light tracking-wide animate-pulse">
             Loading profile...
         </div>
         
