@@ -20,16 +20,17 @@ body {
     display: grid;
     place-items: center;
 
-    /* Subtle Background Pattern - NOW THREE LAYERS */
+    /* Subtle Background Pattern - Alpha changed from 0.02 to 0.025 */
     background-image:
-        /* 1. New Subtle Diagonal Pattern (Opacity 0.02, 80% more subtle than the 0.04 grid) */
-        linear-gradient(135deg, rgba(255, 255, 255, 0.02) 25%, transparent 25%), 
+        /* 1. Diagonal Pattern (NOW 25% MORE VISIBLE) */
+        linear-gradient(135deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%), 
         /* 2. Original Vertical Grid lines */
         linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
         /* 3. Original Horizontal Grid lines */
         linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
     background-size: 50px 50px;
 }
+
 /* --- Content Styling --- */
 .content-wrapper {
     display: flex;
