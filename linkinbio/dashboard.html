@@ -182,9 +182,9 @@
             <div class="dashboard-panel p-6 space-y-3">
                 <h4 class="text-lg font-bold neon-blue">💡 Quick Tips</h4>
                 <ul class="list-disc list-inside text-sm text-gray-400 space-y-1">
-                    <li>Username is permanent.</li>
+                    <li>Username is **permanent**.</li>
                     <li>Links must include `https://`.</li>
-                    <li>Profile updates instantly on your public page.</li>
+                    <li>Profile updates **instantly** on your public page.</li>
                 </ul>
             </div>
         </section>
@@ -241,7 +241,7 @@
         document.getElementById(`tab-${tabId}`).classList.add('active');
     }
 
-    // Function to reload the live preview iframe (Removed the iframe but keeping the function for compatibility)
+    // Function to reload the live preview iframe (removed, but kept for compatibility)
     function reloadPreview() {
         // Function now empty as preview is removed, but required by dashboard-editor.js
     }
@@ -276,7 +276,7 @@
     const checkSetupInputs = () => {
         const displayName = setupNameInput.value.trim();
         const username = setupUsernameInput.value.trim();
-        const isUsernameRequired = initialSetupView.classList.contains('hidden') ? false : true; // Only required if setup view is visible
+        const isUsernameRequired = initialSetupView.classList.contains('hidden') ? false : true; 
         
         setupButton.disabled = displayName.length < 3 || (isUsernameRequired && username.length < 3);
         errorMessageEl.textContent = '';
@@ -324,10 +324,12 @@
         let updates = { displayName: displayName };
         let newUsername = null;
 
-        if (displayName.length < 3) {
-            errorMessageEl.textContent = 'Display name must be at least 3 characters.';
-            setupButton.disabled = false;
-            return;
+        // --- FIX 1: Ensure currentUserUid is available ---
+        if (!window.currentUserUid) {
+            const firebaseUser = auth.currentUser;
+            if (firebaseUser) {
+                window.currentUserUid = firebaseUser.uid;
+            }
         }
         
         if (!window.currentUserUid) {
@@ -335,6 +337,14 @@
             setupButton.disabled = false;
             return; 
         }
+        // --- END FIX 1 ---
+        
+        if (displayName.length < 3) {
+            errorMessageEl.textContent = 'Display name must be at least 3 characters.';
+            setupButton.disabled = false;
+            return;
+        }
+        
 
         if (!window.userProfile.username) {
             newUsername = setupUsernameInput.value.toLowerCase().trim();
