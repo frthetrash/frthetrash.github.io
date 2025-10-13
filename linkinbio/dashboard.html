@@ -8,9 +8,9 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base Dark Theme */
+        /* Base Dark Theme and Typography */
         body { 
-            background-color: #0F172A; /* Deep Blue-Gray Base */
+            background-color: #0A0A10; /* Near-black background */
             color: #E2E8F0;
             font-family: ui-sans-serif, system-ui;
             opacity: 0; /* Hidden initially to prevent FOUC */
@@ -22,29 +22,50 @@
             background-image: linear-gradient(to right, #6366F1, #EC4899); /* Indigo to Pink */
         }
         
-        /* Input/Card Styling */
-        .input-dark {
-            background-color: #1E293B;
-            border: 1px solid #334155;
-            color: #E2E8F0;
-        }
-        .input-dark:focus {
-            border-color: #4F46E5;
-            box-shadow: 0 0 0 1px #4F46E5;
+        /* Glass-morphism Card/Panel Styling */
+        .glass-panel {
+            background-color: rgba(30, 41, 59, 0.4); /* Dark Blue Slate with transparency */
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Subtle white border */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* Tab Styling */
+        /* Input/Form Element Styling */
+        .input-dark {
+            background-color: #1A1A22;
+            border: 1px solid #334155;
+            color: #E2E8F0;
+            transition: all 0.2s ease;
+        }
+        .input-dark:focus {
+            border-color: #EC4899;
+            box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.5);
+        }
+
+        /* Tab Navigation Bar */
         .tab-btn {
-            @apply px-4 py-2 font-semibold text-gray-400 border-b-2 border-transparent transition duration-200;
+            @apply px-5 py-3 font-semibold text-gray-400 transition duration-300 relative overflow-hidden;
         }
         .tab-btn.active {
-            @apply text-white border-indigo-500;
+            @apply text-white;
+        }
+        /* Active Tab Underline Effect */
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, #6366F1, #EC4899);
+            border-radius: 2px 2px 0 0;
         }
 
         /* Mobile Preview Mockup */
         .mobile-preview {
-            background-color: #1E293B;
-            border: 8px solid #334155;
+            background-color: #0F172A;
+            border: 10px solid #1E293B;
             border-radius: 40px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
             height: 600px;
@@ -52,18 +73,9 @@
             position: relative;
         }
         .mobile-screen {
-            background-color: #0F172A;
+            background-color: #0A0A10;
             height: 100%;
             overflow-y: auto;
-        }
-
-        /* Custom scrollbar for preview */
-        .mobile-screen::-webkit-scrollbar {
-            width: 5px;
-        }
-        .mobile-screen::-webkit-scrollbar-thumb {
-            background-color: #4F46E5;
-            border-radius: 10px;
         }
     </style>
 </head>
@@ -71,21 +83,21 @@
 
 <div id="app-container" class="min-h-screen">
 
-    <header class="bg-gray-900/50 backdrop-blur-md p-4 shadow-xl border-b border-gray-800 sticky top-0 z-20">
+    <header class="bg-gray-900/50 glass-panel p-4 shadow-xl sticky top-0 z-20">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
-                     alt="LinkShare Logo" class="w-8 h-8 rounded-full">
-                <h1 class="text-2xl font-bold text-white">Dashboard</h1>
+                     alt="LinkShare Logo" class="w-8 h-8 rounded-full border border-pink-500">
+                <h1 class="text-2xl font-bold text-white tracking-wider">LinkShare <span class="text-indigo-400">/ Dashboard</span></h1>
             </div>
             
-            <div class="flex space-x-3 items-center">
-                <span id="profile-name-display" class="text-indigo-400 text-lg font-medium hidden sm:block"></span>
+            <div class="flex space-x-4 items-center">
+                <span id="profile-name-display" class="text-indigo-300 font-medium hidden lg:block"></span>
                 
-                <button onclick="copyProfileLink()" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                <button onclick="copyProfileLink()" class="py-2 px-4 rounded-lg text-sm text-white font-medium bg-green-600 hover:bg-green-700 transition duration-300 shadow-md">
                     🔗 Share Profile
                 </button>
-                <button onclick="handleLogout()" class="text-gray-400 hover:text-white transition duration-300 p-2">
+                <button onclick="handleLogout()" class="text-gray-400 hover:text-red-400 transition duration-300 p-2 text-sm">
                     Logout
                 </button>
             </div>
@@ -94,64 +106,47 @@
 
     <main class="max-w-7xl mx-auto p-4 sm:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <section class="lg:col-span-2 bg-gray-900/50 p-6 rounded-xl shadow-2xl min-h-[80vh]">
+        <section id="link-editor-view" class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-2xl min-h-[80vh] hidden">
             
-            <div class="flex border-b border-gray-700 mb-6">
+            <div class="flex border-b border-gray-700 mb-8">
                 <button id="tab-profile" class="tab-btn active" onclick="showTab('profile')">Profile & Bio</button>
                 <button id="tab-links" class="tab-btn" onclick="showTab('links')">Links Manager</button>
                 <button id="tab-design" class="tab-btn" onclick="showTab('design')">Design & Theme</button>
             </div>
 
-            <div id="initial-setup-view" class="w-full text-center py-12 bg-gray-800/70 p-8 rounded-xl shadow-inner border border-gray-700 hidden">
-                <h2 class="text-3xl font-extrabold text-indigo-400 mb-4">✨ First Time Setup</h2>
-                <p class="text-xl text-gray-300 mb-8">Let's set your **permanent username** and display name.</p>
-                
-                <div id="setup-username-container" class="mb-4">
-                    <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
-                           class="w-full max-w-md p-4 rounded-lg input-dark text-center mx-auto"
-                           maxlength="20">
-                    <p class="text-sm text-red-400 mt-2">⚠️ This username cannot be changed later.</p>
-                </div>
-                
-                <input type="text" id="setup-display-name" placeholder="SET DISPLAY NAME" 
-                       class="w-full max-w-md p-4 my-4 rounded-lg input-dark text-center mx-auto">
-                
-                <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
-                        class="py-3 px-10 font-bold rounded-full text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg disabled:opacity-50 mt-4">
-                    Finish Setup & Go to Dashboard
-                </button>
-
-                <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
-            </div>
-
-
             <div id="tab-content-profile" class="tab-content">
-                <h3 class="text-xl font-semibold mb-4">Basic Profile Details</h3>
+                <h3 class="text-2xl font-bold text-indigo-400 mb-4">Edit Profile Details</h3>
                 
-                <div class="mb-6 space-y-4">
-                    <label class="block text-sm font-medium text-gray-400">Display Name</label>
-                    <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full p-3 rounded-lg input-dark">
+                <div class="mb-6 space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Display Name</label>
+                        <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full p-3 rounded-xl input-dark">
+                    </div>
                     
-                    <label class="block text-sm font-medium text-gray-400 pt-2">Bio (Max 100 characters)</label>
-                    <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full p-3 rounded-lg input-dark h-24 resize-none"></textarea>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Bio (Max 100 characters)</label>
+                        <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full p-3 rounded-xl input-dark h-24 resize-none"></textarea>
+                    </div>
                     
-                    <label class="block text-sm font-medium text-gray-400 pt-2">Profile Image URL</label>
-                    <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full p-3 rounded-lg input-dark">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Profile Image URL</label>
+                        <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full p-3 rounded-xl input-dark">
+                    </div>
                 </div>
                 
-                <button onclick="updateProfileDetails()" class="primary-btn bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
-                    Save Profile
+                <button onclick="updateProfileDetails()" class="py-3 px-8 font-bold rounded-xl text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                    💾 Save Profile Changes
                 </button>
             </div>
 
             <div id="tab-content-links" class="tab-content hidden">
-                <h3 class="text-xl font-semibold mb-4">Your Links</h3>
+                <h3 class="text-2xl font-bold text-indigo-400 mb-6">Manage Links</h3>
                 
-                <div class="flex space-x-3 mb-6 p-4 rounded-lg border border-gray-700 bg-gray-800/50">
-                    <input type="text" id="new-link-title" placeholder="Link Title (e.g., My Website)" class="w-1/3 p-3 rounded-lg input-dark">
-                    <input type="url" id="new-link-url" placeholder="URL (e.g., https://example.com)" class="w-2/3 p-3 rounded-lg input-dark">
-                    <button onclick="addLink()" class="py-3 px-5 font-bold rounded-lg vibrant-gradient text-slate-900 hover:opacity-90 transition duration-300">
-                        Add Link
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mb-8 p-4 rounded-xl border border-gray-700 bg-gray-800/50">
+                    <input type="text" id="new-link-title" placeholder="Link Title" class="w-full sm:w-1/3 p-3 rounded-lg input-dark">
+                    <input type="url" id="new-link-url" placeholder="URL (e.g., https://example.com)" class="w-full sm:w-2/3 p-3 rounded-lg input-dark">
+                    <button onclick="addLink()" class="py-3 px-5 font-bold rounded-lg vibrant-gradient text-slate-900 hover:opacity-90 transition duration-300 flex-shrink-0">
+                        + Add
                     </button>
                 </div>
                 
@@ -161,27 +156,50 @@
             </div>
             
             <div id="tab-content-design" class="tab-content hidden">
-                <h3 class="text-xl font-semibold mb-4">Design Customization</h3>
+                <h3 class="text-2xl font-bold text-indigo-400 mb-4">Design Customization</h3>
                 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-400 mb-2">Select Profile Template</label>
-                    <select id="template-select" class="w-full max-w-xs p-3 rounded-lg input-dark">
-                        <option value="vibrant">Vibrant (Default)</option>
+                <div class="mb-8">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Select Profile Template</label>
+                    <select id="template-select" class="w-full max-w-sm p-3 rounded-xl input-dark">
+                        <option value="vibrant">Vibrant (Indigo/Pink)</option>
                         <option value="clean">Clean Minimal</option>
-                        <option value="dark">Dark Mode</option>
+                        <option value="dark">Dark Mode Classic</option>
                     </select>
                 </div>
                 
-                <button onclick="updateDesign()" class="primary-btn bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
-                    Save Design
+                <button onclick="updateDesign()" class="py-3 px-8 font-bold rounded-xl text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg">
+                    🎨 Apply Theme
                 </button>
             </div>
 
         </section>
 
+
+        <div id="initial-setup-view" class="lg:col-span-3 w-full text-center py-20 glass-panel p-12 rounded-2xl shadow-2xl hidden">
+            <h2 class="text-4xl font-extrabold text-white mb-4">✨ Welcome to LinkShare!</h2>
+            <p class="text-xl text-gray-300 mb-10">You're almost done! Please choose your **permanent** username.</p>
+            
+            <div id="setup-username-container" class="mb-6 mx-auto max-w-lg">
+                <input type="text" id="setup-username" placeholder="CHOOSE PERMANENT USERNAME" 
+                       class="w-full p-4 rounded-xl input-dark text-center text-lg"
+                       maxlength="20">
+                <p class="text-sm text-pink-400 mt-2">⚠️ Your profile link will be: **linkshare.com/<span id="username-preview">username</span>**. This cannot be changed.</p>
+            </div>
+            
+            <input type="text" id="setup-display-name" placeholder="SET DISPLAY NAME (e.g., Jane Doe)" 
+                   class="w-full max-w-lg p-4 my-4 rounded-xl input-dark text-center text-lg mx-auto">
+            
+            <button onclick="updateDisplayNameFromSetup()" id="setup-next-button" 
+                    class="py-4 px-12 font-bold rounded-xl text-slate-900 vibrant-gradient hover:opacity-90 transition duration-300 shadow-lg mt-6 disabled:opacity-50">
+                🚀 Finish Setup
+            </button>
+
+            <div id="setup-error-message" class="text-red-400 text-sm mt-4"></div>
+        </div>
+
         <section class="lg:col-span-1 hidden lg:block">
             <div class="sticky top-24">
-                <h2 class="text-xl font-bold mb-4 text-center">Live Preview</h2>
+                <h2 class="text-xl font-bold mb-4 text-center text-indigo-400">Live Mobile Preview</h2>
                 <div class="mobile-preview">
                     <iframe id="profile-preview-iframe" class="mobile-screen" src="" frameborder="0"></iframe>
                 </div>
@@ -200,7 +218,9 @@
 <script src="./js/dashboard-editor.js"></script>
 
 <script>
-    // --- UI/Tab Management Logic ---
+    // --- UI/Tab Management & Setup Logic ---
+    const linkEditorView = document.getElementById('link-editor-view');
+    const initialSetupView = document.getElementById('initial-setup-view');
 
     // Function to show the selected tab content
     function showTab(tabId) {
@@ -213,23 +233,25 @@
 
     // Function to reload the live preview iframe
     function reloadPreview() {
-        const username = userProfile.username;
+        const username = window.userProfile ? window.userProfile.username : null;
         const iframe = document.getElementById('profile-preview-iframe');
         
         if (username) {
-            iframe.src = `./profile.html?username=${username}`;
+            // Force the iframe to reload with the latest data
+            iframe.src = `./profile.html?username=${username}&t=${new Date().getTime()}`;
         }
     }
 
     // Function to copy the profile link
     function copyProfileLink() {
-        if (!userProfile.username) {
+        if (!window.userProfile || !window.userProfile.username) {
             alert("Please complete the setup first to get your permanent profile link!");
             return;
         }
-        const profileUrl = `${window.location.origin}/profile.html?username=${userProfile.username}`;
-        navigator.clipboard.writeText(profileUrl);
-        alert(`Profile link copied! Share this link: ${profileUrl}`);
+        const profileUrl = `${window.location.origin}/profile.html?username=${window.userProfile.username}`;
+        navigator.clipboard.writeText(profileUrl).then(() => {
+            alert(`Profile link copied! Share this link: ${profileUrl}`);
+        });
     }
 
     // Function to reveal content after auth state check
@@ -237,10 +259,133 @@
         document.body.style.opacity = 1;
     }
     
-    // Initial UI setup on load
-    document.addEventListener('DOMContentLoaded', () => {
-        // Assume auth.onAuthStateChanged will call fetchUserData, which handles setup view visibility
+    // --- START OF NEW/CORRECTED SETUP INTERCEPTION LOGIC (Crucial Fix) ---
+    
+    const setupNameInput = document.getElementById('setup-display-name');
+    const setupUsernameInput = document.getElementById('setup-username');
+    const setupUsernameContainer = document.getElementById('setup-username-container');
+    const setupButton = document.getElementById('setup-next-button');
+    const usernamePreviewEl = document.getElementById('username-preview');
+    const errorMessageEl = document.getElementById('setup-error-message');
+
+    // Button enabling logic
+    const checkSetupInputs = () => {
+        const displayName = setupNameInput.value.trim();
+        const username = setupUsernameInput.value.trim();
+        
+        const isUsernameRequired = setupUsernameContainer.style.display !== 'none';
+        
+        setupButton.disabled = displayName.length < 3 || (isUsernameRequired && username.length < 3);
+        errorMessageEl.textContent = '';
+    };
+
+    setupNameInput.addEventListener('input', checkSetupInputs);
+    setupUsernameInput.addEventListener('input', () => {
+        const username = setupUsernameInput.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+        setupUsernameInput.value = username; // Sanitize input
+        usernamePreviewEl.textContent = username || 'username'; // Live preview below input
+        checkSetupInputs();
     });
+    
+    // Override the dashboard-editor function to implement the UI switch
+    const originalFetchUserData = window.fetchUserData; 
+    window.fetchUserData = (uid) => {
+        originalFetchUserData(uid); // Run the original data fetch
+
+        // Wait a moment for the data to populate the global userProfile variable
+        setTimeout(() => {
+            // Check if userProfile is available and the username is NOT set (null)
+            const isFirstTimeSetup = window.userProfile && !window.userProfile.username;
+
+            if (isFirstTimeSetup) {
+                // FORCE SETUP VIEW: Show username input and the setup screen
+                setupUsernameContainer.style.display = 'block';
+                initialSetupView.classList.remove('hidden');
+                linkEditorView.classList.add('hidden');
+                setupUsernameInput.value = ''; 
+                setupNameInput.value = window.userProfile.displayName || '';
+                checkSetupInputs();
+            } else {
+                // Normal view: Hide username input and show main editor
+                setupUsernameContainer.style.display = 'none';
+                initialSetupView.classList.add('hidden');
+                linkEditorView.classList.remove('hidden');
+            }
+            revealContent(); // Finally show the body
+        }, 100); 
+    };
+
+    // The CRITICAL logic for saving the permanent username and display name
+    window.updateDisplayNameFromSetup = async () => {
+        const displayName = setupNameInput.value.trim();
+        let updates = { displayName: displayName };
+        let newUsername = null;
+
+        if (displayName.length < 3) {
+            errorMessageEl.textContent = 'Display name must be at least 3 characters.';
+            return;
+        }
+        
+        if (!window.currentUserUid) {
+            errorMessageEl.textContent = 'Authentication error. Please refresh and log in.';
+            return; 
+        }
+
+        // Check and SET PERMANENT USERNAME (only if not already set)
+        if (!window.userProfile.username) {
+            newUsername = setupUsernameInput.value.toLowerCase().trim();
+            
+            // Basic validation
+            if (newUsername.length < 3) {
+                errorMessageEl.textContent = 'Username must be at least 3 characters.';
+                return;
+            }
+            if (!/^[a-z0-9_-]+$/.test(newUsername)) {
+                errorMessageEl.textContent = 'Username can only contain lowercase letters, numbers, hyphen (-) and underscore (_).';
+                return;
+            }
+
+            // 1. Check Uniqueness (Moved here from dashboard-editor.js for immediate access)
+            try {
+                const userQuery = await db.collection('users').where('username', '==', newUsername).limit(1).get();
+                if (!userQuery.empty) {
+                    errorMessageEl.textContent = 'That username is already taken. Try another.';
+                    return;
+                }
+            } catch(e) {
+                console.error("Username Check Failed:", e);
+                errorMessageEl.textContent = 'Could not check username uniqueness. Try again.';
+                return;
+            }
+
+            // 2. Prepare the updates payload
+            updates.username = newUsername;
+            updates.isUsernameSet = true; // LOCK the username
+        }
+
+
+        try {
+            // 3. Update Profile in Firestore
+            await db.collection('users').doc(window.currentUserUid).set(updates, { merge: true });
+            
+            // 4. Update global profile object
+            window.userProfile.displayName = displayName; 
+            if (newUsername) {
+                window.userProfile.username = newUsername;
+            }
+
+            // 5. Success Message & UI Switch
+            alert(`🎉 Profile setup complete! Your public link is ready.`);
+            
+            // Re-run the fetch logic to switch views based on the now-set username
+            window.fetchUserData(window.currentUserUid); 
+            
+        } catch (e) {
+            console.error("Setup update failed with Firestore error:", e);
+            errorMessageEl.textContent = 'Failed to save setup. Please check the console for details.';
+        }
+    };
+    // --- END OF CRITICAL FIX ---
 </script>
 
 </body>
