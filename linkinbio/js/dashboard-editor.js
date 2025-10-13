@@ -1,11 +1,15 @@
 // /js/dashboard-editor.js
 
-// NOTE: Relies on global variables 'auth', 'db', and function 'reloadPreview()' 
-// being defined in firebase-config.js and dashboard.html.
+// NOTE: Relies on global variables 'auth', 'db' from firebase-config.js, 
+// and functions 'reloadPreview', 'showTab', and 'copyProfileLink' 
+// being defined in the inline script in dashboard.html.
 
 let currentUserUid = null;
 window.userProfile = {}; // Made global for dashboard.html script access (CRITICAL for setup check)
 let userLinks = [];
+
+// Removed: Redundant DOM declarations (e.g., const linkEditorView) to fix SyntaxError.
+
 
 // --- 1. DATA LOADING AND INITIALIZATION ---
 
@@ -19,8 +23,11 @@ async function fetchUserData(uid) {
     
     // 1. Fetch Profile Data
     const profileDoc = await db.collection('users').doc(uid).get();
+    
+    // Safety check: This shouldn't fail if auth.js worked, but we handle it defensively.
     if (!profileDoc.exists) {
-        console.error("Profile document not found.");
+        console.error("Profile document not found. The application will attempt to proceed.");
+        // If the document is missing here, it means the ensureUserProfile logic failed.
         return;
     }
     window.userProfile = profileDoc.data();
@@ -29,19 +36,19 @@ async function fetchUserData(uid) {
     const linksSnapshot = await db.collection('users').doc(uid).collection('links').orderBy('order', 'asc').get();
     userLinks = linksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // 3. Set up the UI (This runs *after* the dashboard.html script decides whether to show the setup view)
+    // 3. Set up the UI
     updateUIFromProfile();
     renderLinksList();
     
-    // 4. Load Live Preview
-    reloadPreview();
+    // 4. Load Live Preview (function is now empty in HTML, but the call remains)
+    reloadPreview(); 
 }
 
 /**
  * Updates all static UI elements based on the fetched profile data.
  */
 function updateUIFromProfile() {
-    // Top Header Display
+    // Top Right Info Card Display
     document.getElementById('profile-name-display').textContent = userProfile.displayName || 'User Profile';
 
     // Profile & Bio Tab Inputs
@@ -58,7 +65,7 @@ function updateUIFromProfile() {
 /**
  * Saves changes to Display Name, Bio, and Image URL.
  */
-async function updateProfileDetails() {
+window.updateProfileDetails = async () => {
     const saveButton = document.querySelector('#tab-content-profile button');
     saveButton.disabled = true;
 
@@ -99,7 +106,7 @@ async function updateProfileDetails() {
 /**
  * Saves the selected design template.
  */
-async function updateDesign() {
+window.updateDesign = async () => {
     const saveButton = document.querySelector('#tab-content-design button');
     saveButton.disabled = true;
     
@@ -128,7 +135,7 @@ async function updateDesign() {
 /**
  * Adds a new link to Firestore and the local array.
  */
-async function addLink() {
+window.addLink = async () => {
     const titleInput = document.getElementById('new-link-title');
     const urlInput = document.getElementById('new-link-url');
     
@@ -200,12 +207,12 @@ function renderLinksList() {
 
     userLinks.forEach(link => {
         const div = document.createElement('div');
-        // Tailwind styling for the list item
-        div.className = 'flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700 shadow-md';
+        // Tailwind styling for the list item (updated for new color scheme)
+        div.className = 'flex items-center justify-between p-4 rounded-lg bg-[#2A2A2A] border border-[#333333] shadow-lg';
         div.innerHTML = `
             <div class="flex-grow min-w-0 pr-4">
                 <p class="font-semibold truncate text-white">${link.title}</p>
-                <a href="${link.url}" target="_blank" class="text-indigo-400 text-sm truncate hover:text-pink-400">${link.url}</a>
+                <a href="${link.url}" target="_blank" class="text-[#00BFFF] text-sm truncate hover:text-[#00A3D9]">${link.url}</a>
             </div>
             <div class="flex space-x-2">
                 <button onclick="deleteLink('${link.id}')" class="text-red-400 hover:text-red-500 transition p-1" title="Delete Link">
@@ -221,13 +228,14 @@ function renderLinksList() {
 
 // --- 4. AUTH STATE INTEGRATION ---
 
-// We rely on auth.onAuthStateChanged in auth.js to call fetchUserData(user.uid)
-// when the user successfully logs in/registers and lands on dashboard.html.
+// Note: fetchUserData is now exposed globally for use in dashboard.html's inline script
+window.fetchUserData = fetchUserData; 
+
+// This observer initializes the dashboard after the user is confirmed logged in.
 auth.onAuthStateChanged(user => {
     if (user) {
         // User is logged in, begin data loading and UI setup via the fetchUserData function
         fetchUserData(user.uid);
-    } else {
-        // Logged out state is handled by the redirect logic in auth.js
-    }
+    } 
+    // Logged out state is handled by auth.js redirect
 });
