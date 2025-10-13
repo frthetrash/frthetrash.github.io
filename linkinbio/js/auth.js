@@ -40,7 +40,7 @@ async function handleRegister() {
     if (!username || !email || !password) return setError('Please fill in all fields.');
 
     try {
-        // 1. Check for Username Uniqueness (Crucial for public profile URLs)
+        // 1. Check for Username Uniqueness
         const userQuery = await db.collection('users').where('username', '==', username).limit(1).get();
         if (!userQuery.empty) return setError('This username is already taken. Choose something unique.');
 
@@ -48,16 +48,16 @@ async function handleRegister() {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        // 3. Create initial Firestore Profile Document (Crucial step for new user data)
+        // 3. Create initial Firestore Profile Document (Guaranteed to include the 'username' field)
         await db.collection('users').doc(user.uid).set({
-            username: username, // <-- MUST BE PRESENT for the public profile query to work
+            username: username, // <-- CRITICALLY IMPORTANT FIELD for public profile query
             displayName: username.charAt(0).toUpperCase() + username.slice(1), 
             profileImageUrl: 'https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png', 
             bio: '👋 Check out my links!',
             templateId: 'vibrant'
         });
 
-        // Redirect on success
+        // Redirect only after the Firestore operation is complete.
         window.location.replace('./dashboard.html');
 
     } catch (error) {
@@ -68,6 +68,7 @@ async function handleRegister() {
         else if (error.code === 'auth/invalid-email') message = 'The email address is not valid.';
 
         setError(message);
+        console.error("Registration Error:", error);
     }
 }
 
