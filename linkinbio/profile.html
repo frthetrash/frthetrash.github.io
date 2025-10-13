@@ -31,36 +31,44 @@
             color: transparent;
         }
 
-        /* Custom styles for the vibrant link buttons */
+        /* Custom styles for the vibrant, interactive link buttons */
         .link-button {
-            padding: 1.25rem; /* Large, generous padding */
+            padding: 1.25rem; 
             background-color: #1E293B; /* Dark Blue-Gray base */
-            border: 1px solid #334155; /* Subtle border */
+            border: 1px solid #334155; 
             color: #E2E8F0;
-            
-            /* Animation for the 'lift' and glow effect on hover */
             transition: all 0.3s ease-in-out;
             transform: scale(1);
         }
         
         .link-button:hover {
-            /* Use a soft shadow with the vibrant pink/indigo colors */
             background-color: #334155; 
             transform: scale(1.02); 
             box-shadow: 0 10px 20px -3px rgba(244, 114, 182, 0.2); 
             border-color: #F472B6; /* Pink border on hover */
         }
+        
+        /* Interactive pulse for the profile image */
+        .profile-img-glow:hover {
+            box-shadow: 0 0 0 8px rgba(244, 114, 182, 0.3); /* Pink glow */
+        }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-6 font-sans">
+<body class="bg-slate-900 text-white min-h-screen p-4 sm:p-6 font-sans">
     
-    <div id="public-profile-container" class="w-full max-w-lg mx-auto py-12 text-center">
+    <div id="public-profile-container" class="w-full max-w-xl mx-auto py-8 sm:py-12 text-center">
         
         <div id="status-message" class="text-white text-xl mt-8 font-light tracking-wide animate-pulse">
             Loading profile...
         </div>
         
         </div>
+    
+    <footer class="text-center mt-12 pb-6">
+        <p class="text-xs text-gray-500">
+            Powered by <span class="text-indigo-400 font-semibold">LinkShare</span>
+        </p>
+    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
