@@ -1,18 +1,18 @@
 // /js/dashboard-editor.js
 
-// NOTE: Relies on global variables 'auth', 'db' from firebase-config.js, 
-// and functions 'reloadPreview', 'showTab', and 'copyProfileLink' 
-// being defined in the inline script in dashboard.html.
+// NOTE: Relies on global variables 'auth', 'db' from firebase-config.js.
 
 let currentUserUid = null;
-window.userProfile = {}; // CRITICAL: Made global for dashboard.html setup check
+window.userProfile = {}; // CRITICAL: Made global
 let userLinks = [];
+
+const PUBLIC_BASE_URL = "https://garbage.qzz.io/linkinbio/profile.html"; // Your specific base URL
+
 
 // --- 1. DATA LOADING AND INITIALIZATION ---
 
 /**
  * Fetches user profile data and links from Firestore.
- * This function is called by auth.js and overridden in dashboard.html for UI switching.
  * @param {string} uid - The Firebase User ID.
  */
 async function fetchUserData(uid) {
@@ -21,34 +21,29 @@ async function fetchUserData(uid) {
     // 1. Fetch Profile Data
     let profileDoc = await db.collection('users').doc(uid).get();
     
-    // FIX: If the document is missing, create it immediately and refetch (Self-healing logic)
+    // FIX: If the document is missing, create it immediately (Self-healing logic)
     if (!profileDoc.exists) {
         console.warn("Profile document missing. Attempting to create default profile.");
         
         await db.collection('users').doc(uid).set({
             email: auth.currentUser.email,
-            // CRITICAL CHANGE: We will ONLY use a default username, no displayName fallback
             displayName: auth.currentUser.email.split('@')[0], 
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            username: null,
-            isUsernameSet: false,
+            // Ensure a default username is set if none exists
+            username: `user_${uid.substring(0, 8)}`, 
+            isUsernameSet: true, // We assume initial setup is complete now
             bio: "Check out my links!",
             profileImageUrl: "https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png",
             templateId: 'vibrant',
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        // Refetch the newly created document
         profileDoc = await db.collection('users').doc(uid).get(); 
-        
-        if (!profileDoc.exists) {
-            console.error("Failed to create profile document even after second attempt.");
-            return;
-        }
+        if (!profileDoc.exists) return console.error("Failed to initialize profile document.");
     } 
     window.userProfile = profileDoc.data();
 
-    // 2. Fetch Links Data (only happens if profile data was successfully retrieved)
+    // 2. Fetch Links Data 
     const linksSnapshot = await db.collection('users').doc(uid).collection('links').orderBy('order', 'asc').get();
     userLinks = linksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -61,94 +56,106 @@ async function fetchUserData(uid) {
 
 /**
  * Updates all static UI elements based on the fetched profile data.
- * CRITICAL: This is simplified to use only username for the sidebar display.
  */
 function updateUIFromProfile() {
-    // Top Right Info Card Display: Shows @username if set, otherwise shows email.
-    const displayId = window.userProfile.username ? `@${window.userProfile.username}` : window.userProfile.email;
-    document.getElementById('profile-name-display').textContent = displayId;
+    
+    // Set Public Link Display
+    const publicLinkEl = document.getElementById('public-link-display');
+    const profileUrl = `${PUBLIC_BASE_URL}?username=${window.userProfile.username}`;
+    publicLinkEl.textContent = profileUrl;
+    publicLinkEl.href = profileUrl;
 
-    // Profile & Bio Tab Inputs
-    // CRITICAL: We still need to populate the input fields, even if we don't display the displayName in the info card
+    // Appearance Tab Inputs
+    document.getElementById('username-input').value = window.userProfile.username || '';
     document.getElementById('display-name-input').value = window.userProfile.displayName || ''; 
     document.getElementById('bio-input').value = window.userProfile.bio || '';
     document.getElementById('profile-image-input').value = window.userProfile.profileImageUrl || '';
-    
-    // Design Tab Input
     document.getElementById('template-select').value = window.userProfile.templateId || 'vibrant';
 }
 
-// --- 2. PROFILE & DESIGN MANAGEMENT (Tabs 'profile' and 'design') ---
+
+// --- 2. PROFILE & DESIGN MANAGEMENT (Combined Save Function) ---
 
 /**
- * Saves changes to Display Name, Bio, and Image URL.
+ * Handles all changes from the Appearance tab, including username warning.
  */
-window.updateProfileDetails = async () => {
-    const saveButton = document.querySelector('#tab-content-profile button');
-    saveButton.disabled = true;
-
+window.saveAllProfileChanges = async () => {
+    const newUsername = document.getElementById('username-input').value.toLowerCase().trim();
+    const oldUsername = window.userProfile.username;
+    
     const displayName = document.getElementById('display-name-input').value.trim();
     const bio = document.getElementById('bio-input').value.trim().substring(0, 100);
     const imageUrl = document.getElementById('profile-image-input').value.trim();
+    const templateId = document.getElementById('template-select').value;
+    const errorEl = document.getElementById('username-error-message');
+    errorEl.textContent = '';
 
-    if (displayName.length < 3) {
-        alert("Display Name must be at least 3 characters.");
-        saveButton.disabled = false;
+
+    // --- 2.1 VALIDATION ---
+    if (newUsername.length < 3 || displayName.length < 3) {
+        errorEl.textContent = 'Username and Display Name must be at least 3 characters.';
+        return;
+    }
+    if (!/^[a-z0-9_-]+$/.test(newUsername)) {
+        errorEl.textContent = 'Username can only contain lowercase letters, numbers, hyphen (-), and underscore (_).';
         return;
     }
 
+    let updates = { displayName, bio, profileImageUrl: imageUrl, templateId };
+
+    // --- 2.2 USERNAME CHANGE LOGIC WITH WARNING POPUP ---
+    let usernameChanged = false;
+    if (newUsername !== oldUsername) {
+        usernameChanged = true;
+
+        const confirmChange = confirm(
+            `WARNING: Changing your username will change your public link from:\n\n` + 
+            `-> ${PUBLIC_BASE_URL}?username=${oldUsername}\n\n` + 
+            `TO:\n\n` + 
+            `-> ${PUBLIC_BASE_URL}?username=${newUsername}\n\n` + 
+            `Any old links you have shared will STOP working. Do you want to proceed?`
+        );
+        
+        if (!confirmChange) {
+            document.getElementById('username-input').value = oldUsername; // Revert input field
+            return;
+        }
+
+        // Check uniqueness for the NEW username
+        try {
+            const userQuery = await db.collection('users').where('username', '==', newUsername).limit(1).get();
+            if (!userQuery.empty && userQuery.docs[0].id !== currentUserUid) {
+                errorEl.textContent = 'That username is already taken. Try another.';
+                return;
+            }
+        } catch(e) {
+            console.error("Username Check Failed:", e);
+            errorEl.textContent = 'Could not verify username availability.';
+            return;
+        }
+
+        updates.username = newUsername;
+    }
+
+    // --- 2.3 EXECUTION ---
     try {
-        await db.collection('users').doc(currentUserUid).set({
-            displayName: displayName,
-            bio: bio,
-            profileImageUrl: imageUrl,
-        }, { merge: true });
+        await db.collection('users').doc(currentUserUid).set(updates, { merge: true });
 
         // Update local state and UI
-        window.userProfile.displayName = displayName;
-        window.userProfile.bio = bio;
-        window.userProfile.profileImageUrl = imageUrl;
-        updateUIFromProfile(); // Important: call this to update the sidebar if username is missing
+        window.userProfile = { ...window.userProfile, ...updates };
+        updateUIFromProfile();
 
-        alert("Profile details saved successfully!");
+        alert(`Profile saved successfully!${usernameChanged ? ' (Link updated)' : ''}`);
         reloadPreview();
 
     } catch (e) {
         console.error("Error updating profile:", e);
-        alert("Failed to save profile details. Check console.");
-    } finally {
-        saveButton.disabled = false;
-    }
-}
-
-/**
- * Saves the selected design template.
- */
-window.updateDesign = async () => {
-    const saveButton = document.querySelector('#tab-content-design button');
-    saveButton.disabled = true;
-    
-    const templateId = document.getElementById('template-select').value;
-    
-    try {
-        await db.collection('users').doc(currentUserUid).set({
-            templateId: templateId
-        }, { merge: true });
-
-        window.userProfile.templateId = templateId; // Update local state
-        alert(`Design template updated to '${templateId}'!`);
-        reloadPreview();
-
-    } catch (e) {
-        console.error("Error updating design:", e);
-        alert("Failed to save design changes.");
-    } finally {
-        saveButton.disabled = false;
+        alert("Failed to save profile changes. Check console.");
     }
 }
 
 
-// --- 3. LINKS MANAGEMENT (Tab 'links') ---
+// --- 3. LINKS MANAGEMENT ---
 
 /**
  * Adds a new link to Firestore and the local array.
@@ -211,7 +218,6 @@ window.deleteLink = async (linkId) => {
 
 /**
  * Renders the list of links in the links-list div.
- * CRITICAL: Styling matches the Emerald Green Professional theme.
  */
 function renderLinksList() {
     const listEl = document.getElementById('links-list');
@@ -224,7 +230,7 @@ function renderLinksList() {
 
     userLinks.forEach(link => {
         const div = document.createElement('div');
-        // Tailwind styling for the list item (Updated to use Emerald theme colors)
+        // Tailwind styling for the list item (Emerald Green styling)
         div.className = 'flex items-center justify-between p-4 rounded-lg bg-[#2D3748] border border-[#4A5568] shadow-lg';
         div.innerHTML = `
             <div class="flex-grow min-w-0 pr-4">
@@ -245,13 +251,12 @@ function renderLinksList() {
 
 // --- 4. AUTH STATE INTEGRATION ---
 
-// Note: fetchUserData is now exposed globally for use in dashboard.html's inline script
+// Note: fetchUserData is exposed globally for use in dashboard.html's inline script
 window.fetchUserData = fetchUserData; 
 
 // This observer initializes the dashboard after the user is confirmed logged in.
 auth.onAuthStateChanged(user => {
     if (user) {
-        // User is logged in, begin data loading and UI setup via the fetchUserData function
         fetchUserData(user.uid);
     } 
     // Logged out state is handled by auth.js redirect
