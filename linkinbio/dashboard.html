@@ -3,271 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | LinkShare</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-
+    <title>LinkShare Dashboard</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="style.css"> 
+    
     <style>
-        /* Base Theme: Deep Slate Gray & High Contrast */
-        body { 
-            background-color: #1A202C; /* Deep Slate Gray */
-            color: #E2E8F0; /* Soft White Text */
-            font-family: ui-sans-serif, system-ui;
-            opacity: 0; 
-            transition: opacity 0.5s;
+        /* Custom Styles for the Mock Mobile Frame */
+        .mock-phone {
+            width: 320px;
+            height: 600px;
+            border: 10px solid #1a202c; /* Dark frame */
+            border-radius: 40px;
+            box-shadow: 0 0 0 1px #4a5568, 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            background-color: #E2E8F0; /* Default background for preview */
+            position: relative;
         }
 
-        /* Accent Color: Emerald Green */
-        .emerald-green {
-            color: #38A169; 
-        }
-        .emerald-bg {
-            background-color: #38A169; 
-        }
-        
-        /* Card/Panel Styling (Soft, Professional Cards) */
-        .dashboard-panel {
-            background-color: #2D3748; /* Slightly lighter card background (Charcoal) */
-            border: 1px solid #4A5568; /* Soft gray border */
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: box-shadow 0.3s;
-        }
-
-        /* Primary Button Style */
-        .primary-btn {
-            background-color: #38A169; /* Emerald Green */
-            color: #FFFFFF; 
-            font-weight: 700;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        .primary-btn:hover {
-            background-color: #2F855A;
-            transform: translateY(-1px);
-        }
-
-        /* Input/Form Element Styling */
-        .input-dark {
-            background-color: #4A5568; /* Darker input field */
-            border: 1px solid #6B7280;
-            color: #E2E8F0;
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        .input-dark:focus {
-            border-color: #38A169;
-            box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.5);
-        }
-
-        /* Tab Navigation Bar */
-        .tab-btn {
-            @apply px-4 py-3 font-semibold text-gray-400 transition duration-300 relative overflow-hidden;
-        }
-        .tab-btn.active {
-            @apply text-white;
-        }
-        /* Active Tab Underline Effect */
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: #38A169; /* Emerald Green Accent */
-            border-radius: 2px 2px 0 0;
-        }
+        /* Base Dashboard Styling */
+        body { background-color: #F7FAFC; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex">
 
-<div id="app-container" class="min-h-screen">
-
-    <header class="w-full bg-[#2D3748] shadow-lg">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-             <div class="flex items-center space-x-3">
-                <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" 
-                     alt="LinkShare Logo" class="w-7 h-7">
-                <h1 class="text-xl font-bold emerald-green">LinkShare</h1>
-            </div>
-            <button onclick="handleLogout()" class="py-1 px-3 rounded-md text-sm text-gray-400 font-medium hover:text-white transition duration-200">
-                Log Out
+    <aside class="w-60 bg-white border-r border-gray-200 p-4 sticky top-0 h-screen hidden md:block">
+        <h1 class="text-2xl font-extrabold text-blue-600 mb-8">LinkShare</h1>
+        <nav class="space-y-2">
+            <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg bg-blue-50/50 font-semibold hover:bg-blue-100/70" onclick="showSection('dashboard')">📊 Dashboard</a>
+            <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100" onclick="showSection('links')">🔗 Links</a>
+            <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100" onclick="showSection('appearance')">🎨 Appearance</a>
+            <a href="#" class="flex items-center p-3 text-gray-700 rounded-lg hover:bg-gray-100" onclick="showSection('settings')">⚙️ Settings</a>
+        </nav>
+        <div class="absolute bottom-4 w-full pr-8">
+            <button id="publish-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 rounded-lg transition duration-200">
+                Publish Changes
             </button>
         </div>
-    </header>
+    </aside>
 
-
-    <main class="max-w-7xl mx-auto p-6 lg:p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <main class="flex-grow p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <section id="link-editor-view" class="lg:col-span-2 min-h-[85vh]">
+        <section class="lg:col-span-2 space-y-8">
             
-            <div class="dashboard-panel mb-8 p-0">
-                <div class="flex">
-                    <button id="tab-links" class="tab-btn active" onclick="showTab('links')">Links</button>
-                    <button id="tab-profile" class="tab-btn" onclick="showTab('profile')">Appearance & Settings</button>
-                </div>
-            </div>
-
-            <div id="tab-content-links" class="tab-content space-y-6">
+            <div id="links-section" class="content-section bg-white p-6 rounded-xl shadow-lg space-y-6">
+                <h2 class="text-3xl font-bold text-gray-800 border-b pb-3 mb-4">🔗 Link Management</h2>
                 
-                <h2 class="text-3xl font-bold text-white">Links Manager</h2>
-
-                <div class="p-5 rounded-lg border border-[#4A5568] bg-[#2D3748] space-y-4">
-                    <p class="font-semibold text-lg text-gray-300">Add a new link</p>
-                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
-                        <input type="text" id="new-link-title" placeholder="Link Title (e.g., My New Product)" class="w-full sm:w-1/3 input-dark">
-                        <input type="url" id="new-link-url" placeholder="URL (e.g., https://mysite.com)" class="w-full sm:w-2/3 input-dark">
+                <div id="link-management-area" class="space-y-4">
                     </div>
-                    <button onclick="addLink()" class="primary-btn w-full py-3 rounded-lg shadow-xl">
+
+                <div class="border-t pt-4">
+                    <input type="text" id="new-link-title" placeholder="New Link Title" class="w-full p-3 border border-gray-300 rounded-lg mb-2">
+                    <input type="url" id="new-link-url" placeholder="https://..." class="w-full p-3 border border-gray-300 rounded-lg mb-4">
+                    <button onclick="addLink()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-lg">
                         + Add Link
                     </button>
                 </div>
-                
-                <div id="links-list" class="space-y-4 pt-4">
-                    <p class="text-gray-500 text-center p-8">No links yet. Add one above!</p>
+            </div>
+
+            <div id="dashboard-section" class="content-section bg-white p-6 rounded-xl shadow-lg space-y-6">
+                <h2 class="text-3xl font-bold text-gray-800 border-b pb-3 mb-4">📊 Analytics Overview</h2>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <p id="total-links-display" class="text-3xl font-bold text-blue-600">0</p>
+                        <p class="text-sm text-gray-500">Total Links</p>
+                    </div>
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <p id="total-views-display" class="text-3xl font-bold text-blue-600">0</p>
+                        <p class="text-sm text-gray-500">Total Views</p>
+                    </div>
+                    <div class="p-4 bg-gray-100 rounded-lg">
+                        <p id="total-clicks-display" class="text-3xl font-bold text-blue-600">0</p>
+                        <p class="text-sm text-gray-500">Total Clicks</p>
+                    </div>
+                </div>
+                <div id="chart-container" class="h-48 bg-gray-100 rounded-lg p-4 flex items-center justify-center text-gray-400">
+                    [Placeholder for chart visualization]
                 </div>
             </div>
             
-            <div id="tab-content-profile" class="tab-content hidden space-y-8">
+            <div id="appearance-section" class="content-section hidden bg-white p-6 rounded-xl shadow-lg space-y-6">
+                <h2 class="text-3xl font-bold text-gray-800 border-b pb-3 mb-4">🎨 Appearance Settings</h2>
                 
-                <h2 class="text-3xl font-bold text-white">Appearance & Profile</h2>
+                <div>
+                    <label for="preview-bg-color" class="block text-sm font-medium text-gray-700 mb-2">Preview Background Color</label>
+                    <input type="color" id="preview-bg-color" value="#E2E8F0" class="w-16 h-10 border-gray-300 rounded-lg">
+                    <span class="ml-4 text-gray-500">Select a color to change the mock phone background.</span>
+                </div>
+            </div>
 
-                <div class="dashboard-panel p-6 space-y-6">
-                    <h3 class="text-xl font-bold emerald-green border-b border-gray-600 pb-3">Public Profile Settings</h3>
+             <div id="settings-section" class="content-section hidden bg-white p-6 rounded-xl shadow-lg space-y-6">
+                <h2 class="text-3xl font-bold text-gray-800 border-b pb-3 mb-4">⚙️ General Settings</h2>
+                <p class="text-gray-600">Account and Privacy settings would go here.</p>
+            </div>
+
+        </section>
+
+        <section class="lg:col-span-1 flex justify-center sticky top-8 h-fit">
+            <div class="mock-phone" id="preview-pane">
+                <div class="p-6 text-center">
+                    <div class="mx-auto w-24 h-24 bg-gray-300 rounded-full mb-4">
+                        <img id="preview-profile-pic" src="" alt="Profile" class="w-full h-full object-cover rounded-full">
+                    </div>
                     
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Username (@ will be applied automatically)</label>
-                        <div class="flex items-center input-dark p-0">
-                            <span class="p-3 text-gray-400 font-mono">linkinbio/</span>
-                            <input type="text" id="username-input" placeholder="your_unique_name" class="w-full bg-transparent p-3 focus:outline-none">
+                    <h3 id="preview-title" class="text-xl font-bold text-gray-800 mb-6">Your Profile Title</h3>
+                    
+                    <div id="preview-links-container" class="space-y-4">
                         </div>
-                        <p id="username-error-message" class="text-red-400 text-sm mt-2"></p>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Display Name (Public Name)</label>
-                        <input type="text" id="display-name-input" placeholder="Your Name or Brand" class="w-full input-dark">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Bio (Max 100 characters)</label>
-                        <textarea id="bio-input" placeholder="Tell people about yourself..." class="w-full input-dark h-20 resize-none"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Profile Image URL</label>
-                        <input type="url" id="profile-image-input" placeholder="URL ending in .jpg/.png" class="w-full input-dark">
-                    </div>
                 </div>
-
-                <div class="dashboard-panel p-6 space-y-6">
-                    <h3 class="text-xl font-bold emerald-green border-b border-gray-600 pb-3">Theme Selection</h3>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Select Profile Template</label>
-                        <select id="template-select" class="w-full max-w-sm input-dark">
-                            <option value="vibrant">Vibrant (Indigo/Pink)</option>
-                            <option value="clean">Clean Minimal</option>
-                            <option value="dark">Dark Mode Classic</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <button onclick="updateProfileAndDesign()" class="primary-btn w-full max-w-sm py-3 rounded-lg shadow-xl">
-                    💾 Save All Appearance Changes
-                </button>
             </div>
-
         </section>
 
+    </main>
 
-        <section class="lg:col-span-1 space-y-6">
-            
-            <div class="dashboard-panel p-6 space-y-4 sticky top-6">
-                <h4 class="text-lg font-bold border-b border-gray-600 pb-3">Your Public Link</h4>
-                
-                <p class="text-gray-400 text-sm">
-                    **Active Link:**
-                    <a id="public-link-display" target="_blank" class="block font-mono text-lg emerald-green hover:underline break-all">
-                        </a>
-                </p>
-
-                <button onclick="copyProfileLink()" class="w-full py-3 rounded-lg text-sm text-white font-medium bg-indigo-600 hover:bg-indigo-700 transition duration-300 shadow-md">
-                    🔗 Copy Link
-                </button>
-                
-                <button onclick="handleLogout()" class="w-full py-3 rounded-lg text-sm text-gray-400 font-medium bg-[#4A5568] hover:bg-[#6B7280] transition duration-300 border border-[#4A5568]">
-                    Log Out
-                </button>
-            </div>
-
-        </section>
-        
-        </main>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-<script src="./js/firebase-config.js"></script>
-<script src="./js/auth.js"></script>
-<script src="./js/dashboard-editor.js"></script>
-
-<script>
-    // --- UI/Tab Management & Utility Functions ---
-    
-    // Function to show the selected tab content
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
-        
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-    }
-
-    // Function to reload the live preview iframe (removed, but kept for compatibility)
-    function reloadPreview() { /* Placeholder */ }
-
-    // Function to copy the profile link
-    function copyProfileLink() {
-        const linkEl = document.getElementById('public-link-display');
-        const profileUrl = linkEl.href;
-        if (!profileUrl) {
-            alert("Profile link is not yet set. Please save your settings first.");
-            return;
-        }
-        navigator.clipboard.writeText(profileUrl).then(() => {
-            alert(`Profile link copied! Share this link: ${profileUrl}`);
-        });
-    }
-
-    // Function to reveal content after auth state check
-    function revealContent() {
-        document.body.style.opacity = 1;
-    }
-    
-    // CRITICAL: We override the fetchUserData here *only* to ensure the UI reveals when ready.
-    const originalFetchUserData = window.fetchUserData; 
-    window.fetchUserData = (uid) => {
-        originalFetchUserData(uid);
-        setTimeout(revealContent, 100); 
-    };
-
-    // New combined function to handle all saves in the Appearance tab
-    window.updateProfileAndDesign = async () => {
-        const saveButton = document.querySelector('#tab-content-profile button');
-        saveButton.disabled = true;
-
-        try {
-            // NOTE: The main logic for updating username, profile details, and design is now in dashboard-editor.js
-            await window.saveAllProfileChanges();
-        } finally {
-            saveButton.disabled = false;
-        }
-    }
-</script>
-
+    <script src="dashboard-editor.js"></script>
 </body>
 </html>
