@@ -1,602 +1,657 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link-in-Bio Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <style>
-        /* --- CSS STYLES --- */
-        :root {
-            --color-dark-blue: #2c3e50; /* Sidebar */
-            --color-primary-blue: #3498db; /* Buttons/Active States */
-            --color-light-gray: #f4f7f9; /* Main Background */
-            --color-white: #ffffff;
-            --color-text: #34495e;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--color-light-gray);
-            color: var(--color-text);
-            height: 100vh;
-            overflow: hidden; /* Prevent body scroll, main-content will scroll */
-        }
-
-        /* --- Layout: Grid Container --- */
-        #dashboard-container {
-            display: grid;
-            grid-template-columns: 250px 1fr; 
-            height: 100%;
-        }
-
-        /* --- Sidebar Styling --- */
-        #sidebar {
-            background-color: var(--color-dark-blue);
-            color: var(--color-white);
-            display: flex;
-            flex-direction: column;
-            padding: 20px 0;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            padding-bottom: 30px;
-            letter-spacing: 1px;
-        }
-
-        #sidebar nav ul {
-            list-style: none;
-        }
-
-        #sidebar nav li a {
-            display: block;
-            padding: 12px 25px;
-            text-decoration: none;
-            color: #bdc3c7;
-            transition: background-color 0.2s;
-        }
-
-        #sidebar nav li.active a {
-            background-color: var(--color-primary-blue);
-            color: var(--color-white);
-            border-left: 4px solid var(--color-white);
-            padding-left: 21px; 
-        }
-
-        /* --- Header Styling --- */
-        #main-content {
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        #header {
-            background-color: var(--color-white);
-            display: flex;
-            justify-content: flex-end; /* Push content to the right */
-            align-items: center;
-            padding: 15px 30px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-            flex-shrink: 0; /* Prevents header from shrinking */
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
-        
-        .avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            margin-left: 15px;
-        }
-
-        /* --- Content Body and Utility --- */
-        .content-body {
-            padding: 30px;
-            flex-grow: 1;
-        }
-
-        .content-header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .primary-btn {
-            background-color: var(--color-primary-blue);
-            color: var(--color-white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.2s;
-        }
-
-        /* --- KPI Metrics Row Styling --- */
-        .kpi-metrics-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background-color: var(--color-white);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-            text-align: center;
-        }
-
-        .metric-card i {
-            font-size: 1.5rem;
-            color: var(--color-primary-blue);
-            margin-bottom: 10px;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: bold;
-        }
-
-        .metric-title {
-            font-size: 0.9rem;
-            color: #95a5a6;
-        }
-
-        /* --- Main Layout: Editor and Preview --- */
-        .main-layout-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr; /* Editor takes 2/3, Preview takes 1/3 */
-            gap: 30px;
-        }
-
-        .card {
-            background-color: var(--color-white);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-        }
-        
-        /* --- Link Management Editor Styling --- */
-        .link-management-card h2 {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
-
-        #links-container {
-            min-height: 200px;
-        }
-
-        .link-row {
-            display: flex;
-            align-items: center;
-            background-color: var(--color-light-gray);
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid var(--color-primary-blue);
-        }
-
-        .drag-handle {
-            margin-right: 15px;
-            color: #bdc3c7;
-            cursor: grab;
-        }
-
-        .link-details {
-            flex-grow: 1;
-            margin-right: 20px;
-        }
-
-        .link-title-input,
-        .link-url-input {
-            display: block;
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 5px;
-            border: 1px solid #ecf0f1;
-            border-radius: 3px;
-            font-size: 0.95rem;
-        }
-
-        .link-stats {
-            text-align: center;
-            padding: 0 15px;
-            white-space: nowrap;
-        }
-
-        .click-count {
-            font-weight: 600;
-            color: var(--color-primary-blue);
-            font-size: 0.9rem;
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: #e74c3c;
-            cursor: pointer;
-            margin-left: 15px;
-            padding: 5px;
-        }
-
-        /* --- Toggle Switch Styling --- */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 45px;
-            height: 25px;
-            margin: 0 10px;
-        }
-        /* ... (rest of the switch CSS is included in the full code block for brevity) ... */
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: 0.4s; border-radius: 25px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--color-primary-blue); }
-        input:checked + .slider:before { transform: translateX(18px); }
-        
-
-        /* --- Mobile Preview Pane Styling --- */
-        .preview-col h2 {
-             text-align: center;
-             margin-bottom: 15px;
-        }
-
-        #mobile-preview {
-            /* Simulate a phone frame */
-            width: 300px; 
-            height: 550px;
-            margin: 0 auto;
-            border: 12px solid #34495e; 
-            border-radius: 40px;
-            background-color: var(--color-white);
-            box-shadow: var(--card-shadow), 0 0 0 10px #ecf0f1;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .preview-screen {
-            padding: 30px 15px;
-            height: 100%;
-            overflow-y: auto;
-            text-align: center;
-        }
-
-        .preview-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-            border: 2px solid var(--color-primary-blue);
-        }
-
-        .preview-username {
-            color: #7f8c8d;
-            font-size: 1rem;
-            margin-bottom: 25px;
-        }
-
-        #preview-links {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .preview-link-btn {
-            width: 100%;
-            background-color: var(--color-primary-blue);
-            color: var(--color-white);
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>LinkDash Dashboard</title>
+  <meta name="viewport" content="width=1200">
+  <link rel="icon" href="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-bg: #182032;
+      --sidebar-accent: #3284ff;
+      --main-bg: #1c2335;
+      --main-card: #223056;
+      --editor-bg: #243252;
+      --preview-bg: #101522;
+      --text-light: #fff;
+      --text-muted: #9baec8;
+      --input-bg: #1c223a;
+      --border: #2a3553;
+      --drag: #6a7ba6;
+      --delete: #e85c5c;
+      --switch-off: #444d68;
+      --switch-on: #3284ff;
+      --blue: #3284ff;
+      --gray: #3d4763;
+      --shadow: 0 2px 8px rgba(33, 53, 106, 0.1);
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--main-bg);
+      font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+      color: var(--text-light);
+      height: 100%;
+      min-height: 100%;
+    }
+    body {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      min-width: 1200px;
+    }
+    .sidebar {
+      width: 240px;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 15px;
+      border-right: 1px solid var(--border);
+      box-shadow: 2px 0 5px #1016260c;
+      position: relative;
+    }
+    .logo-wrap {
+      margin-top: 40px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+    }
+    .logo {
+      height: 48px;
+      width: 48px;
+      border-radius: 12px;
+      background: #fff;
+      object-fit: contain;
+      border: 2px solid var(--sidebar-accent);
+      box-shadow: 0 0 12px #18203240;
+    }
+    .logo-label {
+      font-size: 1.55rem;
+      font-weight: bold;
+      color: var(--sidebar-accent);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .nav {
+      width: 100%;
+      margin-top: 20px;
+      flex: 1;
+    }
+    .nav-item {
+      padding: 18px 22px;
+      margin: 8px 0;
+      background: none;
+      color: var(--text-muted);
+      border: none;
+      width: 100%;
+      font-size: 1.11rem;
+      border-radius: 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: background 0.16s;
+    }
+    .nav-item.active, .nav-item:hover {
+      background: var(--main-bg);
+      color: var(--sidebar-accent);
+    }
+    .sidebar-footer {
+      margin-bottom: 36px;
+      color: var(--text-muted);
+      font-size: 0.92em;
+      margin-top: 32px;
+      opacity: 0.8;
+      text-align: center;
+      width: 100%;
+      padding: 0 10px;
+    }
+    .main-area {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      padding: 45px 0 0 0;
+      background: var(--main-bg);
+      height: 100%;
+      min-width: 960px;
+      gap: 36px;
+      overflow-x: auto;
+    }
+    .card {
+      background: var(--main-card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 32px 34px;
+      width: 540px;
+      margin-left: 40px;
+      min-height: 620px;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-title {
+      font-size: 1.44rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--sidebar-accent);
+    }
+    .section {
+      margin-bottom: 22px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .links-editor {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 18px;
+      width: 100%;
+    }
+    .link-row {
+      display: flex;
+      align-items: center;
+      background: var(--editor-bg);
+      border-radius: 13px;
+      margin-bottom: 4px;
+      padding: 12px 10px 12px 10px;
+      border: 1.5px solid var(--border);
+      gap: 10px;
+      position: relative;
+      transition: box-shadow 0.08s;
+    }
+    .link-row:focus-within, .link-row:hover {
+      border-color: var(--sidebar-accent);
+      box-shadow: 0 0 4px 0 #3a87fd54;
+    }
+    .drag-handle {
+      cursor: grab;
+      color: var(--drag);
+      margin-right: 8px;
+      font-size: 1.13em;
+      opacity: 0.93;
+      user-select: none;
+      transition: color 0.13s;
+    }
+    .drag-handle:active {
+      color: var(--sidebar-accent);
+    }
+    .link-fields {
+      flex: 1.87;
+      display: flex;
+      gap: 9px;
+    }
+    .link-input {
+      background: var(--input-bg);
+      color: var(--text-light);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 9px;
+      font-size: 0.99em;
+      width: 50%;
+      transition: border 0.13s;
+    }
+    .link-input:focus {
+      border: 1.5px solid var(--sidebar-accent);
+      outline: none;
+    }
+    .switch {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      width: 36px;
+      height: 24px;
+      position: relative;
+      margin-left: 7px;
+    }
+    .switch input { display: none; }
+    .slider {
+      position: absolute;
+      left: 0; top: 0;
+      width: 36px; height: 24px;
+      border-radius: 12px;
+      background: var(--switch-off);
+      transition: background 0.15s;
+      border: 1.3px solid var(--border);
+    }
+    .switch input:checked + .slider {
+      background: var(--switch-on);
+    }
+    .slider:before {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 3.3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.15s;
+    }
+    .switch input:checked + .slider:before {
+      transform: translateX(12px);
+    }
+    .delete-btn {
+      background: none;
+      border: none;
+      color: var(--delete);
+      font-size: 1.09em;
+      margin-left: 10px;
+      cursor: pointer;
+      padding: 4px 7px;
+      transition: color 0.14s;
+    }
+    .delete-btn:hover {
+      color: #fff;
+      background: #c53d3d;
+      border-radius: 6px;
+    }
+    .add-link-btn {
+      background: var(--sidebar-accent);
+      border: none;
+      color: #fff;
+      border-radius: 9px;
+      font-size: 1.08em;
+      font-weight: 500;
+      padding: 8.5px 22px;
+      margin-top: 4px;
+      align-self: flex-start;
+      cursor: pointer;
+      margin-bottom: 12px;
+      letter-spacing: 0.01em;
+      box-shadow: 0 2px 10px #3284ff28;
+      transition: background 0.16s;
+    }
+    .add-link-btn:hover, .add-link-btn:active {
+      background: #2165c8;
+    }
+    .analytics-wrap {
+      width: 540px;
+      padding: 36px 34px 30px 34px;
+      background: var(--main-card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      min-height: 230px;
+      margin-left: 40px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .analytics-metrics {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 18px;
+    }
+    .metric-box {
+      background: var(--editor-bg);
+      border-radius: 14px;
+      padding: 20px 38px;
+      min-width: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0 0 6px #18386622;
+    }
+    .metric-label {
+      font-size: 0.97em;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+    }
+    .metric-value {
+      font-size: 2.05em;
+      font-weight: 700;
+      color: var(--sidebar-accent);
+      margin-top: 4px;
+      margin-bottom: 2px;
+    }
+    .mobile-preview {
+      width: 340px;
+      min-width: 340px;
+      margin-top: 0;
+      margin-left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .phone-frame {
+      background: var(--preview-bg);
+      border-radius: 38px;
+      padding: 24px 0;
+      box-shadow: 0 10px 30px #0e18381f, 0 0 0 6px #182032a0 inset;
+      width: 320px;
+      min-height: 510px;
+      margin-left: 0;
+      position: relative;
+      border: 4px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: border-color 0.18s;
+    }
+    .phone-frame:before {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 50%; top: -13px;
+      transform: translateX(-50%);
+      width: 60px; height: 7px;
+      border-radius: 3.7px;
+      background: #222a40;
+      box-shadow: 0 1px 2px #10152245;
+    }
+    .preview-logo {
+      width: 51px; height: 51px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      margin-top: 9px;
+      border: 2px solid var(--sidebar-accent);
+      background: #fff;
+      object-fit: cover;
+    }
+    .preview-link {
+      display: block;
+      width: 85%;
+      margin: 0 auto 17px auto;
+      padding: 13px 0;
+      background: var(--sidebar-accent);
+      border-radius: 14px;
+      text-align: center;
+      color: #fff;
+      font-weight: 550;
+      font-size: 1.11em;
+      text-decoration: none;
+      box-shadow: 0 2px 11px #3284ff40;
+      position: relative;
+      transition: transform 0.1s, background 0.17s;
+      cursor: pointer;
+    }
+    .preview-link:active, .preview-link:hover {
+      background: #2165c8;
+      transform: scale(1.03);
+    }
+    .preview-title {
+      color: var(--sidebar-accent);
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.22em;
+      font-weight: 600;
+    }
+    /* Responsive for smaller screens (min-width 1050px needed for layout) */
+    @media (max-width: 1300px) {
+      .card, .analytics-wrap { margin-left: 12px; }
+      .main-area { gap: 18px; }
+    }
+    @media (max-width: 1050px) {
+      body, .main-area { min-width: 930px; }
+      .card, .analytics-wrap { width: 400px; min-width: 300px; }
+      .mobile-preview, .phone-frame { width: 240px; min-width: 240px; }
+    }
+  </style>
 </head>
 <body>
-
-    <div id="dashboard-container">
-
-        <aside id="sidebar">
-            <div class="logo">LinkDash</div>
-            <nav>
-                <ul>
-                    <li class="active"><a href="#"><i class="fas fa-link"></i> Links</a></li>
-                    <li><a href="#"><i class="fas fa-palette"></i> Appearance</a></li>
-                    <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
-                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        <main id="main-content">
-
-            <header id="header">
-                <div class="user-info">
-                    <i class="fas fa-bell"></i>
-                    <img src="https://via.placeholder.com/35" alt="User Avatar" class="avatar">
-                    <span>Jane Doe</span>
-                </div>
-            </header>
-
-            <section class="content-body">
-
-                <div class="content-header-row">
-                    <h1>Links Editor</h1>
-                    <button id="add-link-btn" class="primary-btn"><i class="fas fa-plus"></i> Add New Link</button>
-                </div>
-
-                <div class="kpi-metrics-row">
-                    <div class="metric-card">
-                        <i class="fas fa-eye"></i>
-                        <p class="metric-value" id="total-views">0</p>
-                        <p class="metric-title">Total Views</p>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fas fa-mouse-pointer"></i>
-                        <p class="metric-value" id="total-clicks">0</p>
-                        <p class="metric-title">Total Clicks</p>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fas fa-percent"></i>
-                        <p class="metric-value" id="ctr">0.00%</p>
-                        <p class="metric-title">Click-Through Rate (CTR)</p>
-                    </div>
-                    <div class="metric-card">
-                        <i class="fas fa-users"></i>
-                        <p class="metric-value" id="followers-gained">+150</p>
-                        <p class="metric-title">Followers Gained</p>
-                    </div>
-                </div>
-
-                <div class="main-layout-row">
-
-                    <div class="editor-col">
-                        <div class="card link-management-card">
-                            <h2>Your Links</h2>
-                            <div id="links-container">
-                                <p style="text-align: center; color: #95a5a6; margin-top: 50px;">Loading links...</p>
-                            </div>
-                            <button class="save-changes-btn primary-btn">Publish Changes</button>
-                        </div>
-                    </div>
-
-                    <div class="preview-col">
-                        <h2>Live Preview</h2>
-                        <div id="mobile-preview">
-                            <div class="preview-screen">
-                                <img src="https://via.placeholder.com/80" alt="Profile Pic" class="preview-avatar">
-                                <h3 class="preview-username">@YourUsername</h3>
-                                <div id="preview-links">
-                                    </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </section>
-        </main>
-
+  <div class="sidebar">
+    <div class="logo-wrap">
+      <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" class="logo" alt="LinkDash Logo">
+      <div class="logo-label">LinkDash</div>
     </div>
+    <div class="nav">
+      <button class="nav-item active" id="nav-links">
+        <i class="fa fa-link"></i> Link Editor
+      </button>
+      <button class="nav-item" id="nav-analytics">
+        <i class="fa fa-chart-line"></i> Analytics
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      &copy; 2025 LinkDash<br>All rights reserved.
+    </div>
+  </div>
+  <div class="main-area">
+    <!-- Link Editor Card -->
+    <div class="card" id="editor-card">
+      <div class="card-title"><i class="fa fa-link"></i> Link Editor</div>
+      <div class="section">
+        <div class="links-editor" id="links-editor"></div>
+        <button class="add-link-btn" id="add-link-btn"><i class="fa fa-plus"></i> Add New Link</button>
+      </div>
+      <div class="section" style="border-bottom:none;">
+        <span style="color:var(--text-muted);font-size:1.01em;">Tip: Only <b>active</b> links appear in your public bio. Drag <i class="fa fa-grip-vertical drag-handle" style="margin:0;font-size:1em;vertical-align:-1px;"></i> to reorder.</span>
+      </div>
+    </div>
+    <!-- Analytics Card -->
+    <div class="analytics-wrap" id="analytics-card">
+      <div class="card-title"><i class="fa fa-chart-line"></i> Analytics</div>
+      <div class="analytics-metrics">
+        <div class="metric-box">
+          <div class="metric-label">Total Clicks</div>
+          <div class="metric-value" id="metric-clicks">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Total Views</div>
+          <div class="metric-value" id="metric-views">0</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Click-Through Rate</div>
+          <div class="metric-value" id="metric-ctr">0%</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Followers Gained</div>
+          <div class="metric-value" id="metric-followers">0</div>
+        </div>
+      </div>
+      <div style="color:var(--text-muted);margin-top:10px;">* All metrics are live and recalculate instantly as your links update.</div>
+    </div>
+    <!-- Mobile Live Preview -->
+    <div class="mobile-preview">
+      <div class="preview-title">Live Mobile Preview</div>
+      <div class="phone-frame" id="preview-frame">
+        <img src="https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png" class="preview-logo" alt="Preview Logo">
+        <div id="preview-links"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // ========== Data ==========
+    let links = [
+      {
+        title: "My Website",
+        url: "https://frthetrash.github.io",
+        isActive: true,
+        clicks: 124,
+      },
+      {
+        title: "YouTube Channel",
+        url: "https://youtube.com",
+        isActive: true,
+        clicks: 215,
+      },
+      {
+        title: "Instagram",
+        url: "https://instagram.com",
+        isActive: false,
+        clicks: 40,
+      },
+    ];
+    // ========== Drag State ==========
+    let dragIdx = null;
+    let dragOverIdx = null;
 
-    <script>
-        // --- JAVASCRIPT LOGIC ---
-        
-        // --- 1. Data Model and Initialization ---
-        let links = [
-            { id: 1, title: "My Portfolio Site", url: "https://portfolio.com", isActive: true, clicks: 750 },
-            { id: 2, title: "Latest YouTube Video", url: "https://youtube.com/latest", isActive: true, clicks: 320 },
-            { id: 3, title: "Follow Me on X", url: "https://x.com/username", isActive: false, clicks: 180 },
-            { id: 4, title: "My E-book Offer", url: "https://ebook-link.com", isActive: true, clicks: 50 }
-        ];
+    // ========== Rendering ==========
+    function renderLinksEditor() {
+      const editor = document.getElementById('links-editor');
+      editor.innerHTML = '';
+      links.forEach((l, idx) => {
+        const row = document.createElement('div');
+        row.className = 'link-row';
+        row.draggable = true;
+        row.dataset.idx = idx;
 
-        let nextLinkId = 5; 
+        // Drag handle
+        const drag = document.createElement('span');
+        drag.className = 'drag-handle fa fa-grip-vertical';
+        drag.title = 'Drag to reorder';
+        drag.addEventListener('mousedown', e => { dragIdx = idx; });
 
-        // --- DOM Element References ---
-        const linksContainer = document.getElementById('links-container');
-        const previewLinksContainer = document.getElementById('preview-links');
-        const addLinkBtn = document.getElementById('add-link-btn');
-
-        // --- 2. Core Render Functions ---
-
-        /**
-         * Renders the editable link rows in the main editor area.
-         */
-        function renderLinksEditor() {
-            linksContainer.innerHTML = ''; 
-
-            links.forEach(link => {
-                const linkRow = document.createElement('div');
-                linkRow.className = 'link-row';
-                linkRow.dataset.linkId = link.id;
-                
-                // Using template literals for elegant DOM creation
-                linkRow.innerHTML = `
-                    <i class="fas fa-grip-vertical drag-handle"></i>
-                    <div class="link-details">
-                        <input type="text" class="link-title-input" data-id="${link.id}" data-field="title" value="${link.title}" placeholder="Enter Link Title">
-                        <input type="text" class="link-url-input" data-id="${link.id}" data-field="url" value="${link.url}" placeholder="Enter URL">
-                    </div>
-                    <div class="link-stats">
-                        <span class="click-count">Clicks: ${link.clicks.toLocaleString()}</span>
-                    </div>
-                    <label class="switch">
-                        <input type="checkbox" ${link.isActive ? 'checked' : ''} data-id="${link.id}" class="link-toggle">
-                        <span class="slider round"></span>
-                    </label>
-                    <button class="delete-btn" data-id="${link.id}"><i class="fas fa-trash"></i></button>
-                `;
-                linksContainer.appendChild(linkRow);
-            });
-
-            attachEventListeners(); 
-        }
-
-        /**
-         * Renders the active links in the mobile preview pane.
-         */
-        function renderPreview() {
-            previewLinksContainer.innerHTML = ''; 
-            const activeLinks = links.filter(link => link.isActive);
-
-            if (activeLinks.length === 0) {
-                previewLinksContainer.innerHTML = '<p style="color:#95a5a6; padding: 20px;">No links active.</p>';
-                return;
-            }
-
-            activeLinks.forEach(link => {
-                const button = document.createElement('button');
-                button.className = 'preview-link-btn';
-                button.textContent = link.title;
-                previewLinksContainer.appendChild(button);
-            });
-        }
-
-        /**
-         * Updates the KPI metrics based on current link data.
-         */
-        function updateKPIs() {
-            const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
-            const totalViews = 25800; // Static placeholder for initial feel
-            
-            const ctr = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
-
-            document.getElementById('total-clicks').textContent = totalClicks.toLocaleString();
-            document.getElementById('total-views').textContent = totalViews.toLocaleString(); 
-            document.getElementById('ctr').textContent = `${ctr.toFixed(2)}%`; 
-        }
-
-
-        // --- 3. CRUD Operations and Event Handlers ---
-
-        /**
-         * Adds a new, blank link to the data model.
-         */
-        function addLink() {
-            const newLink = {
-                id: nextLinkId++,
-                title: "New Link Title",
-                url: "https://",
-                isActive: true,
-                clicks: 0
-            };
-            links.push(newLink);
-            refreshDashboard();
-        }
-
-        /**
-         * Updates a specific link's title or URL in the data model.
-         */
-        function updateLink(id, field, value) {
-            const link = links.find(l => l.id === id);
-            if (link) {
-                // Basic sanitization/validation for elegant code (preventing script injection)
-                link[field] = field === 'title' ? value.replace(/</g, "&lt;").replace(/>/g, "&gt;") : value; 
-                renderPreview(); 
-            }
-        }
-
-        /**
-         * Toggles the isActive status of a link.
-         */
-        function toggleLink(id) {
-            const link = links.find(l => l.id === id);
-            if (link) {
-                link.isActive = !link.isActive;
-                refreshDashboard();
-            }
-        }
-
-        /**
-         * Deletes a link from the data model.
-         */
-        function deleteLink(id) {
-            links = links.filter(l => l.id !== id);
-            refreshDashboard();
-        }
-
-        /**
-         * Attaches necessary event listeners using delegation for clean code.
-         */
-        function attachEventListeners() {
-            // Re-attaching listeners is necessary since we clear and re-render the linksContainer
-
-            // Listeners for text input changes (title/url)
-            linksContainer.querySelectorAll('.link-title-input, .link-url-input').forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const id = parseInt(e.target.dataset.id);
-                    const field = e.target.dataset.field;
-                    updateLink(id, field, e.target.value);
-                });
-            });
-
-            // Listeners for toggle switches
-            linksContainer.querySelectorAll('.link-toggle').forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    const id = parseInt(e.target.dataset.id);
-                    toggleLink(id);
-                });
-            });
-
-            // Listeners for delete buttons
-            linksContainer.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
-                    if (confirm('Delete this link?')) {
-                         deleteLink(id);
-                    }
-                });
-            });
-        }
-
-
-        /**
-         * Main function to refresh all dynamic parts of the dashboard.
-         */
-        function refreshDashboard() {
-            // Efficiently update all parts of the UI
-            renderLinksEditor();
-            renderPreview();
-            updateKPIs();
-        }
-
-        // --- Initial Setup ---
-
-        // Attach listener to the main "Add New Link" button
-        addLinkBtn.addEventListener('click', addLink);
-
-        // Placeholder for publishing changes
-        document.querySelector('.save-changes-btn').addEventListener('click', () => {
-            console.log('Publishing changes...', links);
-            alert('Changes Published successfully! (Check console for data)');
+        // Drag events for row
+        row.addEventListener('dragstart', function(e) {
+          dragIdx = idx;
+          row.style.opacity = 0.52;
+        });
+        row.addEventListener('dragend', function(e){
+          row.style.opacity = 1;
+          dragIdx = null;
+          dragOverIdx = null;
+        });
+        row.addEventListener('dragover', function(e){
+          e.preventDefault();
+          dragOverIdx = idx;
+        });
+        row.addEventListener('drop', function(e){
+          e.preventDefault();
+          if (dragIdx === null || dragIdx === idx) return;
+          const moved = links.splice(dragIdx, 1)[0];
+          links.splice(idx, 0, moved);
+          dragIdx = null;
+          dragOverIdx = null;
+          renderAll();
         });
 
+        // Title input
+        const title = document.createElement('input');
+        title.className = 'link-input';
+        title.placeholder = 'Link Title';
+        title.maxLength = 40;
+        title.value = l.title;
+        title.addEventListener('input', e => {
+          links[idx].title = e.target.value;
+          renderPreview();
+        });
 
-        // Initial render when the page loads
-        document.addEventListener('DOMContentLoaded', refreshDashboard);
-    </script>
+        // URL input
+        const url = document.createElement('input');
+        url.className = 'link-input';
+        url.placeholder = 'https://example.com';
+        url.type = 'url';
+        url.value = l.url;
+        url.pattern = "^https?://.*";
+        url.addEventListener('input', e => {
+          links[idx].url = e.target.value;
+          renderPreview();
+        });
+
+        // Active switch
+        const switchWrap = document.createElement('label');
+        switchWrap.className = 'switch';
+        const activeCheck = document.createElement('input');
+        activeCheck.type = 'checkbox';
+        activeCheck.checked = l.isActive;
+        const slider = document.createElement('span');
+        slider.className = 'slider';
+        activeCheck.addEventListener('change', e => {
+          links[idx].isActive = activeCheck.checked;
+          renderPreview();
+        });
+        switchWrap.appendChild(activeCheck);
+        switchWrap.appendChild(slider);
+
+        // Click count (readonly for demonstration)
+        const clickMetric = document.createElement('span');
+        clickMetric.style="color:var(--text-muted);font-size:0.92em;margin-left:7px;width:40px;";
+        clickMetric.textContent = l.clicks + " clicks";
+
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn fa fa-trash';
+        delBtn.title = 'Delete link';
+        delBtn.addEventListener('click', e => {
+          links.splice(idx, 1);
+          renderAll();
+        });
+
+        // Fields
+        const fields = document.createElement('div');
+        fields.className = 'link-fields';
+        fields.appendChild(title);
+        fields.appendChild(url);
+
+        row.appendChild(drag);
+        row.appendChild(fields);
+        row.appendChild(switchWrap);
+        row.appendChild(clickMetric);
+        row.appendChild(delBtn);
+
+        editor.appendChild(row);
+      });
+    }
+    function renderPreview() {
+      const preview = document.getElementById('preview-links');
+      preview.innerHTML = '';
+      links.filter(l => l.isActive).forEach(l => {
+        const a = document.createElement('a');
+        a.className = 'preview-link fa fa-chevron-right';
+        a.href = l.url;
+        a.target = "_blank";
+        a.innerHTML = '<span style="font-weight:600;">' + (l.title||'Title') + '</span>';
+        a.addEventListener('click', () => {
+          l.clicks++;
+          renderAll();
+        });
+        preview.appendChild(a);
+      });
+    }
+    function renderAnalytics() {
+      // totals
+      const totalClicks = links.reduce((a, l) => a + (parseInt(l.clicks)||0), 0);
+      const totalViews = totalClicks * 15;
+      const ctr = totalViews ? (totalClicks / totalViews * 100).toFixed(1) : '0';
+      const followers = Math.round(totalClicks * 0.1);
+
+      document.getElementById('metric-clicks').textContent = totalClicks;
+      document.getElementById('metric-views').textContent = totalViews;
+      document.getElementById('metric-ctr').textContent = ctr + "%";
+      document.getElementById('metric-followers').textContent = followers;
+    }
+    function renderAll() {
+      renderLinksEditor();
+      renderPreview();
+      renderAnalytics();
+    }
+
+    // ========== Handlers ==========
+    document.getElementById('add-link-btn').onclick = function() {
+      links.push({
+        title: "",
+        url: "",
+        isActive: true,
+        clicks: 0,
+      });
+      renderAll();
+    };
+
+    // Navigation
+    document.getElementById('nav-links').onclick = function() {
+      this.classList.add('active');
+      document.getElementById('nav-analytics').classList.remove('active');
+      document.getElementById('editor-card').style.display = "flex";
+      document.getElementById('analytics-card').style.display = "none";
+    };
+    document.getElementById('nav-analytics').onclick = function() {
+      this.classList.add('active');
+      document.getElementById('nav-links').classList.remove('active');
+      document.getElementById('editor-card').style.display = "none";
+      document.getElementById('analytics-card').style.display = "flex";
+    };
+
+    // Init
+    renderAll();
+
+    // Clean up dnd edge-case
+    document.addEventListener('mouseup', () => { dragIdx = null; dragOverIdx = null; });
+
+  </script>
 </body>
 </html>
