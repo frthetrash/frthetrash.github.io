@@ -1,180 +1,266 @@
-// dashboard-editor.js
+// /js/dashboard-editor.js
 
-// --- 1. CORE DATA STORE ---
-let linkData = [
-    { id: 1, title: 'My Portfolio', url: 'https://myportfolio.com', clicks: 10, editable: false },
-    { id: 2, title: 'Latest Project Demo', url: 'https://demo.project.io', clicks: 25, editable: false },
-    { id: 3, title: 'Connect on X/Twitter', url: 'https://twitter.com/myhandle', clicks: 5, editable: false }
-];
+let currentUserUid = null;
+window.userProfile = {}; // Global store for profile data
+let userLinks = [];
 
-let totalViews = 150; // Placeholder for total page views
-let nextLinkId = linkData.length + 1;
+// CRITICAL: Set your actual public profile URL base
+const PUBLIC_BASE_URL = "https://garbage.qzz.io/linkinbio/profile.html"; 
 
 
-// --- 2. INITIALIZATION AND UI CONTROL ---
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial rendering on load
-    renderLinkManagement();
-    updateLivePreview();
-    updateAnalytics();
-
-    // Event listener for Appearance: Background Color
-    const colorInput = document.getElementById('preview-bg-color');
-    if (colorInput) {
-        colorInput.addEventListener('input', (e) => {
-            const previewPane = document.getElementById('preview-pane');
-            if (previewPane) {
-                previewPane.style.backgroundColor = e.target.value;
-            }
+// --- 1. DATA LOADING AND INITIALIZATION ---
+async function fetchUserData(uid) {
+    currentUserUid = uid;
+    
+    let profileDoc = await db.collection('users').doc(uid).get();
+    
+    // Self-healing logic for missing profile: initializes with a default username
+    if (!profileDoc.exists) {
+        console.warn("Profile document missing. Creating default profile.");
+        await db.collection('users').doc(uid).set({
+            email: auth.currentUser.email,
+            displayName: auth.currentUser.email.split('@')[0] || 'My LinkShare Profile', 
+            username: `user_${uid.substring(0, 8)}`, // Initial unique ID
+            bio: "Check out my links!",
+            profileImageUrl: "https://raw.githubusercontent.com/frthetrash/frthetrash.github.io/refs/heads/main/png.png",
+            templateId: 'dark-teal',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }
 
-    // Default to showing the Links section
-    showSection('links');
-});
+        profileDoc = await db.collection('users').doc(uid).get(); 
+    } 
+    window.userProfile = profileDoc.data();
+
+    // Fetch Links Data 
+    const linksSnapshot = await db.collection('users').doc(uid).collection('links').orderBy('order', 'asc').get();
+    userLinks = linksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    updateUIFromProfile();
+    renderLinksList();
+}
 
 /**
- * Handles Sidebar Navigation to show the correct content section.
- * @param {string} sectionId - The ID of the section to show ('links', 'dashboard', 'appearance', 'settings').
+ * Updates all static UI elements based on the fetched profile data.
  */
-window.showSection = (sectionId) => {
-    document.querySelectorAll('.content-section').forEach(section => {
-        section.classList.add('hidden');
-    });
-    const target = document.getElementById(sectionId + '-section');
-    if (target) {
-        target.classList.remove('hidden');
+function updateUIFromProfile() {
+    
+    // Set Public Link Display in the Sidebar
+    const publicLinkEl = document.getElementById('public-link-display');
+    const username = window.userProfile.username || 'loading...';
+    const profileUrl = `${PUBLIC_BASE_URL}?username=${username}`;
+    
+    if (publicLinkEl) {
+        publicLinkEl.textContent = `${username}`; // Only show the username part
+        publicLinkEl.href = profileUrl;
+    }
+
+    // Populate Editor Inputs
+    const elements = {
+        'username-input': username,
+        'display-name-input': window.userProfile.displayName || '',
+        'bio-input': window.userProfile.bio || '',
+        'profile-image-input': window.userProfile.profileImageUrl || '',
+        'template-select': window.userProfile.templateId || 'dark-teal'
+    };
+    
+    for (const [id, value] of Object.entries(elements)) {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
     }
 }
 
 
-// --- 3. LINK DATA MANAGEMENT (CRUD) ---
+// --- 2. CORE ACTIONS: SAVE, PREVIEW, AND USERNAME LOGIC ---
 
 /**
- * Adds a new link to the linkData array.
+ * Handles all changes from the dashboard and performs save/preview actions.
+ * @param {string} action - 'save' or 'preview'
  */
-window.addLink = () => {
-    const titleInput = document.getElementById('new-link-title');
-    const urlInput = document.getElementById('new-link-url');
+window.saveAllChanges = async (action) => {
+    // Collect all inputs
+    const newUsername = document.getElementById('username-input').value.toLowerCase().trim();
+    const displayName = document.getElementById('display-name-input').value.trim();
+    const bio = document.getElementById('bio-input').value.trim().substring(0, 100);
+    const imageUrl = document.getElementById('profile-image-input').value.trim();
+    const templateId = document.getElementById('template-select').value;
+    const errorEl = document.getElementById('username-error-message');
     
-    const title = titleInput.value.trim();
-    const url = urlInput.value.trim();
-
-    if (!title || !url) {
-        alert("Please enter both a title and a URL.");
+    const oldUsername = window.userProfile.username;
+    errorEl.textContent = '';
+    
+    // --- 2.1 VALIDATION ---
+    if (newUsername.length < 3 || displayName.length < 3) {
+        errorEl.textContent = 'Username and Display Name must be at least 3 characters.';
+        return;
+    }
+    if (!/^[a-z0-9_-]+$/.test(newUsername)) {
+        errorEl.textContent = 'Username can only contain lowercase letters, numbers, hyphen (-), and underscore (_).';
         return;
     }
 
-    const newLink = {
-        id: nextLinkId++,
-        title: title,
-        url: url,
-        clicks: 0,
-        editable: false
-    };
+    let updates = { displayName, bio, profileImageUrl: imageUrl, templateId };
+    let usernameChanged = false;
 
-    linkData.push(newLink);
+    // --- 2.2 USERNAME CHANGE LOGIC WITH WARNING ---
+    if (newUsername !== oldUsername) {
+        usernameChanged = true;
 
-    // Clear inputs and refresh UI
-    titleInput.value = '';
-    urlInput.value = '';
-    renderLinkManagement();
-    updateLivePreview();
-    updateAnalytics();
-};
+        const confirmChange = confirm(
+            `⚠️ WARNING: You are changing your public link ID.\n\n` + 
+            `Your old link (linkshare.com/${oldUsername}) will STOP working.\n\n` + 
+            `Do you want to proceed with the new link ID: ${newUsername}?`
+        );
+        
+        if (!confirmChange) {
+            document.getElementById('username-input').value = oldUsername; // Revert input field
+            return;
+        }
 
-/**
- * Deletes a link from the linkData array by its ID.
- * @param {number} linkId - The ID of the link to delete.
- */
-window.deleteLink = (linkId) => {
-    linkData = linkData.filter(link => link.id !== linkId);
-    renderLinkManagement();
-    updateLivePreview();
-    updateAnalytics();
-};
+        // Check uniqueness for the NEW username
+        try {
+            const userQuery = await db.collection('users').where('username', '==', newUsername).limit(1).get();
+            if (!userQuery.empty && userQuery.docs[0].id !== currentUserUid) {
+                errorEl.textContent = 'That username is already taken. Try another.';
+                return;
+            }
+        } catch(e) {
+            console.error("Username Check Failed:", e);
+            errorEl.textContent = 'Could not verify username availability.';
+            return;
+        }
 
-/**
- * Updates a link's properties based on changes in the input fields.
- * This is bound to input changes in the management area.
- * @param {number} linkId - The ID of the link to update.
- * @param {string} field - The field to update ('title' or 'url').
- * @param {string} value - The new value.
- */
-window.updateLink = (linkId, field, value) => {
-    const linkIndex = linkData.findIndex(link => link.id === linkId);
-    if (linkIndex > -1) {
-        linkData[linkIndex][field] = value;
-        updateLivePreview(); // Synchronize the preview immediately
+        updates.username = newUsername;
     }
-};
+
+    // --- 2.3 EXECUTION ---
+    try {
+        await db.collection('users').doc(currentUserUid).set(updates, { merge: true });
+
+        // Update local state and UI
+        window.userProfile = { ...window.userProfile, ...updates };
+        updateUIFromProfile();
+
+        // Check if any links need saving (though link CRUD handles itself, good practice)
+        // If links were modified but not explicitly saved, they remain in the list
+        // and are available for the profile.
+
+        alert(`Profile details and links saved successfully!${usernameChanged ? ' (Link ID updated)' : ''}`);
+
+        // --- 2.4 LIVE PREVIEW ACTION ---
+        if (action === 'preview') {
+            const profileUrl = `${PUBLIC_BASE_URL}?username=${window.userProfile.username}`;
+            window.open(profileUrl, '_blank');
+        }
+
+    } catch (e) {
+        console.error("Error saving all changes:", e);
+        alert("Failed to save all changes. Check console.");
+    }
+}
 
 
-// --- 4. DYNAMIC DOM UPDATES (Link Management Area) ---
+// --- 3. LINKS MANAGEMENT (CRUD) ---
 
 /**
- * Renders the editable link items in the central Link Management area.
+ * Adds a new link to Firestore and the local array.
  */
-function renderLinkManagement() {
-    const container = document.getElementById('link-management-area');
-    if (!container) return;
-    container.innerHTML = '';
+window.addLink = async () => {
+    const titleInput = document.getElementById('new-link-title');
+    const urlInput = document.getElementById('new-link-url');
+    
+    if (!titleInput || !urlInput) return alert("Error: Link input fields not found.");
 
-    linkData.forEach(link => {
-        const linkItem = document.createElement('div');
-        linkItem.className = 'p-4 border border-gray-200 rounded-lg bg-gray-50/70 shadow-sm';
-        linkItem.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs text-gray-500">Clicks: ${link.clicks}</span>
-                <button onclick="deleteLink(${link.id})" class="text-red-500 hover:text-red-700 text-sm">Delete</button>
+    const title = titleInput.value.trim();
+    let url = urlInput.value.trim();
+
+    if (!title || title.length < 2 || url.length < 5) return alert("Please provide a valid title and URL.");
+    if (!url.startsWith('http')) url = 'https://' + url; 
+
+    try {
+        // Find the next highest order value
+        const maxOrder = userLinks.reduce((max, link) => (link.order > max ? link.order : max), -1);
+        const newOrder = maxOrder + 1;
+        
+        const newLinkRef = await db.collection('users').doc(currentUserUid).collection('links').add({
+            title: title,
+            url: url,
+            order: newOrder,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        userLinks.push({ id: newLinkRef.id, title, url, order: newOrder });
+
+        titleInput.value = '';
+        urlInput.value = '';
+        renderLinksList();
+        alert('Link added! Click "Save & Live Preview" to publish.');
+
+    } catch (e) {
+        console.error("Error adding link:", e);
+        alert("Failed to add link.");
+    }
+}
+
+/**
+ * Deletes a link from Firestore and the local array.
+ */
+window.deleteLink = async (linkId) => {
+    if (!confirm("Are you sure you want to delete this link?")) return;
+
+    try {
+        await db.collection('users').doc(currentUserUid).collection('links').doc(linkId).delete();
+
+        userLinks = userLinks.filter(link => link.id !== linkId);
+        renderLinksList();
+
+    } catch (e) {
+        console.error("Error deleting link:", e);
+        alert("Failed to delete link.");
+    }
+}
+
+/**
+ * Renders the list of links in the links-list div.
+ */
+function renderLinksList() {
+    const listEl = document.getElementById('links-list');
+    if (!listEl) return;
+    
+    listEl.innerHTML = ''; 
+
+    if (userLinks.length === 0) {
+        listEl.innerHTML = '<p class="text-gray-500 text-center p-8">No links yet. Add one above!</p>';
+        return;
+    }
+
+    userLinks.forEach(link => {
+        const div = document.createElement('div');
+        // Styling matches the Black & Teal theme
+        div.className = 'flex items-center justify-between p-4 rounded-lg bg-[#374151] border border-[#4B5563] shadow-md';
+        div.innerHTML = `
+            <div class="flex-grow min-w-0 pr-4">
+                <p class="font-semibold truncate text-white">${link.title}</p>
+                <a href="${link.url}" target="_blank" class="text-teal-accent text-sm truncate hover:underline">${link.url}</a>
             </div>
-            <input type="text" value="${link.title}" 
-                   oninput="updateLink(${link.id}, 'title', this.value)"
-                   placeholder="Link Title" 
-                   class="w-full p-2 border border-gray-300 rounded-lg mb-2 focus:ring-blue-500 focus:border-blue-500">
-            <input type="url" value="${link.url}" 
-                   oninput="updateLink(${link.id}, 'url', this.value)"
-                   placeholder="Link URL" 
-                   class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+            <div class="flex space-x-2">
+                <button onclick="deleteLink('${link.id}')" class="text-red-400 hover:text-red-500 transition p-1" title="Delete Link">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 10-2 0v6a1 1 0 102 0V8z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
         `;
-        container.appendChild(linkItem);
+        listEl.appendChild(div);
     });
 }
 
 
-// --- 5. LIVE PREVIEW SYNCHRONIZATION ---
+// --- 4. AUTH STATE INTEGRATION ---
+window.fetchUserData = fetchUserData; 
 
-/**
- * Renders the live preview in the mock phone screen.
- */
-function updateLivePreview() {
-    const container = document.getElementById('preview-links-container');
-    if (!container) return;
-    container.innerHTML = '';
-
-    linkData.forEach(link => {
-        const linkButton = document.createElement('a');
-        linkButton.href = link.url;
-        linkButton.target = '_blank';
-        linkButton.className = 'block w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-md text-sm transition duration-200 truncate px-4';
-        linkButton.textContent = link.title;
-        container.appendChild(linkButton);
-    });
-}
-
-
-// --- 6. ANALYTICS PLACEHOLDER ---
-
-/**
- * Updates the placeholder analytics displays.
- */
-function updateAnalytics() {
-    const totalLinks = linkData.length;
-    const totalClicks = linkData.reduce((sum, link) => sum + link.clicks, 0);
-
-    // Update DOM elements
-    document.getElementById('total-links-display').textContent = totalLinks;
-    document.getElementById('total-views-display').textContent = totalViews;
-    document.getElementById('total-clicks-display').textContent = totalClicks;
-}
+auth.onAuthStateChanged(user => {
+    if (user) {
+        fetchUserData(user.uid);
+    } 
+    // Logged out state is handled by auth.js redirect
+});
