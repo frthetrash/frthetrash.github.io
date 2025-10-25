@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Set a 3-second delay before redirection
             setTimeout(() => {
                 // 4. Redirect the user to the target URL
-                window.location.href = '/linkinbio';
+                window.location.href = '/zincmusic';
             }, 3000); // 3000 milliseconds = 3 seconds
         });
     }
